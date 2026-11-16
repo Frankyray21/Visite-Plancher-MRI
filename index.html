@@ -12431,15 +12431,18 @@
 </script>
 <script>
   // ---- pwa_client.js (2026-11-16, session principale). Utilisateur : « ajoute cette app au portail applications soit un autre depo git »
-  // puis « et ajoute bouton pour installé app pwa et assurer le hors ligne ».
+  // puis « et ajoute bouton pour installé app pwa et assurer le hors ligne », puis, sur le site publie : « je ne vois pas telechargement horsligne ».
   // Ce code n'existe QUE dans le site autonome (depot git de la visite) : l'artifact prive de Claude ne peut ni s'installer ni tourner hors ligne.
   //  1. bouton « Installer » dans la rangee de pastilles du coin (meme habillage que les autres) : sur Android, Chrome, Edge il ouvre l'invite
   //     d'installation du navigateur ; sur iPhone et iPad il montre le geste (Partager, puis « Sur l'ecran d'accueil ») ; cache une fois installee.
-  //  2. hors ligne : le service worker (sw.js) met tout le site en cache ; l'etat est ecrit a cote de la version (« hors ligne 42 % », puis
-  //     « hors ligne ✓ » seulement quand le service worker a VERIFIE que chaque fichier est dans le cache).
+  //  2. hors ligne : le service worker (sw.js) met tout le site en cache. (2e version) Le telechargement se VOIT : une plaque sous le titre,
+  //     « Telechargement hors ligne », avec le pourcentage, les Mo et une barre ; a la fin « Prete hors ligne ✓ » pendant PWA.T_PRET s, puis la
+  //     plaque se range et « hors ligne ✓ » reste ecrit a cote de la version. Arret en route : « Hors ligne : pas encore » + « Reessayer ».
+  //     Navigateur qui ne peut pas (navigation privee, navigateur integre a une autre application) : la plaque le dit au lieu de ne rien montrer.
+  //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "100-d787d755", etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0 }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "100-63148e16", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
@@ -12447,7 +12450,16 @@
     PWA.autonome = autonome; PWA.ios = ios;
     var st = document.createElement("style"); st.textContent = [
       "#pwa-etat{white-space:nowrap}",
-      "#pwa-maj{padding:6px}#pwa-maj button{display:block;width:100%;min-height:44px;padding:6px 16px;border-radius:999px;border:0;background:rgba(244,246,247,.96);color:#14171a;font:700 14px/1.1 var(--f-titre);letter-spacing:.05em;text-transform:uppercase;text-shadow:none}#pwa-maj button:hover{background:#fff}",
+      "#pwa-maj{padding:6px}#pwa-maj button,#pwa-hl button.agit{display:block;width:100%;min-height:44px;padding:6px 16px;border-radius:999px;border:0;background:rgba(244,246,247,.96);color:#14171a;font:700 14px/1.1 var(--f-titre);letter-spacing:.05em;text-transform:uppercase;text-shadow:none}#pwa-maj button:hover,#pwa-hl button.agit:hover{background:#fff}",
+      "#pwa-hl{position:relative;box-sizing:border-box;margin:0;padding:10px 14px 12px;width:min(300px,100%)}",
+      "#pwa-hl b{display:block;padding-right:2px;font:700 16px/1.15 var(--f-titre);letter-spacing:.05em;text-transform:uppercase;color:#fff}",
+      "#pwa-hl.x{padding-right:46px}",
+      "#pwa-hl .d{display:block;margin-top:3px;font:500 14px/1.35 var(--f-texte);color:#fff}",
+      "#pwa-hl .barre{display:block;height:8px;margin-top:9px;border-radius:4px;background:rgba(255,255,255,.3);box-shadow:0 0 0 1px rgba(0,0,0,.55);overflow:hidden}",
+      "#pwa-hl .barre i{display:block;height:100%;width:0;background:var(--signal);transition:width .3s linear}",
+      "#pwa-hl button.agit{margin-top:10px}",
+      "#pwa-hl button.ferme{position:absolute;top:2px;right:2px;width:44px;height:44px;min-height:0;padding:0;border:0;border-radius:50%;background:none;box-shadow:none;color:#fff;font:700 22px/1 var(--f-titre)}",
+      "@media (prefers-reduced-motion:reduce){#pwa-hl .barre i{transition:none}}",
       "#pwa-aide{box-sizing:border-box;width:min(460px,calc(100vw - 24px));max-width:calc(100vw - 16px);margin:auto;padding:0;overflow:hidden;color:var(--texte);background:color-mix(in srgb,var(--plaque) 97%,transparent);border:1px solid var(--plaque-bord);border-radius:6px;box-shadow:0 14px 44px rgba(0,0,0,.55);font:400 15px/1.45 var(--f-texte)}",
       "#pwa-aide:not([open]){display:none}#pwa-aide::backdrop{background:rgba(6,8,10,.62)}",
       "#pwa-aide .tete{display:flex;align-items:flex-start;gap:12px;padding:14px 14px 12px 18px;border-bottom:1px solid var(--plaque-bord)}#pwa-aide h2{flex:1;margin:0;font:700 22px/1.05 var(--f-titre);letter-spacing:.02em;text-transform:uppercase}",
@@ -12455,6 +12467,7 @@
       "#pwa-aide svg{width:18px;height:18px;vertical-align:-3px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}"].join("\n");
     document.head.appendChild(st);
     var hd = document.getElementById("haut-droit"), hg = document.getElementById("haut-gauche");
+    function retaille() { try { window.dispatchEvent(new Event("resize")); } catch (e) {} }
     // 1. bouton « Installer »
     var btn = document.createElement("button"); btn.type = "button"; btn.id = "btn-installer"; btn.hidden = true; btn.textContent = "Installer"; if (hd) hd.appendChild(btn);
     var aide = document.createElement("dialog"); aide.id = "pwa-aide"; aide.setAttribute("aria-labelledby", "pwa-aide-titre");
@@ -12463,7 +12476,6 @@
       '<p class="doux">La visite s\'ouvre ensuite comme une application. Elle fonctionne sans réseau dès que « hors ligne ✓ » est écrit à côté de la version.</p></div>';
     document.body.appendChild(aide);
     aide.addEventListener("click", function (e) { var t = e.target; if (t === aide || (t.getAttribute && t.getAttribute("data-a") === "ferme")) try { aide.close(); } catch (er) {} });
-    function retaille() { try { window.dispatchEvent(new Event("resize")); } catch (e) {} }
     function montreBouton() { var oui = !autonome && !PWA.installee && (!!PWA.invite || ios); if (btn.hidden === !oui) return; btn.hidden = !oui; retaille(); }
     window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); PWA.invite = e; montreBouton(); });
     window.addEventListener("appinstalled", function () { PWA.installee = true; PWA.invite = null; montreBouton(); });
@@ -12473,41 +12485,66 @@
         return; }
       if (ios) { try { if (aide.showModal) aide.showModal(); else aide.setAttribute("open", ""); } catch (e) {} } });
     montreBouton();
-    // 2. etat du hors-ligne, a cote de la version de la page
+    // 2. hors ligne : le mot a cote de la version, et la plaque qui montre le telechargement
     var ref = hg && hg.querySelector(".plaque .ref"), mot = null;
-    if (ref) { mot = document.createElement("span"); mot.id = "pwa-etat"; mot.className = "version-page"; mot.style.opacity = ".75"; mot.setAttribute("aria-live", "polite"); ref.appendChild(document.createTextNode(" ")); ref.appendChild(mot); }
+    if (ref) { mot = document.createElement("span"); mot.id = "pwa-etat"; mot.className = "version-page"; mot.setAttribute("aria-live", "polite"); ref.appendChild(document.createTextNode(" ")); ref.appendChild(mot); }
+    var hl = document.createElement("div"); hl.className = "plaque"; hl.id = "pwa-hl"; hl.hidden = true; hl.setAttribute("role", "status");
+    hl.innerHTML = '<b></b><span class="d"></span><span class="barre"><i></i></span><button type="button" class="agit" data-a="reessaie" hidden>Réessayer</button><button type="button" class="ferme" data-a="ferme" aria-label="Fermer" title="Fermer" hidden>×</button>';
+    if (hg) hg.appendChild(hl);
+    var hlT = hl.querySelector("b"), hlD = hl.querySelector(".d"), hlB = hl.querySelector(".barre"), hlI = hl.querySelector(".barre i"), hlR = hl.querySelector('[data-a="reessaie"]'), hlX = hl.querySelector('[data-a="ferme"]'), tRange = 0, plaqueVue = "";
+    function mo(o) { return Math.max(0, Math.round(o / 1048576)); }
     function ecrit(t) { if (!mot || mot.textContent === t) return; mot.textContent = t; retaille(); }
-    function affiche() { var e = PWA.etat;
-      if (e === "pret") ecrit("· hors ligne ✓");
-      else if (e === "charge") ecrit("· hors ligne " + (PWA.total ? Math.min(99, Math.floor(100 * PWA.fait / PWA.total)) : 0) + " %");
-      else if (e === "echec") ecrit("· hors ligne : pas encore");
-      else ecrit(""); }
+    // genre : "charge" | "pret" | "echec" | "sans" | "" (plaque rangee)
+    function plaque(genre, titre, detail, pct) { var avant = hl.hidden ? "" : plaqueVue; plaqueVue = genre; clearTimeout(tRange);
+      if (!genre) { if (!hl.hidden) { hl.hidden = true; retaille(); } return; }
+      if (hlT.textContent !== titre) hlT.textContent = titre; if (hlD.textContent !== detail) hlD.textContent = detail;
+      hlB.hidden = pct === null; if (pct !== null) hlI.style.width = pct + "%";
+      hlR.hidden = genre !== "echec"; hlX.hidden = genre === "charge"; hl.classList.toggle("x", genre !== "charge");
+      if (hl.hidden || avant !== genre) { hl.hidden = false; retaille(); }
+      if (genre === "pret") tRange = setTimeout(function () { if (plaqueVue === "pret") plaque(""); }, PWA.T_PRET * 1000); }
+    function affiche() { var e = PWA.etat, pct = PWA.total ? Math.min(99, Math.floor(100 * PWA.fait / PWA.total)) : 0;
+      if (e === "pret") { ecrit("· hors ligne ✓");
+        // la plaque « Prete » ne se montre qu'a la fin d'un telechargement vu sur cette page ; aux ouvertures suivantes le mot suffit
+        if (PWA.vuCharge) { PWA.vuCharge = false; plaque("pret", "Prête hors ligne ✓", "La visite s'ouvre maintenant sans réseau (" + mo(PWA.total) + " Mo sur cet appareil).", 100); }
+        else if (plaqueVue !== "pret") plaque(""); }
+      else if (e === "charge") { PWA.vuCharge = true; ecrit("· hors ligne " + pct + " %");
+        plaque("charge", "Téléchargement hors ligne", PWA.total ? pct + " % · " + mo(PWA.fait) + " sur " + mo(PWA.total) + " Mo" : "Préparation…", pct); }
+      else if (e === "echec") { ecrit("· hors ligne : pas encore");
+        plaque("echec", "Hors ligne : pas encore", PWA.total && PWA.fait ? "Le téléchargement s'est arrêté à " + pct + " %. Il reprendra où il s'est arrêté." : "Le téléchargement n'a pas pu se faire. Vérifie le réseau.", PWA.total && PWA.fait ? pct : null); }
+      else if (e === "sans") { ecrit("");
+        plaque("sans", "Hors ligne impossible ici", "Ce navigateur ne garde pas la visite sur l'appareil (navigation privée, ou navigateur intégré à une autre application). Ouvre-la dans Chrome, Edge ou Safari.", null); }
+      else { ecrit(""); plaque(""); } }
     // 3. nouvelle version prete
     var maj = document.createElement("p"); maj.className = "plaque"; maj.id = "pwa-maj"; maj.hidden = true; maj.innerHTML = '<button type="button">Nouvelle version : recharger</button>'; if (hg) hg.appendChild(maj);
     maj.addEventListener("click", function () { var r = PWA.reg; if (r && r.waiting) { PWA.recharge = true; try { r.waiting.postMessage({ pwa: "active" }); } catch (e) {} setTimeout(function () { location.reload(); }, 4000); } else location.reload(); });
     function attente(reg) { var oui = !!(reg && reg.waiting && navigator.serviceWorker.controller); if (maj.hidden === !oui) return; maj.hidden = !oui; if (oui) PWA.avis++; retaille(); }
 
-    if (!("serviceWorker" in navigator) || !window.caches || !/^https?:$/.test(location.protocol)) { PWA.etat = "sans"; return; }
     var SW = navigator.serviceWorker;
+    hl.addEventListener("click", function (e) { var a = e.target && e.target.getAttribute && e.target.getAttribute("data-a");
+      if (a === "ferme") plaque(""); else if (a === "reessaie") { PWA.essais = (PWA.essais || 0) + 1; PWA.etat = "charge"; affiche(); enregistre(true); } });
+    if (!SW || !window.caches || !/^https?:$/.test(location.protocol)) { PWA.etat = "sans"; setTimeout(affiche, 2500); return; }
     function demande() { var c = SW.controller || (PWA.reg && PWA.reg.active); if (c) try { c.postMessage({ pwa: "etat?" }); } catch (e) {} }
     SW.addEventListener("message", function (ev) { var d = ev.data || {}; if (!d.pwa) return;
-      if (d.pwa === "progres") { if (d.version !== PWA.VERSION && SW.controller) return; PWA.etat = "charge"; PWA.fait = d.fait; PWA.total = d.total; affiche(); }
+      if (d.pwa === "progres") { if ((d.version !== PWA.VERSION && SW.controller) || (d.essai && d.essai === PWA.essaiRate)) return; PWA.etat = "charge"; PWA.fait = d.fait; PWA.total = d.total; affiche(); }
       else if (d.pwa === "pret") { if (d.version === PWA.VERSION || !SW.controller) setTimeout(demande, 300); attente(PWA.reg); }
-      else if (d.pwa === "echec") { PWA.erreur = d.raison; if (PWA.etat !== "pret") { PWA.etat = "echec"; affiche(); } }
+      else if (d.pwa === "echec") { if (d.version !== PWA.VERSION && SW.controller) return; PWA.erreur = d.raison; PWA.essaiRate = d.essai; if (PWA.etat !== "pret") { PWA.etat = "echec"; affiche(); } }
       else if (d.pwa === "etat") { PWA.verif = d; if (d.complet) { PWA.etat = "pret"; PWA.total = d.total; PWA.fait = d.total; affiche();
           try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().then(function (p) { PWA.persistant = p; }, function () {}); } catch (e) {} }
         else if (PWA.etat !== "charge") { PWA.etat = "echec"; PWA.fait = d.fait; PWA.total = d.total; affiche(); } } });
     SW.addEventListener("controllerchange", function () { if (PWA.recharge) location.reload(); else demande(); });
     function suit(reg) { var w = reg.installing; attente(reg); if (!w) return; if (!SW.controller) { PWA.etat = "charge"; affiche(); }
-      w.addEventListener("statechange", function () { attente(reg); if (w.state === "activated" || w.state === "installed") demande(); if (w.state === "redundant" && PWA.etat !== "pret") { PWA.etat = "echec"; affiche(); } }); }
-    function enregistre() { if (PWA.reg) return;
-      SW.register("sw.js", { scope: "./" }).then(function (reg) { PWA.reg = reg; suit(reg); reg.addEventListener("updatefound", function () { suit(reg); }); demande();
+      w.addEventListener("statechange", function () { attente(reg); if (w.state === "activated" || w.state === "installed") demande(); if (w.state === "redundant" && PWA.etat !== "pret" && !SW.controller) { PWA.etat = "echec"; affiche(); } }); }
+    var ecoute = false;
+    function enregistre(encore) { if (PWA.reg && !encore) return;
+      SW.register("sw.js", { scope: "./" }).then(function (reg) { var nouveau = reg !== PWA.reg; PWA.reg = reg; suit(reg); if (nouveau) reg.addEventListener("updatefound", function () { suit(reg); }); demande();
+        if (encore && !reg.installing && !reg.waiting) try { reg.update(); } catch (e) {}
         // une tentative ratee (reseau coupe pendant le telechargement) est reprise quand le reseau revient
-        window.addEventListener("online", function () { if (PWA.etat !== "pret") try { reg.update(); } catch (e) {} });
+        if (!ecoute) { ecoute = true; window.addEventListener("online", function () { if (PWA.etat !== "pret") enregistre(true); }); }
       }, function (e) { PWA.erreur = String(e && e.message || e); PWA.etat = "echec"; affiche(); }); }
+    PWA.reessaie = function () { enregistre(true); };
     // on laisse d'abord la page charger sa scene : l'enregistrement part quand l'ecran de chargement est parti (ou apres 40 s)
     var t0 = Date.now(), guet = setInterval(function () { var ch = document.getElementById("chargement"), parti = !ch || ch.hidden || !ch.getClientRects().length;
-      if (parti || Date.now() - t0 > 40000) { clearInterval(guet); setTimeout(enregistre, 1500); } }, 500);
+      if (parti || Date.now() - t0 > 40000) { clearInterval(guet); setTimeout(function () { enregistre(false); }, 1500); } }, 500);
     if (SW.controller) demande();
   })();
 </script>
