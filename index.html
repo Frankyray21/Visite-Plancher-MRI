@@ -167,7 +167,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 100</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 101</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -211,7 +211,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 100</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 101</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -10340,6 +10340,12 @@
   // verre reste a l'ecran, sous les boutons du coin, sans passer sur la fiche d'etape. Une ligne (ou une piece du coffre touchee) ramene a l'ecran du
   // coffre avec la piece devant la camera ; le rond × ferme le coffre ; « Voir le coffre » retourne a l'ecran. Cachee le temps d'un examen fait ailleurs
   // (mode plein ecran) et en mode Deplacer. V.QUAI = false : comme la version 99 (la liste n'est plus que sur la feuille de la porte).
+  // VERSION 101 (utilisateur : « lorsquon clique sortir sur la table je veux que lanimation force joueur suivre la piece jusqua la table a core ») :
+  // SUIVI JUSQU'A LA TABLE. « Sortir sur la table », dans l'ecran du coffre : quand la piece quitte le coffre, la camera guidee de la page quitte l'ecran
+  // du coffre et l'accompagne ; elle la regarde pendant tout le vol et arrive en meme temps qu'elle, a hauteur d'yeux, a la place ou un visiteur se
+  // tient debout devant la table (corps libre, piece en vue), le champ resserre sur la piece posee. La vue reste tenue comme toute vue guidee de la
+  // page ; a la prise en main, le visiteur est debout a cette place, devant la table. La liste reste a l'ecran (liste a quai, version 100).
+  // V.SUIVI = false : comme la version 100 (la camera reste sur le coffre).
   // V.ACTIF = false : comme avant ; V.CAMERA, V.PANNEAU coupent une partie. Sans souris : I.vueCoffre(), I.coffreVue (entre, quitte, tiroirOuvre, choisit).
   (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
     var V = { ACTIF: true, CAMERA: true, PANNEAU: true, GLISSER_REND: false,
@@ -10354,7 +10360,7 @@
       EXAMEN: true,               // (version 99) une piece choisie vient devant la camera (mode examen), l'ecran du coffre reste affiche
       BAS_LARGE: 66,              // px gardes en bas des ecrans larges pour la barre de la piece choisie (le cadrage ne saute pas quand elle parait)
       T_PORTES: 1.5,              // s : portes qui n'avancent plus alors qu'on veut le coffre ouvert -> elles passent quand meme (garde-fou)
-      QUAI: true, QUAI_MIN: 110,  // (version 100) liste a quai : coffre ouvert hors de son ecran, la liste reste affichee ; hauteur libre mini (px), sinon elle se cache
+      QUAI: true, QUAI_MIN: 110, SUIVI: true, SUIVI_DIST: 1.05, SUIVI_DIST_MAX: 1.5, SUIVI_FONDU: 0.35, SUIVI_ZOOM: 0.5, SUIVI_LISSE: 0.06, SUIVI_REMPLIT: 0.42, SUIVI_FOV: [24, 66], SUIVI_FOV_DEBOUT: 80, SUIVI_RAYON_MIN: 0.10, SUIVI_YEUX: 1.62,  // (version 100) liste a quai : coffre ouvert hors de son ecran, la liste reste affichee ; hauteur libre mini (px), sinon elle se cache
       R: 1.05,                    // rayon cadre (m), vue de haut : coffre de 1,22 x 1,48 m, portes ouvertes a 110 deg comprises
       ELEV: 0.7,                  // la camera regarde le coffre de haut (rad) : on voit les tablettes et le fond ; a hauteur d'yeux le devant cachait le contenu
       SEUIL: 14,                  // px : au-dela, un appui sur la scene est un glisser ; en deca, un toucher
@@ -10369,6 +10375,7 @@
     var st = document.createElement("style"); st.textContent = [
       // ecran du coffre : le reste de l'interface s'efface (la ligne des credits reste)
       "body.coffre88-ecran #haut-gauche,body.coffre88-ecran #haut-droit,body.coffre88-ecran #bas{visibility:hidden!important}",
+      "body.coffre88-suivi #bas{visibility:hidden!important}",   // (version 101) suivi jusqu'a la table : la fiche d'etape s'efface le temps du vol et de la vue tenue
       "body.coffre88-ecran #hud88 .viseur{display:none!important}body.coffre88-ecran:not(.coffre88-examen) #inter-aide{top:calc(96px + env(safe-area-inset-top,0px))!important}",
       // (version 99) examen dans l'ecran du coffre : le panneau de sous-piece passe au-dessus de la liste ; ecran etroit ou bas : la barre « Retour » laisse la place aux boutons de l'examen
       "body.coffre88-ecran #examen-fiche{z-index:8!important}@media (max-width:699px),(max-height:560px){body.coffre88-examen #coffre88-barre{display:none!important}}",
@@ -10543,11 +10550,80 @@
       if (act) { var L = ligne(V.sel); if (!L) return; var p;
         if (act === "montrer") montre(L);
         else if (V.EXAMEN && (act === "examiner" || act === "fiche")) examineLigne(L);
-        else if (act === "sortir" || act === "fiche") { p = L.pieces.filter(auCoffre)[0]; if (p && p.etat === "examen") { V.attend = null; V.apres = p; I.finExamen(); } else if (p) { finExamen(); K.sort(p); } }   // (version 99) devant la camera : elle retourne d'abord a sa place
+        else if (act === "sortir" || act === "fiche") { p = L.pieces.filter(auCoffre)[0]; if (p && p.etat === "examen") { V.attend = null; V.apres = p; I.finExamen(); } else if (p) { finExamen(); K.sort(p); } if (act === "sortir" && p) suitPiece(p); }   // (version 99) devant la camera : elle retourne d'abord a sa place ; (version 101) la camera la suivra jusqu'a la table
         else if (act === "examiner") { p = L.pieces.filter(function (x) { return x.etat === "table" || x.etat === "presente"; })[0]; if (p) { V.pause = true; quitteEcran(); K.presente(p); } }
         else if (act === "ranger") { p = L.pieces.filter(surTable)[0]; if (p && p.etat === "examen") { V.attend = null; p.rangeApres = true; I.finExamen(); } else if (p) K.range(p); }
         rend(); return; }
       if (b.hasAttribute("data-rep")) choisit(b.getAttribute("data-rep"), true); }
+
+    // ---- (version 101) SUIVI JUSQU'A LA TABLE : la camera guidee accompagne la piece sortie et pose le visiteur devant la table
+    //  phases : « attente » (la piece retourne a sa place apres un examen, les couvercles descendent), « vol » (la camera vole et regarde la piece),
+    //  « tenu » (piece posee, vue tenue jusqu'a ce que la page ou le joueur reprenne la camera). V.suit = null hors suivi.
+    V.suit = null; V.suivis = 0; V.suivisFaits = 0; V.suiviFin = "";
+    var mS = new THREE.Matrix4(), HAUT_S = new THREE.Vector3(0, 1, 0), vS = new THREE.Vector3(), vC = new THREE.Vector3(), qS = new THREE.Quaternion(), qD = new THREE.Quaternion(), bxS = new THREE.Box3(), spS = new THREE.Sphere();
+    function regardeS(de, vers, q) { mS.lookAt(de, vers, HAUT_S); return q.setFromRotationMatrix(mS); }
+    function suitPiece(p) { if (!V.SUIVI || !V.CAMERA || !V.ecran || !p || typeof cadre !== "function") return false; if (p.etat !== "attente" && p.etat !== "examen" && p.etat !== "vol") return false;   // refusee (accrochee dehors, coffre ferme)
+      V.suit = { p: p, phase: "attente", t0: performance.now(), parti: p.etat !== "examen" }; V.suivis++; return true; }
+    // pendant le suivi (vol et vue tenue), la fiche d'etape s'efface comme dans l'ecran du coffre : rien ne cache la piece ; elle revient a la prise en main
+    function classeSuivi(oui) { document.body.classList.toggle("coffre88-suivi", !!oui); }
+    function finSuivi(pourquoi) { if (!V.suit) return; V.suiviFin = pourquoi; V.suit = null; classeSuivi(false); if (V.passe && !V.ecran) V.passeFin = true; }   // le visiteur quitte sa place pres du coffre : les portes ne passent plus au travers de lui
+    // demi-angle le plus petit du champ maximal permis (ecran couche : vertical ; ecran debout : horizontal)
+    function demiMaxS() { var as = cam.aspect || 1, fm = (as < 0.8 ? V.SUIVI_FOV_DEBOUT : V.SUIVI_FOV[1]) * Math.PI / 360; return as >= 1 ? fm : Math.atan(Math.tan(fm) * as); }
+    function fovSuivi(S) { var D = Math.max(0.5, S.p1.distanceTo(S.T)), a = Math.atan(S.r / (V.SUIVI_REMPLIT * D)), as = cam.aspect || 1, f = 2 * (as >= 1 ? a : Math.atan(Math.tan(a) / as)) * 180 / Math.PI;
+      return Math.max(V.SUIVI_FOV[0], Math.min(as < 0.8 ? V.SUIVI_FOV_DEBOUT : V.SUIVI_FOV[1], f)); }
+    // place ou se tenir debout pour regarder la piece posee en T : corps libre, au meme niveau que le visiteur, d'ou l'on revient, piece en vue ;
+    // la plus proche de la distance voulue D, puis de l'axe de la galerie et de la camera. null : aucune (la vue de la page sert alors).
+    function poseTable(T, D) { try { if (typeof COLLISIONS === "undefined" || !COLLISIONS || !COLLISIONS.corpsLibre || !COLLISIONS.sol || !COLLISIONS.sphereLibre) return null;
+        var niv = typeof pieds !== "undefined" ? pieds : 0, best = null;
+        for (var k = 0; k < 16; k++) { var a = k * Math.PI / 8, sx = Math.sin(a), cz = Math.cos(a);
+          for (var h = 0.5; h <= 1.75; h += 0.1) { var x = T.x + sx * h, z = T.z + cz * h, s = COLLISIONS.sol(x, z, niv); if (!(s > -999) || Math.abs(s - niv) > 0.26) continue;
+            var y = s + V.SUIVI_YEUX, d = Math.hypot(h, y - T.y); if (y < T.y + 0.25 || d < D - 0.08) continue; if (!COLLISIONS.corpsLibre(x, z, s, { sansMobiles: true })) continue;
+            if (COLLISIONS.retourPossible && COLLISIONS.retourPossible(x, z, s) === false) continue;
+            var vu = true; for (var u = 0.15; u <= 0.86 && vu; u += 0.1) if (!COLLISIONS.sphereLibre(x + (T.x - x) * u, y + (T.y - y) * u, z + (T.z - z) * u, 0.05)) vu = false; if (!vu) continue;
+            var cout = Math.abs(d - D) + 0.05 * Math.abs(z) + 0.05 * Math.hypot(x - cam.position.x, z - cam.position.z);
+            if (!best || cout < best.cout) best = { p: new THREE.Vector3(x, y, z), s: s, d: d, cout: cout, lacet: a, h: h }; break; } }   // dans chaque direction, la premiere place libre a bonne distance
+        return best; } catch (e) { V.erreurSuivi = String(e && e.message || e); return null; } }
+    // l'ecran du coffre s'efface SANS rendre la camera (quitteEcran la rendrait et remettrait le visiteur a sa place d'avant)
+    function laisseEcran() { if (!V.ecran) return; finExamen(); V.apres = null; V.ecran = false; I.sansViseeCentre = false; tiroir(false); montreSel(); classes(false); V.def = null; I.etat.coffreVue = V.ouvert ? "ouvert" : "pret"; }   // V.passe reste : le corps du visiteur est encore pres du coffre
+    function departSuivi(S) { var p = S.p, c = p.vol && p.vol.c, pts = c && c.points; if (!pts || !pts.length) return false;
+      var T = pts[pts.length - 1].clone(); p.o.updateMatrixWorld(true); bxS.setFromObject(p.o).getBoundingSphere(spS); S.T = T; S.r = Math.max(V.SUIVI_RAYON_MIN, spS.radius || 0);
+      var D = Math.max(V.SUIVI_DIST, Math.min(V.SUIVI_DIST_MAX, S.r / (V.SUIVI_REMPLIT * Math.tan(demiMaxS())))), pose = poseTable(T, D), dir;
+      if (pose) dir = pose.p.clone().sub(T).normalize(); else { var cz0 = T.z > 0 ? -1 : 1; dir = new THREE.Vector3(0, Math.sin(0.43), cz0 * Math.cos(0.43)); }
+      laisseEcran(); classeSuivi(true); if (V.QUAI && V.ouvert && !V.quai && V.PANNEAU && K && V.STYLE === "verre") metQuai(true);   // la liste a quai est en place avant que la page mesure la partie libre de l'ecran
+      var def = { tgt: T.toArray(), dir: dir.toArray(), r: Math.max(0.3, S.r), suiviTable: true };
+      try { cadre(def); } catch (e) { V.erreurSuivi = String(e && e.message || e); return false; }
+      var g = typeof guide !== "undefined" ? guide : null, X = g && g.K; if (!g || !X || g.def !== def) return false;
+      if (pose) g.p1.copy(pose.p);   // notre place debout devant la table ; sinon celle que la page a choisie
+      S.p0 = g.p0.clone(); S.p1 = g.p1.clone(); S.def = def; S.q0 = g.q0.clone(); S.tVol = performance.now(); S.tPrec = S.tVol; S.d = Math.max(1.2, p.vol.d);
+      // la camera ACCOMPAGNE la piece : elle garde par rapport a elle un ecart qui passe, pendant le vol, de celui de l'ecran du coffre (off0) a celui de la
+      // place devant la table (off1). Elle fait donc le meme chemin que la piece, a cote d'elle, sans jamais passer au-dessus.
+      var dep = p.o.getWorldPosition(new THREE.Vector3()); S.off0 = S.p0.clone().sub(dep); S.off1 = S.p1.clone().sub(T); S.vise = dep.clone(); S.cam = S.p0.clone();
+      S.fov = fovSuivi(S); X.fov1 = S.fov; X.r = Math.max(0.15, S.r); X.fondu = false; X.vis = 0; X.T = S.d; X.s = 0; g.duree = X.T * 1000;
+      g.p1.copy(S.p0); g.q1.copy(g.q0); X.chemin = [g.p0.clone(), g.p1.clone()]; X.cumul = [0, 0];
+      S.pose = pose ? { x: +pose.p.x.toFixed(2), z: +pose.p.z.toFixed(2), d: +pose.d.toFixed(2) } : null; S.phase = "vol"; return true; }
+    function libreS(v) { try { return typeof COLLISIONS === "undefined" || !COLLISIONS || !COLLISIONS.sphereLibre || !!COLLISIONS.sphereLibre(v.x, v.y, v.z, 0.2); } catch (e) { return true; } }
+    function majSuivi() { var S = V.suit; if (!S) return; var p = S.p, now = performance.now();
+      if (S.phase === "attente") { if (p.etat === "attente" || p.etat === "vol") S.parti = true;
+        if (p.etat === "vol" && p.vol) { if (!departSuivi(S)) finSuivi("depart"); }
+        else if (!V.ecran || now - S.t0 > 12000 || (S.parti && p.etat !== "attente" && p.etat !== "vol")) finSuivi("annule");   // ecran quitte, plus de place sur la table, piece qui ne part pas
+        return; }
+      var g = typeof guide !== "undefined" ? guide : null, X = g && g.K; if (!g || !X || g.def !== S.def) { finSuivi(S.phase === "tenu" ? "rendu" : "repris"); return; }   // la page ou le joueur a repris la camera
+      // la page revoit parfois sa place et son champ (carte des collisions refaite quand la piece se pose, ecran qui change) : on tient les notres
+      S.fov = fovSuivi(S); X.fov1 = S.fov; X.fondu = false; X.vis = 0; X.T = S.d;
+      var dtS = Math.max(0, Math.min(0.05, (now - S.tPrec) / 1000)); S.tPrec = now;
+      if (S.phase === "vol") { var enVol = p.etat === "vol" && !!p.vol, tau = 1;
+        if (enVol) { tau = Math.min(1, (p.vol.t + dtS) / p.vol.d); p.vol.c.getPointAt(I.adouci(tau), vS); } else vS.copy(S.T);   // la ou sera la piece a la prochaine image (la camera est posee une image plus tard)
+        var sO = tau * tau * (3 - 2 * tau); vC.copy(S.off0).lerp(S.off1, sO).add(vS);
+        // place prise par un objet : un peu plus haut, sinon a mi-chemin de la place d'avant, sinon on reste
+        if (!libreS(vC)) { var yC = vC.y, okC = false; for (var kC = 1; kC <= 2 && !okC; kC++) { vC.y = yC + 0.25 * kC; okC = libreS(vC); } if (!okC) { vC.y = yC; vC.lerp(S.cam, 0.5); okC = libreS(vC); } if (!okC) vC.copy(S.cam); S.genes = (S.genes || 0) + 1; }
+        S.cam.copy(vC); g.p0.copy(S.cam); g.p1.copy(S.cam);
+        // le point regarde suit la piece de tres pres (V.SUIVI_LISSE s) ; au depart le regard glisse de la vue du coffre a la piece en V.SUIVI_FONDU s
+        S.vise.lerp(vS, 1 - Math.exp(-dtS / V.SUIVI_LISSE)); regardeS(S.cam, S.vise, qS); var w = Math.min(1, (now - S.tVol) / (V.SUIVI_FONDU * 1000)); w = w * w * (3 - 2 * w); qD.copy(S.q0).slerp(qS, w); g.q0.copy(qD); g.q1.copy(qD);
+        // le champ et le decalage de l'image passent a ceux de l'arrivee dans la derniere partie du vol
+        X.s = X.T * Math.max(0, Math.min(1, (tau - V.SUIVI_ZOOM) / (1 - V.SUIVI_ZOOM)));
+        if (!enVol && S.vise.distanceTo(S.T) < 0.02) { S.phase = "tenu"; S.tFin = now; V.suivisFaits++; } }
+      if (S.phase === "tenu") { g.p0.copy(S.p1); g.p1.copy(S.p1); regardeS(S.p1, S.T, g.q1); g.q0.copy(g.q1); X.s = X.T; } }
+    V.suitPiece = suitPiece;
 
     // ---- camera guidee de la page au-dessus du coffre ; le visiteur garde sa place
     function focus() { return typeof guide !== "undefined" && !!guide && !!V.def && guide.def === V.def; }
@@ -10615,7 +10691,7 @@
     // le joueur ouvre le coffre lui-meme (clic, toucher, invite) : ecran du coffre
     I.surToucher(function (z) { if (!C || !z || z.agit !== I.ouvreCoffre) return; if (C.veutOuvert && !V.ecran) entreEcran(false); });
 
-    I.anime(function () { if (!C) return; n++;
+    I.anime(function () { if (!C) return; n++; if (V.suit) majSuivi();
       var doit = C.veutOuvert && I.vu(racine) && !(typeof modeDeplacer !== "undefined" && modeDeplacer), ex = !!(I.examen && I.examen.actif);
       if (doit !== V.ouvert) { V.ouvert = doit; if (!doit) { V.pause = false; quitteEcran(); } I.etat.coffreVue = V.ecran ? "ecran" : doit ? "ouvert" : "pret"; }
       if (V.pause && !ex) { V.pause = false; if (V.ouvert) entreEcran(true); }           // l'examen est fini : retour a l'ecran du coffre
@@ -12181,7 +12257,7 @@
     T.active(T.ACTIF);
   })();
   // ---- patch_version.js : numero de version de la page
-  try { window.__version = 100; } catch (e) {}
+  try { window.__version = 101; } catch (e) {}
   cam.position.set(etat.x, SOL + 1.62, etat.z); requestAnimationFrame(boucle);
 })();
 </script>
@@ -12442,7 +12518,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "100-63148e16", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "101-888a2740", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
