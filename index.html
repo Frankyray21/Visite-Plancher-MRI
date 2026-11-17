@@ -12518,7 +12518,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "101-888a2740", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "101-1f701888", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
@@ -12544,22 +12544,30 @@
     document.head.appendChild(st);
     var hd = document.getElementById("haut-droit"), hg = document.getElementById("haut-gauche");
     function retaille() { try { window.dispatchEvent(new Event("resize")); } catch (e) {} }
-    // 1. bouton « Installer »
+    // 1. bouton « Installer » : TOUJOURS la tant que la visite n'est pas ouverte comme application installee (utilisateur, sur le site publie :
+    //    « Ou est lien installer app pwa » : la pastille n'apparaissait que si le navigateur offrait son invite). Un appui ouvre l'invite du navigateur
+    //    quand il en offre une ; sinon un panneau dit le geste a faire dans CE navigateur (iPhone, Android, ordinateur, page ouverte dans une autre application).
     var btn = document.createElement("button"); btn.type = "button"; btn.id = "btn-installer"; btn.hidden = true; btn.textContent = "Installer"; if (hd) hd.appendChild(btn);
-    var aide = document.createElement("dialog"); aide.id = "pwa-aide"; aide.setAttribute("aria-labelledby", "pwa-aide-titre");
-    aide.innerHTML = '<div class="tete"><h2 id="pwa-aide-titre">Installer l\'application</h2><button type="button" data-a="ferme">Fermer</button></div><div class="corps">' +
-      '<p>Sur iPhone ou iPad, dans Safari :</p><ol><li>touche le bouton Partager <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg> ;</li><li>choisis « Sur l\'écran d\'accueil ».</li></ol>' +
-      '<p class="doux">La visite s\'ouvre ensuite comme une application. Elle fonctionne sans réseau dès que « hors ligne ✓ » est écrit à côté de la version.</p></div>';
-    document.body.appendChild(aide);
+    var android = /Android/i.test(ua), integre = /FBAN|FBAV|FB_IAB|Instagram|MicroMessenger|TeamsMobile|Outlook-/i.test(ua) || ua.indexOf("; wv)") >= 0 || ua.indexOf(" Line/") >= 0; PWA.android = android; PWA.integre = integre;
+    var PARTAGE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg>';
+    function gestes() {
+      if (ios) return { intro: "Sur iPhone ou iPad, dans Safari :", pas: ["touche le bouton Partager " + PARTAGE + " ;", "choisis « Sur l'écran d'accueil »."] };
+      if (integre) return { intro: "Cette page est ouverte à l'intérieur d'une autre application, qui ne peut pas l'installer.", pas: ["ouvre le menu de cette fenêtre, puis « Ouvrir dans le navigateur » ;", "dans le navigateur, reviens toucher « Installer »."] };
+      if (android) return { intro: "Sur Android :", pas: ["ouvre le menu du navigateur (les trois points) ;", "choisis « Installer l'application » ou « Ajouter à l'écran d'accueil »."], deja: true };
+      return { intro: "Sur ordinateur, dans Chrome ou Edge :", pas: ["clique l'icône d'installation au bout de la barre d'adresse, ou ouvre le menu du navigateur ;", "choisis « Installer… »."], note: "Safari sur Mac : menu Fichier, puis « Ajouter au Dock ». Firefox sur ordinateur n'installe pas les applications web.", deja: true }; }
+    var aide = document.createElement("dialog"); aide.id = "pwa-aide"; aide.setAttribute("aria-labelledby", "pwa-aide-titre"); document.body.appendChild(aide);
+    function remplitAide() { var g = gestes(); PWA.geste = ios ? "ios" : integre ? "integre" : android ? "android" : "ordinateur";
+      aide.innerHTML = '<div class="tete"><h2 id="pwa-aide-titre">Installer l\x27application</h2><button type="button" data-a="ferme">Fermer</button></div><div class="corps"><p>' + g.intro + '</p><ol>' + g.pas.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ol>" +
+        (g.note ? '<p class="doux">' + g.note + "</p>" : "") + '<p class="doux">La visite s\x27ouvre ensuite comme une application. Elle fonctionne sans réseau dès que « hors ligne ✓ » est écrit à côté de la version.' + (g.deja ? " Déjà installée ? Ouvre-la depuis l'écran d'accueil ou la liste des applications." : "") + "</p></div>"; }
     aide.addEventListener("click", function (e) { var t = e.target; if (t === aide || (t.getAttribute && t.getAttribute("data-a") === "ferme")) try { aide.close(); } catch (er) {} });
-    function montreBouton() { var oui = !autonome && !PWA.installee && (!!PWA.invite || ios); if (btn.hidden === !oui) return; btn.hidden = !oui; retaille(); }
+    function montreBouton() { var oui = !autonome && !PWA.installee; if (btn.hidden === !oui) return; btn.hidden = !oui; retaille(); }
     window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); PWA.invite = e; montreBouton(); });
-    window.addEventListener("appinstalled", function () { PWA.installee = true; PWA.invite = null; montreBouton(); });
+    window.addEventListener("appinstalled", function () { PWA.installee = true; PWA.invite = null; try { aide.close(); } catch (e) {} montreBouton(); });
     btn.addEventListener("click", function () {
       if (PWA.invite) { var inv = PWA.invite; PWA.invite = null; try { inv.prompt(); } catch (e) {}
         if (inv.userChoice && inv.userChoice.then) inv.userChoice.then(function (c) { PWA.choix = c && c.outcome; if (PWA.choix === "accepted") PWA.installee = true; montreBouton(); }, function () { montreBouton(); }); else montreBouton();
         return; }
-      if (ios) { try { if (aide.showModal) aide.showModal(); else aide.setAttribute("open", ""); } catch (e) {} } });
+      remplitAide(); try { if (aide.showModal) aide.showModal(); else aide.setAttribute("open", ""); } catch (e) {} });
     montreBouton();
     // 2. hors ligne : le mot a cote de la version, et la plaque qui montre le telechargement
     var ref = hg && hg.querySelector(".plaque .ref"), mot = null;
