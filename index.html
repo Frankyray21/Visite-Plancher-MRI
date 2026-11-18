@@ -167,7 +167,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 101</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 111</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -211,7 +211,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 101</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 111</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -5524,10 +5524,12 @@
     function decalDe(r) { return [r.W / 2 - (r.x + r.w / 2), r.H / 2 - (r.y + r.h / 2)]; }
     K.proj = { fov: 68, ox: 0, oy: 0, W: 0, H: 0, aspect: 0 };
     function appliqueProj(fov, ox, oy) { var W = canvas.clientWidth || innerWidth, Hh = canvas.clientHeight || innerHeight, Pj = K.proj, ch = false;
+      // (version 109) accroupi ou penche, la tete s'approche a 3 cm des pieces : plan proche a 3 cm au lieu de 8
+      var pres = typeof PP !== "undefined" && PP && !guide && !etat.haut && ((PP.accH || 0) > 0.02 || (PP.penD || 0) > 0.02) ? 0.03 : 0.08; if (pres !== Pj.pres) { Pj.pres = pres; ch = true; }
       if (Math.abs(fov - Pj.fov) > 0.01 || Math.abs(cam.fov - fov) > 0.01) { cam.fov = fov; Pj.fov = fov; ch = true; }
       if (Math.abs(ox - Pj.ox) > 0.25 || Math.abs(oy - Pj.oy) > 0.25 || W !== Pj.W || Hh !== Pj.H || cam.aspect !== Pj.aspect) { Pj.ox = ox; Pj.oy = oy; Pj.W = W; Pj.H = Hh; Pj.aspect = cam.aspect; ch = true;
         if (Math.abs(ox) < 0.5 && Math.abs(oy) < 0.5) { if (cam.view && cam.view.enabled) cam.clearViewOffset(); } else cam.setViewOffset(W, Hh, ox, oy, W, Hh); }
-      if (ch) { var tt = Math.tan(cam.fov * Math.PI / 360), a = cam.aspect; cam.near = Math.min(0.08, K.FP_COIN_MAX / Math.sqrt(1 + tt * tt + tt * tt * a * a)); cam.updateProjectionMatrix(); } }
+      if (ch) { var tt = Math.tan(cam.fov * Math.PI / 360), a = cam.aspect; cam.near = Math.min(pres, K.FP_COIN_MAX / Math.sqrt(1 + tt * tt + tt * tt * a * a)); cam.updateProjectionMatrix(); } }
     function projection(dt) { var ppOn = !guide && !etat.haut && typeof PP !== "undefined" && PP.actif, Pj = K.proj, fovC = ppOn && PP.fov ? PP.fov : K.VG_FOV, oxC = 0, oyC = ppOn && PP.oy ? PP.oy * (canvas.clientHeight || innerHeight) : 0, G = guide && guide.K;
       if (G && G.suitEcran && G.e >= 1) { var a1 = Math.min(1, Math.max(dt, 0.016) * 5); appliqueProj(Pj.fov + (G.fov1 - Pj.fov) * a1, Pj.ox + (G.ox1 - Pj.ox) * a1, Pj.oy + (G.oy1 - Pj.oy) * a1); return; }   // RC-C06
       if (G) { var u = G.e; fovC = G.fov0 + (G.fov1 - G.fov0) * u; oxC = G.ox0 + (G.ox1 - G.ox0) * u; oyC = G.oy0 + (G.oy1 - G.oy0) * u; appliqueProj(fovC, oxC, oyC); return; }
@@ -5660,8 +5662,9 @@
 
     // ---------------------------------------------------------------- 8. 1re personne
     K.snapFP = false;
-    function fpK(dt) { var h = pieds + 1.62; if (K.snapFP) { cam.position.y = h; K.snapFP = false; } else cam.position.y += (h - cam.position.y) * Math.min(1, dt * 6);
-      cam.position.x = etat.x; cam.position.z = etat.z; cam.rotation.set(etat.tangage, etat.lacet, 0); }
+    function fpK(dt) { var h = pieds + 1.62 - (typeof ppAccMaj === "function" ? ppAccMaj(dt) : 0);   /* version 107 : s'accroupir (web_pp/premiere_personne.js) */ if (K.snapFP) { cam.position.y = h; K.snapFP = false; } else cam.position.y += (h - cam.position.y) * Math.min(1, dt * 6);
+      cam.position.x = etat.x; cam.position.z = etat.z; cam.rotation.set(etat.tangage, etat.lacet, 0);
+      if (typeof ppPencheMaj === "function" && !PP.actif) { ppPencheMaj(dt, etat.x, cam.position.y, etat.z); cam.position.x += PP.penX; cam.position.z += PP.penZ; } }   // version 108 : se pencher, sans corps (avec corps : ppCamera)
 
     // ---------------------------------------------------------------- 9. changements de vue, prise en main, retour au depart
     var PREC = { haut: null, guide: null, x: etat.x, z: etat.z };
@@ -9614,6 +9617,50 @@
     COUPE_ALLEGE: true,    // pas de corps en mode allege : ce mode ne se declenche que sous 30 i/s (mediane > 33 ms) ; processeur ralenti x6 : 12 i/s avec corps, 15 sans
     actif: false, pret: false, echec: null, va: 0, vc: 0, cible: 0, n: 0, mailles: [], apres: [], oeil: null, ref: null, lum: null };
   try { window.__pp = PP; } catch (e) {}
+  // ---- (version 107, 2026-11-18) S'accroupir. Utilisateur : « je veux etre capable de macroupir pour voir plus bas lorsque utilise vue 1e personne »,
+  // puis « tu na pas besoin de faire le mouvement on ne le voit pas en vue 1e personne. et sera pas utiliser vue avatar. donc fait seulement mouvement
+  // camera » et « cest surtout pour etre en mesure de voir certaine piece et dansa ce cas ci voir ou le plancher doit etre couper parcequil accroche le
+  // frame de la foreuse ». Seule la camera descend (jusqu'aux hauteurs PP.ACC.YEUX) ; le corps du visiteur est cache tant qu'elle est basse (elle serait
+  // dedans) ; elle ne descend pas dans une piece (COLLISIONS.sphereLibre : elle s'arrete au-dessus) ; accroupi, on avance a PP.ACC.V m/s au plus.
+  // ppAccMaj est appelee a chaque image par la camera de premiere personne (web_cameras/cameras.js, fpK), avec ou sans corps (mode allege).
+  // Bouton rond et touche : web_interactif/inter_accroupi.js. PP.ACC.ACTIF = false : rien ne change.
+  // (version 108, sur une capture de la vue accroupie : « je veux voir le meme niveau que le plancher ») deux niveaux, donnes en hauteur des yeux
+  // au-dessus des pieds (PP.ACC.YEUX) : accroupi, puis au ras du plancher (2 cm au-dessus du dessus du plancher secondaire, haut de 23 cm). La hauteur
+  // des yeux accroupi ne depend plus de la pose du corps cache (debout : 1,51 m a l'attente, 1,59 m en marche, 1,62 m sans corps).
+  PP.ACC = { ACTIF: true, YEUX: [0, 0.61, 0.25], RAPIDE: 7, V: 0.6, RAYON: 0.03 };   /* TOUJOURS le meme rayon que PP.PEN.RAYON : sinon la tete penchee (libre avec l'un) fait remonter la camera (pas libre avec l'autre) */ PP.accNiveau = 0; PP.accVeut = false; PP.accU = 0; PP.accH = 0; PP.accDebout = 0;
+  // sans argument : niveau suivant (debout -> accroupi -> au ras du plancher -> debout) ; vrai / faux : accroupi / debout ; un nombre : ce niveau
+  PP.accroupir = function (v) { var A = PP.ACC; if (!A.ACTIF) return 0; var nv = PP.accNiveau; if (v === undefined) nv = (nv + 1) % A.YEUX.length; else if (typeof v === "number") nv = Math.max(0, Math.min(A.YEUX.length - 1, Math.round(v))); else nv = v ? Math.max(1, nv) : 0;
+    PP.accNiveau = nv; PP.accVeut = nv > 0; return nv; };
+  PP.accRaz = function () { PP.accNiveau = 0; PP.accVeut = false; PP.accU = 0; PP.accH = 0; };
+  function ppAccMaj(dt) { var A = PP.ACC; if (!A.ACTIF) return 0; var nv = !etat.haut && !guide ? PP.accNiveau : 0, debout = PP.actif && PP.accDebout > 1 ? PP.accDebout : 1.62, h = nv > 0 ? Math.max(0, debout - A.YEUX[nv]) : 0, k = 0;
+    if (h > 0.02 && typeof COLLISIONS !== "undefined" && COLLISIONS && COLLISIONS.sphereLibre) { try { while (h > 0.02 && k++ < 30 && !COLLISIONS.sphereLibre(cam.position.x - (PP.penX || 0), pieds + debout - h, cam.position.z - (PP.penZ || 0), A.RAYON)) h -= 0.05;   /* a la place des yeux SANS le deport de la tete penchee (lui a son propre controle, ppPencheMaj) */ } catch (e) {} }
+    PP.accBute = k > 1; PP.accH += (Math.max(0, h) - PP.accH) * Math.min(1, dt * A.RAPIDE); if (PP.accH < 0.002 && nv === 0) PP.accH = 0; PP.accU = PP.accH > 0.02 || nv > 0 ? 1 : 0; return PP.accH; }
+  // ---- (version 108) Se pencher. Utilisateur : « doit etre capable de voir ou la foreuse entre en contact avec plancher donc la tete doit pouvoir se
+  // pencher vers la foreuse ». La tete (la camera seule) avance de PP.PEN.PORTEE m dans la direction du regard au moment de l'appui, a hauteur egale,
+  // et y reste : on tourne ensuite le regard librement (vers le bas, le long du bord). Elle avance tant que la place est libre (COLLISIONS.sphereLibre,
+  // par pas de PP.PEN.PAS) et s'arrete avant d'entrer dans une piece. Debout, accroupi ou au ras du plancher. Corps cache tant que la tete est deportee.
+  // (version 109, sur une capture au ras du plancher : « je veux etre en mesure de voir plus a gauche meme si la foreuse me bloque ») tant qu'on est
+  // penche, les commandes de deplacement (manche, touches) bougent la TETE et plus le corps : avant, arriere, gauche, droite par rapport au regard,
+  // jusqu'a PP.PEN.PORTEE m du corps. La tete s'approche a PP.PEN.RAYON (3 cm) des pieces (10 cm avant) : elle entre dans les passages etroits, comme
+  // entre le plancher et la foreuse. A l'appui, elle part d'abord de PP.PEN.AVANCE m vers ce qu'on regarde (comme en version 108).
+  PP.PEN = { ACTIF: true, PORTEE: 0.6, AVANCE: 0.45, V: 0.5, RAPIDE: 10, RAYON: 0.03 }; PP.penVeut = false; PP.penDir = [0, 0]; PP.penC = [0, 0]; PP.penDem = [0, 0]; PP.penElan = 0; PP.penD = 0; PP.penX = 0; PP.penZ = 0; PP.penBute = false;
+  function ppPenLibre(x, y, z) { try { return !(typeof COLLISIONS !== "undefined" && COLLISIONS && COLLISIONS.sphereLibre) || COLLISIONS.sphereLibre(x, y, z, PP.PEN.RAYON); } catch (e) { return true; } }
+  PP.pencher = function (v) { var A = PP.PEN; if (!A.ACTIF) return false; var on = v === undefined ? !PP.penVeut : !!v;
+    if (on && !PP.penVeut) { PP.penC[0] = PP.penC[1] = 0; PP.penDir[0] = -Math.sin(etat.lacet); PP.penDir[1] = -Math.cos(etat.lacet); PP.penElan = A.AVANCE; } if (!on) { PP.penC[0] = PP.penC[1] = 0; PP.penElan = 0; } PP.penDem[0] = PP.penDem[1] = 0; PP.penVeut = on; return on; };
+  PP.penRaz = function () { PP.penVeut = false; PP.penC[0] = PP.penC[1] = 0; PP.penDem[0] = PP.penDem[1] = 0; PP.penElan = 0; PP.penD = 0; PP.penX = 0; PP.penZ = 0; };
+  // commandes de deplacement pendant qu'on est penche (av : vers l'avant du regard, co : vers sa droite) : demande de deplacement de la tete
+  function ppPenCommande(av, co, n, dt) { if (n < 0.05) return; var A = PP.PEN, s = Math.sin(etat.lacet), c = Math.cos(etat.lacet); PP.penElan = 0; PP.penDem[0] += (-s * av + c * co) * A.V * dt; PP.penDem[1] += (-c * av - s * co) * A.V * dt; }
+  // deport de la tete pour cette image, depuis la place (bx, bz) des yeux a la hauteur y : elle n'avance que la ou la place est libre (elle glisse le long d'une piece)
+  function ppPencheMaj(dt, bx, y, bz) { var A = PP.PEN; if (!A.ACTIF) return 0; var veut = PP.penVeut && !etat.haut && !guide, C = PP.penC, D = PP.penDem;
+    if (veut) {
+      if (PP.penElan > 0) { var pas = Math.min(PP.penElan, A.V * 2 * dt), ex = C[0] + PP.penDir[0] * pas, ez = C[1] + PP.penDir[1] * pas; if (ppPenLibre(bx + ex, y, bz + ez)) { C[0] = ex; C[1] = ez; PP.penElan -= pas; } else PP.penElan = 0; }
+      if (D[0] || D[1]) { var nx = C[0] + D[0], nz = C[1] + D[1], l = Math.hypot(nx, nz); if (l > A.PORTEE) { nx *= A.PORTEE / l; nz *= A.PORTEE / l; }
+        if (ppPenLibre(bx + nx, y, bz + nz)) { C[0] = nx; C[1] = nz; PP.penBute = false; } else if (ppPenLibre(bx + nx, y, bz + C[1])) { C[0] = nx; PP.penBute = true; } else if (ppPenLibre(bx + C[0], y, bz + nz)) { C[1] = nz; PP.penBute = true; } else PP.penBute = true; }
+      // la place des yeux bouge aussi sans commande (regard baisse : le tronc se penche ; accroupissement) : si la tete se retrouve dans une piece, elle recule vers le corps
+      var gk = 0; while ((C[0] || C[1]) && gk++ < 25 && !ppPenLibre(bx + C[0], y, bz + C[1])) { var lc = Math.hypot(C[0], C[1]), nl = Math.max(0, lc - 0.03); C[0] *= nl / lc; C[1] *= nl / lc; PP.penBute = true; PP.penElan = 0; } }
+    else { C[0] = C[1] = 0; PP.penElan = 0; } D[0] = D[1] = 0;
+    var kk = Math.min(1, dt * A.RAPIDE); PP.penX += (C[0] - PP.penX) * kk; PP.penZ += (C[1] - PP.penZ) * kk; if (veut && (PP.penX || PP.penZ) && !ppPenLibre(bx + PP.penX, y, bz + PP.penZ)) { PP.penX = C[0]; PP.penZ = C[1]; }   /* pas de retard d'adoucissement quand il faut sortir d'une piece */
+    PP.penD = Math.hypot(PP.penX, PP.penZ); if (!veut && PP.penD < 0.002) { PP.penX = PP.penZ = PP.penD = 0; } return PP.penD; }
   var ppV = new THREE.Vector3(), ppV2 = new THREE.Vector3(), ppJ = new THREE.Vector3(), ppE = new THREE.Vector3(), ppQ = new THREE.Quaternion(), ppQ2 = new THREE.Quaternion(), ppAx = new THREE.Vector3(), ppO0 = { f: 0, l: 0, h: 0 }, ppO1 = { f: 0, l: 0, h: 0 };
   function ppPossible() { return PP.ACTIF && !PP.echec && !!gabaritAvatar && !!clipMarche && AVM_ACTIF && fluidite.fait && !(PP.COUPE_ALLEGE && fluidite.allege); }   // jamais pendant la mesure de fluidite
   // Preparation (une fois) : poids de la tete par sommet, matieres et geometries de remplacement, point des yeux dans le repere de l'os de la tete.
@@ -9653,14 +9700,15 @@
     var L = PP.lum || (PP.lampe && PP.lampe.l); if (L) L.visible = !on; PP.ref = null; PP.va = PP.vc = 0; PP.n++; }
   // Vitesse (appelee par la boucle a la place de 1,7 / 3,2 m/s) : en avant celle de la vue avatar (VITESSE_AVATAR), en arriere et de cote
   // plus lente (ellipse), acceleration et freinage de la marche (AVC_ACCEL, AVC_DECEL). La vitesse est un vecteur dans le repere du regard.
-  function ppVitesse(court, av, co, n, dt) { if (!PP.actif) return court ? 3.2 : 1.7;
+  function ppVitesse(court, av, co, n, dt) { if (PP.penVeut && !etat.haut && !guide) { ppPenCommande(av, co, n, dt); PP.avIn = av; PP.coIn = co; PP.nIn = 0; PP.va = PP.vc = 0; PP.cible = 0; return PP.actif ? 1 : 0; }   /* penche : les commandes bougent la tete, le corps reste en place */
+    if (!PP.actif) return PP.accU > 0 || PP.penD > 0.02 ? PP.ACC.V : (court ? 3.2 : 1.7);
     PP.avIn = av; PP.coIn = co; PP.nIn = n;
     if (PP.boucle && !PP.boucle.temps) { var Bv = PP.boucle, dw = ppBoucleDir(Bv), vt = (PP.V_BOUCLE[Bv.nom] || 0.7) * Math.min(1, n), vcur = Math.hypot(PP.va, PP.vc), vn = vcur + Math.max(-AVC_DECEL * dt, Math.min(AVC_ACCEL * dt, vt - vcur));
       var sl = Math.sin(etat.lacet), cl = Math.cos(etat.lacet); PP.va = -(sl * dw[0] + cl * dw[1]) * vn; PP.vc = (cl * dw[0] - sl * dw[1]) * vn; PP.cible = vt; return 1; }
     var vf = PP.V_AVANT || (court ? VITESSE_AVATAR[1] : VITESSE_AVATAR[0]), ta = 0, tc = 0;
     if (n > 0.01 && !guide) { var a = av / n, c = co / n, vl = a >= 0 ? vf : PP.V_ARRIERE * vf, vs = PP.V_COTE * vf, vm = 1 / Math.sqrt(a * a / (vl * vl) + c * c / (vs * vs)) * Math.min(1, n); ta = a * vm; tc = c * vm; }
     // memes brides que la vue avatar (avmVitesseCap) : escalier 0,6 m/s, pas raccourci par le terrain, prudence (T5)
-    var lim = 1e9; if (AVM.escalier > 0) { AVM.escalier -= dt; lim = 0.6; } if (AVM.tCap > 0) { if (AVM.l.appui && AVM.r.appui) AVM.tCap -= dt; lim = Math.min(lim, AVM.vCap); }
+    var lim = 1e9; if (PP.accU > 0 || PP.penD > 0.02) lim = PP.ACC.V;   /* accroupi : on avance lentement */ if (AVM.escalier > 0) { AVM.escalier -= dt; lim = 0.6; } if (AVM.tCap > 0) { if (AVM.l.appui && AVM.r.appui) AVM.tCap -= dt; lim = Math.min(lim, AVM.vCap); }
     if (typeof t5bPlafond === "function") lim = Math.min(lim, t5bPlafond(dt));
     // depart depuis le repos : le corps attend AVC_TAPE (premier pied leve) comme en vue avatar, sinon le pied d appui glissait (4 a 6 cm en reculant)
     AVM.tCmd = n > 0.05 && !guide ? (AVM.tCmd || 0) + dt : 0; if (AVC_ACTIF && typeof AVC_TAPE !== "undefined" && AVM.etat === "repos" && AVM.tCmd < AVC_TAPE) lim = 0;
@@ -9688,7 +9736,8 @@
   // (35 programmes, gel de 5,7 s mesure). En premiere personne la frontale de la camera la remplace.
   function ppLampe(dedans) { if (!avatar) return; if (!PP.lampe) { var t = avatar.modele.getObjectByName("head"); if (!t) return; t.children.forEach(function (o) { if (o.isSpotLight) PP.lampe = { l: o, p: t }; }); if (!PP.lampe) return; }
     var L = PP.lampe; if (dedans && !L.l.parent) L.p.add(L.l); else if (!dedans && L.l.parent) L.l.parent.remove(L.l); }
-  function ppImage(dt, bouge, xAvant, zAvant) { var possible = ppPossible(), veut = possible && !etat.haut && !guide, t0 = performance.now();
+  function ppImage(dt, bouge, xAvant, zAvant) { if (PP.penVeut) bouge = false;   /* penche : le corps (cache) ne marche pas sur place */
+    var possible = ppPossible(), veut = possible && !etat.haut && !guide, t0 = performance.now();
     if (PP.tPrec && t0 - PP.tPrec > 150 && PP.gels.length < 30) PP.gels.push([Math.round(PP.tPrec), Math.round(t0 - PP.tPrec)]); PP.tPrec = t0;   // images figees (plus de 150 ms) vues d ici, pour le rapport
     // le corps n est cree qu une fois la page installee (carte du sol complete, T1 et T2 compiles) : le chargement ne s allonge pas ; tout de suite si le visiteur prend la main avant
     if (possible && !PP.tPossible) PP.tPossible = performance.now();
@@ -9877,9 +9926,11 @@
     R.sf += (f - R.sf) * ks; R.sl += (l - R.sl) * ks; R.sh += (h - R.sh) * ks;
     var cf = R.f + Math.max(-PP.AMP_H, Math.min(PP.AMP_H, R.sf - R.f)) + (ppO1.f - f) - PP.RECUL * (PP.sFlex || 0), cl = Math.max(-PP.AMP_H, Math.min(PP.AMP_H, R.sl - R.l)) + (ppO1.l - l) /* yeux dans le plan du milieu du corps */,
       ch = R.h + Math.max(-PP.AMP_V, Math.min(PP.AMP_V, R.sh - R.h)) + (ppO1.h - h);
-    var fx = -Math.sin(capAvatar), fz = -Math.cos(capAvatar), y = PP.HAUTEUR_FIXE ? pieds + 1.62 : g.position.y + ch, sl = Math.sin(etat.lacet), cl2 = Math.cos(etat.lacet);
+    var fx = -Math.sin(capAvatar), fz = -Math.cos(capAvatar), yD = PP.HAUTEUR_FIXE ? pieds + 1.62 : g.position.y + ch, y = yD - (PP.accH || 0), sl = Math.sin(etat.lacet), cl2 = Math.cos(etat.lacet);
     cam.position.set(g.position.x + fx * cf - fz * cl - sl * PP.AVANT, y, g.position.z + fz * cf + fx * cl - cl2 * PP.AVANT);
-    var Dn = PP.dernier || (PP.dernier = {}); Dn.f = cf; Dn.l = cl; Dn.h = ch; Dn.y = cam.position.y - pieds; Dn.fov = PP.fov; Dn.flex = PP.sFlex; }
+    var Dn = PP.dernier || (PP.dernier = {}); Dn.f = cf; Dn.l = cl; Dn.h = ch; Dn.y = cam.position.y - pieds; Dn.fov = PP.fov; Dn.flex = PP.sFlex; PP.accDebout = yD - pieds;
+    ppPencheMaj(dt, cam.position.x, cam.position.y, cam.position.z); cam.position.x += PP.penX; cam.position.z += PP.penZ;   // se pencher : la tete avance
+    var bas = (PP.accH || 0) > 0.03 || PP.penD > 0.03; if (bas) g.visible = false; else if (PP.accCache) g.visible = true; PP.accCache = bas; }   // accroupi : la camera est basse, le corps (et ce qu'il porte) est cache
   // ---- patch_interactif_v71.js : pieces interactives (version 71). Utilisateur : « Rend interactif certains piece ex coffre ».
   // Coffre a outils (modele articule du depot pieces-3d, pivots du dessin 087) : un clic ou un toucher tourne la barre de 180 deg puis ouvre les deux
   // portes ; coffre ouvert, un clic sur le tiroir le tire (0,33 m) ; un clic ailleurs sur le coffre le referme (tiroir, portes, barre).
@@ -9943,6 +9994,8 @@
     function dit(texte) { if (texte) { if (aide71.textContent !== texte) aide71.textContent = texte; aide71.hidden = false; } else aide71.hidden = true; }
     function majAide() { var z = null; if (typeof modeDeplacer === "undefined" || !modeDeplacer) { if (tactile) z = I71.sansViseeCentre ? null : vise(0, 0); else if (souris) z = vise(souris[0], souris[1]); }
       if (!tactile) canvas.style.cursor = z ? "pointer" : "";
+      // (version 104) invite imposee par un module, sans pointage (inter_scie.js : « Pousser » apres la coupe, dans la vue du dessus ou les touchers sont arretes)
+      if (I71.viseForcee) { try { var zf = I71.viseForcee(); if (zf) z = zf; } catch (e) {} }
       var m88 = message && performance.now() < message.fin ? message : null; if (!m88) message = null; I71.cible = z; I71.tactile = tactile;
       // (version 88) affichage facon jeu : hors examen, la bulle ne porte plus que les messages ; la piece visee est encadree par inter_zz_hud.js
       if (I71.hud && I71.hud.ACTIF && !(I71.examen && I71.examen.actif)) { dit(m88 ? m88.texte : null); I71.hud.vise(z, z ? z.texte() : null, tactile); return; }
@@ -10034,6 +10087,36 @@
       if (k71 % 8 === 0 && zones.length) majAide();
       requestAnimationFrame(boucle71); }
     requestAnimationFrame(boucle71);
+  })();
+  // ---- inter_accroupi.js (versions 107 et 108, 2026-11-18) : s'accroupir et se pencher en vue premiere personne, pour voir les pieces de pres.
+  // Utilisateur : « je veux etre capable de macroupir pour voir plus bas lorsque utilise vue 1e personne », puis « tu na pas besoin de faire le
+  // mouvement on ne le voit pas en vue 1e personne. et sera pas utiliser vue avatar. donc fait seulement mouvement camera » et « cest surtout pour
+  // etre en mesure de voir certaine piece et dansa ce cas ci voir ou le plancher doit etre couper parcequil accroche le frame de la foreuse ».
+  // Version 108, sur une capture de la vue accroupie : « je veux voir le meme niveau que le plancher » : un deuxieme appui descend au ras du plancher
+  // (pastille « Plus bas »), le troisieme releve. Puis : « doit etre capable de voir ou la foreuse entre en contact avec plancher donc la tete doit
+  // pouvoir se pencher vers la foreuse » : pastille « Se pencher » : la tete avance vers ce qu'on regarde a cet instant et y reste (« Se redresser »).
+  // Version 109 : « je veux etre en mesure de voir plus a gauche meme si la foreuse me bloque » : penche, les commandes de deplacement bougent la tete.
+  // Ici : les deux pastilles rondes du coin (habillees par inter_zz_coin.js) et deux touches du clavier (jamais ecrites a l'ecran). La camera
+  // elle-meme : web_pp/premiere_personne.js (PP.ACC, ppAccMaj ; PP.PEN, ppPencheMaj). Vue avatar, vue guidee (fiche d'etape, coffre, coupe du
+  // plancher) ou mode Deplacer : les pastilles s'effacent, le visiteur est remis debout et droit. K.ACTIF = false : rien.
+  (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
+    var K = { ACTIF: true, TOUCHE: "c", TOUCHE_PENCHER: "x", bascules: 0, penches: 0, refus: 0 }; I.accroupi = K; I.etat.accroupi = K.ACTIF ? "attente" : "coupe"; I.etat.pencher = "droit"; if (!K.ACTIF) return;
+    function pp() { return typeof PP !== "undefined" && PP && PP.ACC && PP.ACC.ACTIF && typeof PP.accroupir === "function" ? PP : null; }
+    var hd = document.getElementById("haut-droit"), ref = document.getElementById("btn-haut"); if (!hd) { I.etat.accroupi = "sans coin"; return; }
+    function pastille(id, texte) { var b = document.createElement("button"); b.id = id; b.type = "button"; b.setAttribute("aria-pressed", "false"); b.textContent = texte; b.hidden = true; if (ref && ref.parentNode === hd) hd.insertBefore(b, ref); else hd.appendChild(b); return b; }
+    var b = pastille("btn-accroupir", "S'accroupir"), bp = pastille("btn-pencher", "Se pencher");
+    function possible() { return !!pp() && typeof etat !== "undefined" && !etat.haut && !(typeof guide !== "undefined" && guide) && !(typeof modeDeplacer !== "undefined" && modeDeplacer); }
+    function bascule() { var P = pp(); if (!P || !possible()) return; K.bascules++; P.accroupir(); }
+    var tPen = 0;
+    function penche() { var P = pp(); if (!P || !possible() || typeof P.pencher !== "function") return; K.penches++; if (P.pencher()) I.message("Penché : les commandes de déplacement bougent maintenant ta tête", 3800); else I.message("", 1); }
+    b.addEventListener("click", function () { bascule(); try { b.blur(); } catch (e) {} }); bp.addEventListener("click", function () { penche(); try { bp.blur(); } catch (e) {} });
+    window.addEventListener("keydown", function (e) { if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || !e.key) return; var k = e.key.toLowerCase(); if (k !== K.TOUCHE && k !== K.TOUCHE_PENCHER) return; var t = e.target && e.target.tagName; if (t === "INPUT" || t === "TEXTAREA") return; if (k === K.TOUCHE) bascule(); else penche(); });
+    var vu = null, bas = null, pen = null;
+    I.anime(function () { var P = pp(); if (!P) return; if (I.etat.accroupi === "attente") I.etat.accroupi = "pret";
+      var p = possible(); if (!p) { if (P.accVeut || P.accU > 0) P.accRaz(); if (P.penRaz && (P.penVeut || P.penD > 0)) P.penRaz(); }
+      if (vu !== p) { vu = p; b.hidden = !p; bp.hidden = !p || typeof P.pencher !== "function"; }
+      var v = P.accNiveau || 0, der = v >= P.ACC.YEUX.length - 1; if (bas !== v) { bas = v; b.setAttribute("aria-pressed", v ? "true" : "false"); b.textContent = !v ? "S'accroupir" : der ? "Se relever" : "Plus bas"; I.etat.accroupi = !v ? "pret" : der ? "au ras du plancher" : "accroupi"; }
+      var w = !!P.penVeut; if (pen !== w) { pen = w; bp.setAttribute("aria-pressed", w ? "true" : "false"); bp.textContent = w ? "Se redresser" : "Se pencher"; I.etat.pencher = w ? "penche" : "droit"; } });
   })();
   // ---- inter_cle.js (tour 6) : cle a tuyau du support (mobiles.support). Utilisateur : « Tout ce qui peut etre interactif ».
   // La page porte une seule cle sur ce support : celle de 36 po (maille M_Cle_A_Tuyau du modele support_pipewrench ; depot pieces-3d,
@@ -10150,15 +10233,16 @@
       g.font = "26px Arial, sans-serif"; g.fillStyle = "#555"; g.fillText("Calibre N", LW - 160, 70); g.fillText("Qté", 36, 132); g.fillText("Article", 120, 132); g.fillText("N° de pièce", LW - 230, 132);
       g.fillRect(30, 140, LW - 60, 2);
       K.lignes.forEach(function (L, i) { var y = Y_L + i * H_L; if (K.repere && K.repere.ligne === L) { g.fillStyle = "#f6d25a"; g.fillRect(28, y + 2, LW - 56, H_L - 2); }
-        g.fillStyle = L.pieces.length ? "#111" : "#9a9a9a"; g.font = "36px Arial, sans-serif"; g.fillText(String(L.q), 44, y + 36); g.fillText(L.nom, 120, y + 36);
+        g.fillStyle = L.pieces.length || L.special ? "#111" : "#9a9a9a"; g.font = "36px Arial, sans-serif"; g.fillText(String(L.q), 44, y + 36); g.fillText(L.nom, 120, y + 36);
         g.font = "34px Arial, sans-serif"; g.fillText(L.pn || "—", LW - 230, y + 36); g.fillStyle = "#cfcac0"; g.fillRect(30, y + H_L, LW - 60, 1); });
-      g.fillStyle = "#8a8a8a"; g.font = "italic 24px Arial, sans-serif"; g.fillText("Reste de la liste : pas encore dans le dépôt pieces-3d.", 36, Y_L + K.lignes.length * H_L + 40);
+      g.fillStyle = "#8a8a8a"; g.font = "italic " + (K.lignes.length > 9 ? 22 : 24) + "px Arial, sans-serif"; g.fillText("Reste de la liste : pas encore dans le dépôt pieces-3d.", 36, Y_L + K.lignes.length * H_L + (K.lignes.length > 9 ? 30 : 40));   // (version 104) dix lignes : la note remonte pour rester dans la feuille
       if (K.feuille) K.feuille.material.map.needsUpdate = true; }
 
     // ---- reperage : la piece s'allume doucement (matiere clonee le temps du reperage, rendue ensuite)
     function allume(p, k) { p.o.traverse(function (o) { if (!o.isMesh) return; if (k > 0 && !o.userData.matListe) { o.userData.matListe = o.material; o.material = o.material.clone(); }
       if (!o.userData.matListe) return; if (k <= 0) { o.material.dispose(); o.material = o.userData.matListe; delete o.userData.matListe; return; } o.material.emissive.setRGB(0.95 * k, 0.62 * k, 0.12 * k); }); }
     function repere(L) { if (K.repere) { K.repere.ligne.pieces.forEach(function (p) { allume(p, 0); }); } K.repere = { ligne: L, t: 0, quand: performance.now() }; dessine();
+      if (L.special) { L.special.montre(); return; }   // (version 104) ligne tenue par un autre module (scie va-et-vient, inter_scie.js) : c'est lui qui la montre
       var dedans = L.pieces.filter(function (p) { return p.etat === "coffre"; }), dehors = L.pieces.length - dedans.length, txt;
       if (!L.pieces.length) txt = L.nom + " : pas de modèle 3D dans le dépôt";
       else { var lieux = []; dedans.forEach(function (p) { var w = ou(p); if (lieux.indexOf(w) < 0) lieux.push(w); }); if (dehors) lieux.push(dehors + " sur la table à carottes");
@@ -10297,9 +10381,12 @@
       var F = K.FEUILLE, f = new THREE.Mesh(new THREE.PlaneGeometry(F.L, F.H), new THREE.MeshStandardMaterial({ map: tx, roughness: 0.85, metalness: 0 })); f.name = "Coffre_Liste_629"; f.rotation.y = Math.PI; f.position.set(F.X, F.Y, F.Z); f.receiveShadow = true; f.visible = false;
       porteD.add(f); K.feuille = f;
       var ouvert = function () { return I.vu(racine) && C.veutOuvert && C.p >= 1; };
-      K.lignes.forEach(function (L, i) { var y1 = F.H / 2 - (Y_L + i * H_L) / LH * F.H, y0 = y1 - H_L / LH * F.H;
+      function zoneLigne(L, i) { var y1 = F.H / 2 - (Y_L + i * H_L) / LH * F.H, y0 = y1 - H_L / LH * F.H;
         I.zone({ o: f, prio: 1, b: new THREE.Box3(new THREE.Vector3(-F.L / 2, y0, -0.01), new THREE.Vector3(F.L / 2, y1, 0.02)), actif: function () { var W = I.coffreVue; return ouvert() && !(W && W.PANNEAU && W.ecran); }   /* (version 93) ecran du coffre : la liste est a l'ecran, la feuille de la porte reste en decor */, agit: function () { ligneClic(L); },
-          texte: function () { if (!L.pieces.length) return [L.nom + " : pas de modèle 3D", L.nom + " : pas de modèle 3D"]; if (OU[L.rep]) return ["Clique pour trouver : " + L.nom, "Touche pour trouver : " + L.nom]; return K.repere && K.repere.ligne === L ? ["Clique encore pour sortir : " + L.nom, "Touche encore pour sortir : " + L.nom] : ["Clique pour trouver : " + L.nom, "Touche pour trouver : " + L.nom]; } }); });
+          texte: function () { if (L.special) return ["Clique pour trouver : " + L.nom, "Touche pour trouver : " + L.nom]; if (!L.pieces.length) return [L.nom + " : pas de modèle 3D", L.nom + " : pas de modèle 3D"]; if (OU[L.rep]) return ["Clique pour trouver : " + L.nom, "Touche pour trouver : " + L.nom]; return K.repere && K.repere.ligne === L ? ["Clique encore pour sortir : " + L.nom, "Touche encore pour sortir : " + L.nom] : ["Clique pour trouver : " + L.nom, "Touche pour trouver : " + L.nom]; } }); }
+      K.lignes.forEach(zoneLigne);
+      // (version 104) ligne ajoutee par un autre module : { rep, q, nom, pn, pieces: [], special: { puce(), lieu(), montre(), boutons(), agit(act) } } ; sur la feuille et dans la liste a l'ecran
+      K.ajouteLigne = function (L) { if (K.lignes.some(function (x) { return x.rep === L.rep; })) return null; K.lignes.push(L); zoneLigne(L, K.lignes.length - 1); dessine(); return L; };
       K.pieces.forEach(function (p) { var bb = boiteSous(p, new THREE.Quaternion()); bb.expandByScalar(0.015);
         I.zone({ o: p.o, prio: 1, b: bb, actif: function () { if (p.vol || p.etat === "attente" || p.etat === "vol" || p.etat === "examen") return false; if (p.etat === "coffre") return ouvert() && I.vu(p.o); return I.vu(p.o); },
           texte: function () { var n = p.nom.charAt(0).toLowerCase() + p.nom.slice(1), W = I.coffreVue; if (p.etat === "coffre" && W && (W.ecran || W.quai) && W.examinePiece) return ["Clique pour examiner : " + n, "Touche pour examiner : " + n];   /* (version 99) ecran du coffre : la piece vient devant la camera */ if (OU[p.rep]) return ["Clique pour la fiche : " + n, "Touche pour la fiche : " + n]; if (p.etat === "coffre") return ["Clique pour sortir sur la table : " + n, "Touche pour sortir sur la table : " + n];
@@ -10468,12 +10555,12 @@
     function surTable(p) { return p.etat === "table" || p.etat === "presente" || (p.etat === "examen" && p.examenDe !== "coffre"); }
     function examinee(L) { var X = I.examen; return X && X.actif && V.voit && V.voit.p.ligne === L ? V.voit.p : null; }   // piece de cette ligne devant la camera
     function compte(L) { var c = { coffre: 0, table: 0, route: 0 }; L.pieces.forEach(function (p) { if (auCoffre(p)) c.coffre++; else if (p.etat === "attente" || p.etat === "vol") c.route++; else c.table++; }); return c; }
-    function puce(L, c) { if (!L.pieces.length) return "sans modèle"; if (K.OU[L.rep]) return "dehors"; if (c.route) return "en route"; if (c.table) return c.table < L.q ? c.table + " sur " + L.q + " sorties" : "sur la table"; return "au coffre"; }
-    function signe() { return K.lignes.map(function (L) { var c = compte(L); return L.rep + ":" + c.coffre + c.table + c.route; }).join("|") + "#" + V.sel + "#" + K.sorties + "#" + (V.voit ? V.voit.p.rep + V.voit.de : "") + (I.examen && I.examen.actif ? "x" : ""); }
+    function puce(L, c) { if (L.special) return L.special.puce();   /* (version 104) ligne tenue par un autre module (scie va-et-vient) */ if (!L.pieces.length) return "sans modèle"; if (K.OU[L.rep]) return "dehors"; if (c.route) return "en route"; if (c.table) return c.table < L.q ? c.table + " sur " + L.q + " sorties" : "sur la table"; return "au coffre"; }
+    function signe() { return K.lignes.map(function (L) { var c = compte(L); return L.rep + ":" + c.coffre + c.table + c.route + (L.special ? L.special.puce() : ""); }).join("|") + "#" + V.sel + "#" + K.sorties + "#" + (V.voit ? V.voit.p.rep + V.voit.de : "") + (I.examen && I.examen.actif ? "x" : ""); }
     function ligne(rep) { return K.lignes.filter(function (L) { return L.rep === rep; })[0]; }
     function rend() { if (!barre || !K || !K.ou) return; var haut = liste.scrollTop, h = "";
       K.lignes.forEach(function (L) { var c = compte(L);
-        h += '<li><button type="button" class="ligne' + (V.sel === L.rep ? " sel" : "") + (c.table ? " table" : "") + (L.pieces.length ? "" : " vide") + (puce(L, c) === "au coffre" ? " range" : "") + '" data-rep="' + esc(L.rep) + '"><i>' + esc(L.q) + "</i><span>" + esc(L.nom) +
+        h += '<li><button type="button" class="ligne' + (V.sel === L.rep ? " sel" : "") + (c.table ? " table" : "") + (L.pieces.length || L.special ? "" : " vide") + (puce(L, c) === "au coffre" ? " range" : "") + '" data-rep="' + esc(L.rep) + '"><i>' + esc(L.q) + "</i><span>" + esc(L.nom) +
           "<small>" + (L.pn ? "N° " + esc(L.pn) : "sans numéro") + "</small></span><em>" + esc(puce(L, c)) + "</em></button></li>"; });
       liste.innerHTML = h; liste.scrollTop = haut;
       if (V.STYLE === "barre") { var gl = bande.scrollLeft, hb = ""; K.lignes.forEach(function (L) { var c = compte(L); hb += '<button type="button" role="listitem" class="' + (V.sel === L.rep ? "sel " : "") + (c.table ? "table " : "") + (L.pieces.length ? "" : "vide") + '" data-rep="' + esc(L.rep) + '" title="' + esc(L.nom + " · " + puce(L, c)) + '"><i>' + esc(L.q) + "</i><span>" + esc(L.nom) + "</span></button>"; }); bande.innerHTML = hb; bande.scrollLeft = gl; }
@@ -10482,9 +10569,10 @@
       bListe.lastChild.textContent = "Liste (" + K.lignes.length + ")"; bRanger.hidden = K.sorties <= 0; bRanger.lastChild.textContent = "Ranger (" + Math.max(0, K.sorties) + ")";
       // barre de la piece choisie
       var L = V.sel ? ligne(V.sel) : null, s = "";
-      if (L) { var c = compte(L), dedans = L.pieces.filter(auCoffre)[0], ex = examinee(L), lieu = !L.pieces.length ? "pas de modèle 3D" : dedans ? K.ou(dedans) : c.route ? "en route vers la table" : "sur la table à carottes";
+      if (L) { var c = compte(L), dedans = L.pieces.filter(auCoffre)[0], ex = examinee(L), lieu = L.special ? L.special.lieu() : !L.pieces.length ? "pas de modèle 3D" : dedans ? K.ou(dedans) : c.route ? "en route vers la table" : "sur la table à carottes";
         s = "<i>" + esc(L.q) + '</i><span class="nom"><b>' + esc(L.nom) + "</b><small>" + (L.pn ? "N° " + esc(L.pn) + " · " : "") + esc(lieu) + '</small></span><span class="act">';
-        if (L.pieces.length && V.EXAMEN) {   // (version 99) « Examiner » d'abord ; la piece deja devant la camera n'a plus ce bouton
+        if (L.special) s += L.special.boutons();   // (version 104)
+        else if (L.pieces.length && V.EXAMEN) {   // (version 99) « Examiner » d'abord ; la piece deja devant la camera n'a plus ce bouton
           if (!ex && (c.coffre || c.table)) s += '<button type="button" data-act="examiner">Examiner</button>';
           if (!K.OU[L.rep]) { if (c.coffre) s += '<button type="button" class="clair" data-act="sortir">Sortir<u> sur la table</u></button>'; if (c.table) s += '<button type="button" class="clair" data-act="ranger">Ranger</button>'; } }
         else if (L.pieces.length) { if (K.OU[L.rep]) s += '<button type="button" class="clair" data-act="montrer">Montrer</button><button type="button" data-act="fiche">Voir la fiche</button>';
@@ -10542,12 +10630,13 @@
     // (version 100) la camera guidee est-elle arrivee au-dessus du coffre ? (ligne choisie a quai : la piece part une fois la vue posee ; 4 s au plus)
     function arrive() { var g = typeof guide !== "undefined" ? guide : null, X = g && g.K; return !X || typeof X.e !== "number" || X.e >= 1 || performance.now() - (V.tEntre || 0) > 4000; }
     V.voirPiece = function (p) { if (!V.ecran && !(V.quai && entreEcran(true))) return false; return examinePiece(p); };   // (version 100) piece du coffre touchee, liste a quai : retour a l'ecran du coffre, la piece vient devant
-    function choisit(rep, allume) { var L = ligne(rep); if (!L) return false; if (allume && V.quai && !V.ecran) entreEcran(true);   /* (version 100) ligne choisie a quai : retour a l'ecran du coffre */ V.sel = rep; if (allume) { if (V.EXAMEN && V.ecran && I.examen && I.examen.ACTIF) examineLigne(L); else montre(L); } tiroir(false); rend(); return true; }
+    function choisit(rep, allume) { var L = ligne(rep); if (!L) return false; if (allume && V.quai && !V.ecran) entreEcran(true);   /* (version 100) ligne choisie a quai : retour a l'ecran du coffre */ V.sel = rep; if (allume) { if (L.special) { finExamen(); montre(L); }   /* (version 104) */ else if (V.EXAMEN && V.ecran && I.examen && I.examen.ACTIF) examineLigne(L); else montre(L); } tiroir(false); rend(); return true; }
     V.choisit = function (rep) { return choisit(String(rep), true); };
     function clic(b) { V.taps++; var a = b.getAttribute("data-a"), act = b.getAttribute("data-act");
       if (a === "quitte" || a === "quai-ferme") { ferme(); return; } if (a === "quai-voir") { entreEcran(false); return; } if (a === "tiroir") { tiroir(!V.tiroir); return; } if (a === "tiroir-ferme") { tiroir(false); return; }
       if (a === "ranger-tout") { I.rangeTout(); rend(); return; } if (a === "desel") { finExamen(); V.sel = null; rend(); return; }
       if (act) { var L = ligne(V.sel); if (!L) return; var p;
+        if (L.special) { if (act === "montrer") montre(L); else L.special.agit(act); rend(); return; }   // (version 104)
         if (act === "montrer") montre(L);
         else if (V.EXAMEN && (act === "examiner" || act === "fiche")) examineLigne(L);
         else if (act === "sortir" || act === "fiche") { p = L.pieces.filter(auCoffre)[0]; if (p && p.etat === "examen") { V.attend = null; V.apres = p; I.finExamen(); } else if (p) { finExamen(); K.sort(p); } if (act === "sortir" && p) suitPiece(p); }   // (version 99) devant la camera : elle retourne d'abord a sa place ; (version 101) la camera la suivra jusqu'a la table
@@ -11131,6 +11220,112 @@
     I.choisitExamen = function (x, y, doigt) { var n = choisit(x, y, !!doigt); return n ? n.rep : null; };
     I.tourneExamen = function (ax, ay) { R.premultiply(qt.setFromAxisAngle(AY, ay)).premultiply(qt.setFromAxisAngle(AX, ax)); };
   })();
+  // ---- inter_foreuse_reel.js (version 110, 2026-11-18) : la foreuse du jeu rapprochee d'une vraie foreuse.
+  // Utilisateur, avec la photo d'une vraie foreuse au chantier : « inspire toi d'une vrai foreuse pour rendre cell du jeux plus réaliste. valide avec
+  // moi avant de poursuivre avec les changements » ; propositions envoyees sur une planche ; reponse : « Fais 1, 2, 3 et 7 », puis, avec deux photos
+  // de pres : « les patins de la foreuses soit le frame est en noir, le clam est aussi en noir ».
+  //  1. Peinture : rouge plus sombre et mat, eclats aux aretes, boue grise sur le bas, traces d'huile sous les raccords ; patins (chassis de base) et
+  //     clamp de tige NOIRS. 2. Tige : une tige d'acier rouille depasse derriere la tete, dans l'axe du trou. 3. Boyaux hydrauliques : des boucles
+  //     laches au sol a droite et devant la foreuse. (7 = tete plus libre : web_pp/premiere_personne.js.)
+  // Version 111 (meme jour) : « retire les boyaux » (capture des boucles au sol) : K.BOYAUX = false, les boucles ne sont plus creees.
+  // Tout est fait a l'arrivee de la foreuse (une fois), sur ses mailles : la maille rouge (une seule, toutes les pieces rouges fondues) est separee en
+  // pieces par continuite ; les pieces du chassis de base (tout ce qui tient sous K.H_PATIN m) et le clamp (la piece centree sur l'axe de la tige, cote
+  // front) passent dans une maille noire. Ni texture, ni fichier : l'usure est calculee par le nuanceur (bruit dans le repere de la foreuse, donc elle
+  // suit la foreuse en mode Deplacer). Ni poussiere ni particules. K.ACTIF = false (ou K.PEINTURE, K.NOIR, K.TIGE, K.BOYAUX) : foreuse d'avant.
+  (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
+    var K = { ACTIF: true, PEINTURE: true, NOIR: true, TIGE: true, BOYAUX: false,   /* version 111, utilisateur, sur une capture des boucles au sol : « retire les boyaux » */ H_PATIN: 0.225, CLAMP_MARGE: 0.05, ARETE_DEG: 28,
+      ROUGE: [0.30, 0.024, 0.02], RUG_ROUGE: 0.7, NOIRC: [0.014, 0.014, 0.016], RUG_NOIR: 0.72, BOUE: [0.115, 0.105, 0.09], ACIER_NU: [0.085, 0.075, 0.068], ROUILLE: [0.22, 0.095, 0.04],
+      TIGE_L: 3.0, TIGE_R: 0.035, HUILES: 6, pieces: 0, noires: 0, clamp: 0, aretes: 0, erreur: null };
+    I.foreuseReel = K; I.etat.foreuseReel = K.ACTIF ? "attente" : "coupe"; if (!K.ACTIF) return;
+    var U = { uRacineInv: { value: new THREE.Matrix4() }, uHuile: { value: [] }, uBoue: { value: new THREE.Vector3(K.BOUE[0], K.BOUE[1], K.BOUE[2]) }, uNu: { value: new THREE.Vector3(K.ACIER_NU[0], K.ACIER_NU[1], K.ACIER_NU[2]) } };
+    for (var h0 = 0; h0 < K.HUILES; h0++) U.uHuile.value.push(new THREE.Vector3(0, -99, 0));
+    // usure calculee par le nuanceur : marbrure de crasse, boue pres du sol, eclats aux aretes (attribut aArete : distance aux aretes vives), coulures d'huile
+    function usure(m, o) { m.onBeforeCompile = function (sh) { sh.uniforms.uRacineInv = U.uRacineInv; sh.uniforms.uHuile = U.uHuile; sh.uniforms.uBoue = U.uBoue; sh.uniforms.uNu = U.uNu; sh.uniforms.uForce = { value: new THREE.Vector4(o.crasse, o.boue, o.eclats, o.huile) };
+        sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nuniform mat4 uRacineInv;\nvarying vec3 vPosF;\n" + (o.aretes ? "attribute vec3 aArete;\nvarying vec3 vArete;\n" : ""))
+          .replace("#include <begin_vertex>", "#include <begin_vertex>\nvPosF = (uRacineInv * modelMatrix * vec4(transformed, 1.0)).xyz;\n" + (o.aretes ? "vArete = aArete;\n" : ""));
+        sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nuniform vec3 uHuile[" + K.HUILES + "];\nuniform vec3 uBoue;\nuniform vec3 uNu;\nuniform vec4 uForce;\nvarying vec3 vPosF;\n" + (o.aretes ? "varying vec3 vArete;\n" : "") +
+            "float fr_h(vec3 p) { p = fract(p * 0.1031); p += dot(p, p.yzx + 33.33); return fract((p.x + p.y) * p.z); }\n" +
+            "float fr_b(vec3 p) { vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(mix(fr_h(i), fr_h(i + vec3(1.0, 0.0, 0.0)), f.x), mix(fr_h(i + vec3(0.0, 1.0, 0.0)), fr_h(i + vec3(1.0, 1.0, 0.0)), f.x), f.y), mix(mix(fr_h(i + vec3(0.0, 0.0, 1.0)), fr_h(i + vec3(1.0, 0.0, 1.0)), f.x), mix(fr_h(i + vec3(0.0, 1.0, 1.0)), fr_h(i + vec3(1.0, 1.0, 1.0)), f.x), f.y), f.z); }\nfloat fr_mouille = 0.0; float fr_terne = 0.0;\n")
+          .replace("#include <color_fragment>", "#include <color_fragment>\n{ vec3 p = vPosF; float g1 = fr_b(p * 6.0), g2 = fr_b(p * 23.0 + 7.0), g3 = fr_b(p * 70.0 + 3.0);\n" +
+            "  diffuseColor.rgb *= mix(1.0, 0.62 + 0.38 * g1, uForce.x) * mix(1.0, 0.86 + 0.14 * g2, uForce.x);\n" +
+            (o.aretes ? "  float da = min(min(vArete.x, vArete.y), vArete.z); float ec = (1.0 - smoothstep(0.0015, 0.0055 + 0.006 * g2, da)) * smoothstep(0.38, 0.62, g3 * 0.6 + g2 * 0.4) * uForce.z; diffuseColor.rgb = mix(diffuseColor.rgb, uNu * (0.7 + 0.6 * g3), ec); fr_terne = max(fr_terne, ec);\n" : "") +
+            "  float hu = 0.0; for (int k = 0; k < " + K.HUILES + "; k++) { vec3 s = uHuile[k]; float dh = length(p.xz - s.xz), bas = s.y - p.y; hu = max(hu, (1.0 - smoothstep(0.012, 0.05 + 0.03 * g2, dh)) * (1.0 - smoothstep(0.04, 0.42, bas)) * step(-0.02, bas)); }\n" +
+            "  hu *= (0.55 + 0.45 * fr_b(vec3(p.x * 90.0, p.y * 6.0, p.z * 90.0))) * uForce.w; diffuseColor.rgb *= 1.0 - 0.72 * hu; fr_mouille = hu;\n" +
+            "  float bo = (1.0 - smoothstep(0.03, 0.55, p.y)) * smoothstep(0.30, 0.72, g1 * 0.55 + g2 * 0.45 + 0.42 * (1.0 - smoothstep(0.0, 0.2, p.y))) * uForce.y; diffuseColor.rgb = mix(diffuseColor.rgb, uBoue * (0.75 + 0.5 * g3), bo); fr_terne = max(fr_terne, bo); }")
+          .replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nroughnessFactor = mix(mix(roughnessFactor, 0.96, fr_terne), 0.22, fr_mouille);")
+          .replace("#include <metalnessmap_fragment>", "#include <metalnessmap_fragment>\nmetalnessFactor = mix(metalnessFactor, 0.0, fr_terne);"); };
+      m.customProgramCacheKey = function () { return "foreuse_reel_" + (o.aretes ? "a" : "s"); }; m.needsUpdate = true; return m; }
+    // geometrie sans index et attribut aArete : pour chaque coin d'un triangle, la distance (m) aux aretes vives de ce triangle (9 pour les autres cotes)
+    function aretes(g) { var P = g.attributes.position, n = P.count / 3, ids = new Int32Array(P.count), cle = new Map(), nb = 0, i, t, j, A = new Float32Array(P.count * 3), N = new Float32Array(n * 3);
+      var va = new THREE.Vector3(), vb = new THREE.Vector3(), vc = new THREE.Vector3(), ab = new THREE.Vector3(), ac = new THREE.Vector3(), nn = new THREE.Vector3();
+      for (i = 0; i < P.count; i++) { var k = Math.round(P.getX(i) * 2e4) + "," + Math.round(P.getY(i) * 2e4) + "," + Math.round(P.getZ(i) * 2e4), id = cle.get(k); if (id === undefined) { id = nb++; cle.set(k, id); } ids[i] = id; }
+      for (t = 0; t < n; t++) { va.fromBufferAttribute(P, t * 3); vb.fromBufferAttribute(P, t * 3 + 1); vc.fromBufferAttribute(P, t * 3 + 2); nn.crossVectors(ab.subVectors(vb, va), ac.subVectors(vc, va)); var l = nn.length() || 1; N[t * 3] = nn.x / l; N[t * 3 + 1] = nn.y / l; N[t * 3 + 2] = nn.z / l; }
+      var bords = new Map(); function ck(a, b) { return a < b ? a * 4194304 + b : b * 4194304 + a; }
+      for (t = 0; t < n; t++) for (j = 0; j < 3; j++) { var e = ck(ids[t * 3 + (j + 1) % 3], ids[t * 3 + (j + 2) % 3]), L = bords.get(e); if (!L) bords.set(e, [t]); else L.push(t); }
+      var cs = Math.cos(K.ARETE_DEG * Math.PI / 180), vives = 0;
+      for (t = 0; t < n; t++) { va.fromBufferAttribute(P, t * 3); vb.fromBufferAttribute(P, t * 3 + 1); vc.fromBufferAttribute(P, t * 3 + 2); var aire2 = nn.crossVectors(ab.subVectors(vb, va), ac.subVectors(vc, va)).length(), S = [va, vb, vc];
+        for (j = 0; j < 3; j++) { var L2 = bords.get(ck(ids[t * 3 + (j + 1) % 3], ids[t * 3 + (j + 2) % 3])), vive = L2.length === 1;   // cote oppose au coin j
+          if (!vive) for (var q = 0; q < L2.length; q++) { var u = L2[q]; if (u !== t && N[t * 3] * N[u * 3] + N[t * 3 + 1] * N[u * 3 + 1] + N[t * 3 + 2] * N[u * 3 + 2] < cs) { vive = true; break; } }
+          var lg = S[(j + 1) % 3].distanceTo(S[(j + 2) % 3]) || 1e-6, hj = aire2 / lg; if (vive) vives++;
+          for (var c = 0; c < 3; c++) A[(t * 3 + c) * 3 + j] = vive ? (c === j ? hj : 0) : 9; } }
+      g.setAttribute("aArete", new THREE.BufferAttribute(A, 3)); return vives; }
+    I.prepare(function () { if (typeof mobiles === "undefined" || !mobiles.foreuse || !mobiles.foreuse.o) return false; var f = mobiles.foreuse.o, M = {}; f.traverse(function (o) { if (o.isMesh && o.material && o.material.name && !M[o.material.name]) M[o.material.name] = o; });
+      if (!M.red || !M.tige_de_forage) return false; var t0 = performance.now();
+      try { f.updateMatrixWorld(true); var inv = new THREE.Matrix4().copy(f.matrixWorld).invert(), rouge = M.red, mLoc = new THREE.Matrix4().multiplyMatrices(inv, rouge.matrixWorld), v = new THREE.Vector3(), i, t, j;
+        // axe de la tige dans le repere de la foreuse (centres de ses deux bouts)
+        var tg = M.tige_de_forage, mT = new THREE.Matrix4().multiplyMatrices(inv, tg.matrixWorld), PT = tg.geometry.attributes.position, xa = 1e9, xb = -1e9, bas = new THREE.Vector3(), haut = new THREE.Vector3(), nbas = 0, nhaut = 0, pts = [];
+        for (i = 0; i < PT.count; i++) { var w = new THREE.Vector3().fromBufferAttribute(PT, i).applyMatrix4(mT); pts.push(w); if (w.x < xa) xa = w.x; if (w.x > xb) xb = w.x; }
+        pts.forEach(function (w) { if (Math.abs(w.x - xa) < 0.04) { bas.add(w); nbas++; } if (Math.abs(w.x - xb) < 0.04) { haut.add(w); nhaut++; } }); bas.multiplyScalar(1 / nbas); haut.multiplyScalar(1 / nhaut); var axe = haut.clone().sub(bas).normalize(); K.axe = { bas: bas, haut: haut, dir: axe };
+        if (K.PEINTURE || K.NOIR) {
+          // 1. pieces de la maille rouge (composantes connexes, sommets soudes) dans le repere de la foreuse
+          var g0 = rouge.geometry.index ? rouge.geometry.toNonIndexed() : rouge.geometry.clone(), P = g0.attributes.position, nT = P.count / 3, cle = new Map(), par = [], rep = new Int32Array(P.count);
+          for (i = 0; i < P.count; i++) { var kk = Math.round(P.getX(i) * 1e4) + "," + Math.round(P.getY(i) * 1e4) + "," + Math.round(P.getZ(i) * 1e4), id = cle.get(kk); if (id === undefined) { id = par.length; cle.set(kk, id); par.push(id); } rep[i] = id; }
+          var tr = function (x) { while (par[x] !== x) { par[x] = par[par[x]]; x = par[x]; } return x; };
+          for (t = 0; t < nT; t++) { var a = tr(rep[t * 3]), b = tr(rep[t * 3 + 1]); if (a !== b) par[b] = a; var a2 = tr(a), c2 = tr(rep[t * 3 + 2]); if (a2 !== c2) par[c2] = a2; }
+          var comp = new Map(); for (t = 0; t < nT; t++) { var r = tr(rep[t * 3]), e = comp.get(r); if (!e) { e = { tris: [], min: new THREE.Vector3(1e9, 1e9, 1e9), max: new THREE.Vector3(-1e9, -1e9, -1e9) }; comp.set(r, e); } e.tris.push(t); for (j = 0; j < 3; j++) { v.fromBufferAttribute(P, t * 3 + j).applyMatrix4(mLoc); e.min.min(v); e.max.max(v); } }
+          K.pieces = comp.size;
+          // clamp de tige : la piece centree sur l'axe de la tige la plus proche du front (au moins 30 cm de large), et ce qui tient dans sa boite
+          var clamp = null, ctr = new THREE.Vector3(), dAxe = new THREE.Vector3(); comp.forEach(function (e) { e.max.clone().sub(e.min); ctr.addVectors(e.min, e.max).multiplyScalar(0.5); var ta = dAxe.subVectors(ctr, bas).dot(axe), ecart = dAxe.addScaledVector(axe, -ta).length(), taille = e.max.distanceTo(e.min);
+            e.ta = ta; e.ecart = ecart; if (ecart < 0.05 && taille > 0.45 && e.tris.length > 100 && (!clamp || ta < clamp.ta)) clamp = e; });
+          var noirs = [], reste = []; comp.forEach(function (e) { var patin = e.max.y <= K.H_PATIN, cl = !!clamp && (e === clamp || (e.min.x >= clamp.min.x - K.CLAMP_MARGE && e.max.x <= clamp.max.x + K.CLAMP_MARGE && e.min.y >= clamp.min.y - K.CLAMP_MARGE && e.max.y <= clamp.max.y + K.CLAMP_MARGE && e.min.z >= clamp.min.z - K.CLAMP_MARGE && e.max.z <= clamp.max.z + K.CLAMP_MARGE));
+            if (K.NOIR && (patin || cl)) { noirs.push(e); if (cl) K.clamp++; } else reste.push(e); });
+          K.noires = noirs.length; if (clamp) K.boiteClamp = [clamp.min.toArray(), clamp.max.toArray()];
+          var extrait = function (L) { var nt = 0; L.forEach(function (e) { nt += e.tris.length; }); var G = new THREE.BufferGeometry(); Object.keys(g0.attributes).forEach(function (nm) { var S = g0.attributes[nm], D = new S.array.constructor(nt * 3 * S.itemSize), k = 0; L.forEach(function (e) { e.tris.forEach(function (ti) { for (var q = 0; q < 3 * S.itemSize; q++) D[k++] = S.array[ti * 3 * S.itemSize + q]; }); }); G.setAttribute(nm, new THREE.BufferAttribute(D, S.itemSize, S.normalized)); }); G.computeBoundingBox(); G.computeBoundingSphere(); return G; };
+          var gR = extrait(reste), ancien = rouge.geometry; K.aretes = K.PEINTURE ? aretes(gR) : 0; rouge.geometry = gR;
+          var mr = rouge.material; if (K.PEINTURE) { mr.color.setRGB(K.ROUGE[0], K.ROUGE[1], K.ROUGE[2]); mr.roughness = K.RUG_ROUGE; usure(mr, { crasse: 1, boue: 1, eclats: 1, huile: 1, aretes: true }); }
+          if (noirs.length) { var gN = extrait(noirs); if (K.PEINTURE) aretes(gN); var mn = new THREE.MeshStandardMaterial({ name: "foreuse_noir", color: new THREE.Color(K.NOIRC[0], K.NOIRC[1], K.NOIRC[2]), roughness: K.RUG_NOIR, metalness: 0.2 }); if (K.PEINTURE) usure(mn, { crasse: 0.6, boue: 0.5, eclats: 0.9, huile: 0.6, aretes: true });   /* boue legere : le chassis doit se lire NOIR */
+            var noir = new THREE.Mesh(gN, mn); noir.name = "Foreuse_chassis_et_clamp_noirs"; noir.castShadow = rouge.castShadow; noir.receiveShadow = rouge.receiveShadow; noir.position.copy(rouge.position); noir.quaternion.copy(rouge.quaternion); noir.scale.copy(rouge.scale); rouge.parent.add(noir); K.noir = noir; }
+          try { ancien.dispose(); } catch (e9) {}
+          // autres pieces peintes en rouge (attelage) : meme usure, sans eclats (pas d'attribut d'aretes)
+          if (K.PEINTURE && M.attelage_amovible) { var ma = M.attelage_amovible.material; ma.color.setRGB(K.ROUGE[0] * 1.02, K.ROUGE[1], K.ROUGE[2]); ma.roughness = K.RUG_ROUGE; usure(ma, { crasse: 1, boue: 1, eclats: 0, huile: 0.6, aretes: false }); }
+          // coulures d'huile : sous les plus gros raccords de laiton (centres de leurs pieces), dans le repere de la foreuse
+          if (K.PEINTURE && M.brass) { var gb = M.brass.geometry, Pb = gb.attributes.position, mB = new THREE.Matrix4().multiplyMatrices(inv, M.brass.matrixWorld), cases = new Map(); for (i = 0; i < Pb.count; i += 3) { v.fromBufferAttribute(Pb, i).applyMatrix4(mB); var kc = Math.round(v.x / 0.12) + "," + Math.round(v.y / 0.12) + "," + Math.round(v.z / 0.12), ec = cases.get(kc); if (!ec) { ec = { n: 0, s: new THREE.Vector3() }; cases.set(kc, ec); } ec.n++; ec.s.add(v); }
+            var Lc = []; cases.forEach(function (ec) { ec.s.multiplyScalar(1 / ec.n); if (ec.s.y > 0.45) Lc.push(ec); }); Lc.sort(function (x, y) { return y.n - x.n; }); for (i = 0; i < K.HUILES && i < Lc.length; i++) U.uHuile.value[i].copy(Lc[i].s); K.huiles = Math.min(K.HUILES, Lc.length); } }
+        // 2. tige : meme matiere d'acier rouille pour la tige du trou et pour la longueur qui depasse derriere la tete
+        if (K.TIGE) { var mt = tg.material; mt.color.setRGB(K.ROUILLE[0], K.ROUILLE[1], K.ROUILLE[2]); mt.roughness = 0.86; mt.metalness = 0.3; usure(mt, { crasse: 1.2, boue: 0, eclats: 0, huile: 0, aretes: false });
+          var gc = new THREE.CylinderGeometry(K.TIGE_R, K.TIGE_R, K.TIGE_L, 20, 1, false), arr = new THREE.Mesh(gc, mt); arr.name = "Foreuse_tige_derriere_la_tete"; arr.castShadow = true; arr.receiveShadow = true;
+          var grp = new THREE.Group(); grp.name = "Foreuse_tige_arriere"; grp.position.copy(haut).addScaledVector(axe, K.TIGE_L / 2); grp.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axe); grp.add(arr); f.add(grp); K.tige = grp; K.boutTige = haut.clone().addScaledVector(axe, K.TIGE_L).toArray(); }
+        // 3. boyaux hydrauliques en boucles laches au sol, a droite (cote entree) et devant la foreuse ; hors des collisions (groupe de la scene qui suit la foreuse)
+        if (K.BOYAUX) { var gbx = new THREE.Group(); gbx.name = "Foreuse_boyaux_au_sol"; gbx.matrixAutoUpdate = false; scene.add(gbx); K.boyaux = gbx;
+          var mh = (M.hose && M.hose.material) || new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.62 }), R = 0.019;
+          // une boucle : spirale lache de n tours autour de (cx, cz), rayons rx, rz, posee au sol, les tours se chevauchent un peu ; puis un bout qui part vers (fx, fz)
+          var boucle = function (cx, cz, rx, rz, tours, graine, fx, fz) { var pts2 = [], nseg = Math.round(tours * 26), q; for (q = 0; q <= nseg; q++) { var an = q / 26 * Math.PI * 2 + graine, tt = q / nseg, k2 = 1 - 0.16 * tt + 0.07 * Math.sin(an * 2.3 + graine), ox = 0.05 * Math.sin(tt * 9 + graine), oz = 0.05 * Math.cos(tt * 7 + graine * 2);
+                pts2.push(new THREE.Vector3(cx + ox + Math.cos(an) * rx * k2, R + 0.004 + 2 * R * Math.floor(tt * tours) * 0.55 + 0.006 * Math.sin(an * 3 + graine), cz + oz + Math.sin(an) * rz * k2)); }
+            if (fx !== undefined) { var der = pts2[pts2.length - 1]; for (q = 1; q <= 6; q++) { var u2 = q / 6; pts2.push(new THREE.Vector3(der.x + (fx - der.x) * u2 + 0.07 * Math.sin(u2 * Math.PI * 2 + graine), R + 0.004, der.z + (fz - der.z) * u2 + 0.09 * Math.sin(u2 * Math.PI * 1.5 + graine))); } }
+            var m2 = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts2), pts2.length * 3, R, 7, false), mh); m2.castShadow = true; m2.receiveShadow = true; gbx.add(m2); };
+          // repere de la foreuse : x du front (0) vers l'entree, z < 0 vers la paroi ; bout arriere du chassis vers x = 2, bord avant vers z = 0,55
+          var bbR = new THREE.Box3(); rouge.geometry.computeBoundingBox(); bbR.copy(rouge.geometry.boundingBox).applyMatrix4(mLoc); if (K.noir) { K.noir.geometry.computeBoundingBox(); bbR.union(new THREE.Box3().copy(K.noir.geometry.boundingBox).applyMatrix4(mLoc)); }
+          var xr = bbR.max.x, zd = bbR.max.z, zf = bbR.min.z; K.repere = { xr: xr, zd: zd, zf: zf };
+          boucle(xr + 0.55, (zd + zf) / 2 - 0.1, 0.36, 0.44, 2.6, 0.7, xr - 0.1, zf + 0.35);
+          boucle(xr + 0.62, zd - 0.05, 0.3, 0.3, 1.8, 2.9, xr - 0.15, zd - 0.25);
+          boucle(xr + 0.2, zd + 0.27, 0.4, 0.2, 1.6, 4.4, xr - 0.35, zd - 0.05); }
+        K.ms = Math.round(performance.now() - t0); I.etat.foreuseReel = "pret";
+      } catch (e) { K.erreur = String(e && e.stack || e); I.etat.foreuseReel = "erreur"; if (window.console) console.warn("foreuse reelle :", e); }
+      return true; });
+    var mInv = new THREE.Matrix4();
+    I.anime(function () { if (I.etat.foreuseReel !== "pret" || typeof mobiles === "undefined" || !mobiles.foreuse || !mobiles.foreuse.o) return; var f = mobiles.foreuse.o; f.updateWorldMatrix(true, false); U.uRacineInv.value.copy(mInv.copy(f.matrixWorld).invert());
+      if (K.boyaux) { K.boyaux.matrix.copy(f.matrixWorld); K.boyaux.matrixWorldNeedsUpdate = true; K.boyaux.visible = I.vu(f); } });
+  })();
   // ---- inter_groupe.js (tour 6, part « console_groupe », 2026-11-14) : marche / arret du groupe hydraulique par les boutons de sa colonne (G63.COMMANDES).
   // Etat de depart = EN MARCHE : la photo de l'utilisateur (terrain_23) montre le voyant orange allume, et la page doit rester identique tant qu'on ne touche a rien.
   // Bouton rouge = arret, bouton vert = marche (couleurs des normes de commande ; les boutons noir et creme n'ont pas de fonction connue : non cliquables, question).
@@ -11456,6 +11651,428 @@
       I.anime(function () { if (K.ouvert && K.etapeVoulue !== undefined) { var v = K.etapeVoulue; K.etapeVoulue = undefined; etape(v); } });
       I.etat.rackInstallation = "pret"; return true; });
   })();
+  // ---- inter_scie.js (versions 102 et 103, 2026-11-17) : le JOUEUR coupe le plancher secondaire a la scie va-et-vient pour qu'il epouse la foreuse.
+  // Utilisateur : « je veux nouvelle fonctionnalite qui permet joueur couper plancher secondaire avec scie va et vient (Sawzall) pour permettre
+  // rapprocher plancher foreuse », photo d'une Makita DJR183Z comme scie, puis, devant la premiere version (coupe automatique a angles droits) :
+  // « la coupe est controler par lutilisateur elle nest pas droite le plancher doit epouser la foreuse ».
+  // Version 103, trois demandes du meme soir : « je veux vue du dessus pourbien voir ou couper » ; « range toujours la scie va et vien dans le coffre
+  // donc pour couper le plancher doit aller chercher loutil » ; « si erreur offre possibilité mettre nouvelle planche ».
+  // Deroulement : la scie est rangee dans le tiroir du coffre a outils. Coffre ouvert et tiroir tire, le joueur la prend : elle se porte a la main droite. Au bord du
+  // plancher secondaire cote foreuse, « Couper » ouvre la vue du dessus : le contour de la foreuse est releve devant le plancher (module de collisions)
+  // (il sert a savoir jusqu'ou le plancher peut avancer ; depuis la version 104 RIEN n'indique ou couper : « ne pas indiquer ou couper ») ; il glisse
+  // la souris ou le doigt sur le bord : la scie suit, le bois disparait la ou elle
+  // passe (coupe traversante : madriers et traverses), a main levee. Barre de boutons ronds : « Pousser » (le plancher avance jusqu'a toucher la
+  // foreuse), « Tirer » (il recule pour recouper), « Planche neuve » (plancher entier remis ; allume quand la coupe est trop profonde : il resterait un
+  // trou de 3 po ou plus, ou le pied passe), « Retour » (la scie reste en main). La scie se range a sa place dans le tiroir.
+  // Version 105 (« rend la coupe ultraréaliste ») : la lame laisse un trait de scie de 5 mm et avance a la vitesse d'une vraie scie (5 cm/s dans un madrier,
+  // 3 cm/s au-dessus d'une traverse) le long du chemin que le joueur trace en gardant le bouton ou le doigt appuye ; un morceau ne tombe que lorsque le trait
+  // l'a detache ; il tombe sous son poids et reste par terre jusqu'a la poussee ; les chants coupes ont la couleur du bois frais.
+  // Version 106 (2026-11-18, sur une capture de la 105 : « indique ou couper et corrige il rezte du bois ») : le trace jaune a suivre revient (il s'efface
+  // avec le bois coupe), ainsi que le repere rouge apres une poussee trop courte ; la peinture rouge des chants (3 mm) est coupee avec le reste.
+  // Meme version : les chants coupes sont lisses, poses a 2,5 mm du chemin reel de la lame (sur la capture, la grille de cases dessinait des marches de 5 mm).
+  // Ni son ni sciure. Scie modelisee ici d'apres la photo (formes simples, sans marque). Tout se coupe par I71.scie.ACTIF.
+  (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
+    var K = { ACTIF: true, DX: 0.01, DMAX: 0.30, JEU: 0.012, V_SCIE: 0.05, V_TRAVERSE: 0.03, V_VIDE: 0.5, CASE: 0.005, MIETTE: 6, T_POSE: 0.5, V_LIBRE: 2.4, T_AVANCE: 1.3, T_CHUTE: 0.8, PILE: { dx: 0.12, z: 0.034 }, REPOS: [2.05, 0.039, 0.10], CENTILE: 0.7, MARGE: 0.10, ERREUR: 0.064, LARGE: 0.03, TIRET: 0.011, BORD: 0.003, INCLINE: 30,
+      VUE: { vise: 0.10, dx: 0.15, demi: 1.2, dmin: 1.0, fov: 50, T: 0.9 }, TIROIR_TIRE: 0.2, PRISE: { incl: 55, paume: 0.75, dehors: 0.03, g: [-0.281, -0.050, 0] },
+      lieu: "coffre", mode: "repos", phase: "vol", avance: 0, enCours: false, traits: 0, releve: "non", erreur: null };
+    I.scie = K; I.etat.scie = K.ACTIF ? "attente" : "coupe"; if (!K.ACTIF) return;
+    var V3 = function (x, y, z) { return new THREE.Vector3(x, y, z); }, HAUT = V3(0, 1, 0), BAS = V3(0, -1, 0);
+    // pendant la coupe (vue du dessus) : la fiche d'etape, le titre et les boutons de coin s'effacent ; il reste la barre de la coupe
+    try { var st = document.createElement("style"); st.textContent = ["body.scie102-coupe #haut-gauche,body.scie102-coupe #haut-droit,body.scie102-coupe #bas{visibility:hidden!important}body.scie102-coupe #hud88 .viseur{display:none!important}",
+      // la liste du coffre reste a quai tant que le coffre est ouvert : elle s'efface le temps de la coupe (comme pendant un examen)
+      "body.scie102-coupe #coffre88,body.scie102-coupe #coffre88-sel,body.scie102-coupe #coffre88-bande,body.scie102-coupe #coffre88-etiq{display:none!important}",
+      "#scie103-barre{position:fixed;z-index:6;left:0;right:0;top:0;display:none;align-items:flex-start;justify-content:space-between;gap:8px;pointer-events:none;padding:calc(12px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px))}",
+      "body.scie102-coupe #scie103-barre{display:flex}#scie103-barre>div{display:flex;gap:2px;pointer-events:none;flex:1 1 0}#scie103-barre>div>*{pointer-events:auto}#scie103-barre>div:last-child{justify-content:flex-end}",
+      "#scie103-barre h2{flex:none;margin:15px 0 0;font:700 23px/1 var(--f-titre);letter-spacing:.05em;text-transform:uppercase;text-align:center;color:#fff;text-shadow:0 1px 2px #000,0 0 8px #000,0 0 14px rgba(0,0,0,.8)}",
+      "@media (max-width:699px){#scie103-barre h2{display:none}}"].join("\n"); document.head.appendChild(st); } catch (e) {}
+    var classeMise = false;
+    // ---- la scie : origine au patin, lame vers +X, dessus vers +Y
+    function creeScie() { var S = new THREE.Group(); S.name = "Scie_va_et_vient";
+      var sarcelle = new THREE.MeshStandardMaterial({ name: "scie_sarcelle", color: new THREE.Color(0x0f8f96).convertSRGBToLinear(), roughness: 0.5, metalness: 0.05 }), noir = new THREE.MeshStandardMaterial({ name: "scie_noir", color: new THREE.Color(0x202326).convertSRGBToLinear(), roughness: 0.85 });
+      var acier = new THREE.MeshStandardMaterial({ name: "scie_acier", color: new THREE.Color(0xa9b0b4).convertSRGBToLinear(), roughness: 0.32, metalness: 0.85 }), matLame = new THREE.MeshStandardMaterial({ name: "scie_lame", color: new THREE.Color(0x3a9aa2).convertSRGBToLinear(), roughness: 0.38, metalness: 0.7 });
+      var bleu = new THREE.MeshStandardMaterial({ name: "scie_levier", color: new THREE.Color(0x2b4fc4).convertSRGBToLinear(), roughness: 0.55 });
+      function boite(pere, mat, w, h, d, x, y, z) { var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; pere.add(m); return m; }
+      function cyl(pere, mat, rAv, rAr, l, x) { var gc = new THREE.CylinderGeometry(rAv, rAr, l, 28); gc.rotateZ(-Math.PI / 2); var m = new THREE.Mesh(gc, mat); m.position.set(x, 0, 0); m.castShadow = true; m.receiveShadow = true; pere.add(m); return m; }
+      var lame = new THREE.Group(); S.add(lame); boite(lame, matLame, 0.150, 0.019, 0.0013, 0.070, 0, 0); boite(lame, acier, 0.132, 0.0035, 0.0016, 0.070, -0.0095, 0);
+      boite(S, acier, 0.003, 0.017, 0.034, 0, 0.0185, 0); boite(S, acier, 0.003, 0.017, 0.034, 0, -0.0185, 0); boite(S, acier, 0.032, 0.004, 0.005, -0.016, -0.026, 0.012); boite(S, acier, 0.032, 0.004, 0.005, -0.016, -0.026, -0.012);
+      cyl(S, noir, 0.014, 0.014, 0.022, -0.012); cyl(S, noir, 0.024, 0.031, 0.075, -0.0575); boite(S, bleu, 0.024, 0.008, 0.014, -0.046, 0.029, 0.010);
+      cyl(S, sarcelle, 0.031, 0.031, 0.115, -0.1525); cyl(S, sarcelle, 0.031, 0.025, 0.030, -0.225);
+      [-0.012, 0, 0.012].forEach(function (y) { [-1, 1].forEach(function (c) { boite(S, noir, 0.034, 0.0035, 0.002, -0.172, y, c * 0.0308); }); });
+      var poignee = new THREE.Group(); poignee.position.set(-0.228, 0, 0); poignee.rotation.z = 28 * Math.PI / 180; S.add(poignee);
+      boite(poignee, sarcelle, 0.125, 0.024, 0.040, -0.0625, 0.004, 0); boite(poignee, noir, 0.105, 0.026, 0.038, -0.070, -0.019, 0); boite(poignee, noir, 0.022, 0.012, 0.012, -0.018, -0.036, 0);
+      boite(poignee, noir, 0.052, 0.030, 0.064, -0.136, -0.012, 0); boite(poignee, noir, 0.112, 0.060, 0.074, -0.118, -0.056, 0); boite(poignee, sarcelle, 0.090, 0.004, 0.076, -0.118, -0.028, 0);
+      S.userData.lame = lame; return S; }
+    // ---- la scie au coffre a outils (version 103, utilisateur : « range toujours la scie va et vien dans le coffre donc pour couper le plancher doit
+    // aller chercher loutil ») : elle est couchee dans le TIROIR du coffre (le fond du bas est pris par les tubes et cache par le devant du coffre) ;
+    // coffre ouvert et tiroir tire, on la prend ; elle se porte a la main droite ; au bord du plancher secondaire elle sert a couper ; elle se range
+    // a sa place dans le tiroir. Prete des que le coffre est la (toutes les etapes) ; la coupe, elle, attend le plancher secondaire et la foreuse.
+    var S = null, R = null, contenu = null, tiroir = null, tiroir0 = null, gt = null, gm = null, place = null;
+    function vueGuidee() { return typeof guide !== "undefined" && !!guide; }
+    function tiroirOuvert() { return !!tiroir && tiroir.position.distanceTo(tiroir0) > K.TIROIR_TIRE; }
+    function auCoffre() { K.lieu = "coffre"; K.mode = "repos"; gt.add(S); S.position.copy(place.position); S.quaternion.copy(place.quaternion); S.scale.copy(place.scale); if (I.etat.scie === "scie en main") I.etat.scie = "pret"; }
+    function prendAuCoffre() { if (K.lieu !== "coffre") return; K.lieu = "main"; gm.add(S); S.scale.set(1, 1, 1); S.visible = false; if (I.etat.scie === "pret") I.etat.scie = "scie en main"; I.message("Scie va-et-vient en main : va couper le plancher secondaire, côté foreuse", 4500); }
+    function rangeAuCoffre() { if (K.lieu !== "main") return; auCoffre(); I.message("Scie va-et-vient rangée dans le tiroir du coffre", 3000); }
+    // portee : au creux de la main droite, dans le plan de marche DU CORPS (en premiere personne le corps bascule avec le regard : la scie bascule avec lui),
+    // lame vers l'avant et le bas (jamais vers la jambe) ; cachee quand le corps l'est
+    var os = null, vP = new THREE.Vector3(), vM = new THREE.Vector3(), vD = new THREE.Vector3(), vG = new THREE.Vector3(), vU = new THREE.Vector3(), mP = new THREE.Matrix4();
+    function porte() { var av = typeof avatar !== "undefined" ? avatar : null, m = av && av.modele; if (!m || vueGuidee()) { S.visible = false; return; }
+      if (!os || os.m !== m) os = { m: m, main: m.getObjectByName("hand_r"), doigt: m.getObjectByName("middle_01_r"), cg: m.getObjectByName("thigh_l"), cd: m.getObjectByName("thigh_r"), bas: m.getObjectByName("pelvis"), haut: m.getObjectByName("spine_03") || m.getObjectByName("neck_01") };
+      var o = m, vis = true; while (o) { if (!o.visible) { vis = false; break; } o = o.parent; } if (!vis || !os.main || !os.doigt || !os.cg || !os.cd || !os.bas || !os.haut) { S.visible = false; return; }
+      os.main.updateWorldMatrix(true, false); os.doigt.updateWorldMatrix(true, false); os.cg.updateWorldMatrix(true, false); os.cd.updateWorldMatrix(true, false); os.bas.updateWorldMatrix(true, false); os.haut.updateWorldMatrix(true, false);
+      vP.setFromMatrixPosition(os.main.matrixWorld); vM.setFromMatrixPosition(os.doigt.matrixWorld); vD.setFromMatrixPosition(os.cd.matrixWorld).sub(vG.setFromMatrixPosition(os.cg.matrixWorld)); if (vD.lengthSq() < 1e-8) { S.visible = false; return; } vD.normalize();
+      vU.setFromMatrixPosition(os.haut.matrixWorld).sub(vG.setFromMatrixPosition(os.bas.matrixWorld)); vU.addScaledVector(vD, -vU.dot(vD)); if (vU.lengthSq() < 1e-8) { S.visible = false; return; } vU.normalize();
+      var C = K.PRISE, c = Math.cos(C.incl * Math.PI / 180), s = Math.sin(C.incl * Math.PI / 180), avant = vU.clone().cross(vD), X = avant.clone().multiplyScalar(c).addScaledVector(vU, -s), Y = avant.clone().multiplyScalar(s).addScaledVector(vU, c);
+      mP.makeBasis(X, Y, vD); S.quaternion.setFromRotationMatrix(mP); vM.sub(vP).multiplyScalar(C.paume).add(vP).addScaledVector(vD, C.dehors);
+      S.position.copy(vG.set(C.g[0], C.g[1], C.g[2]).applyQuaternion(S.quaternion).negate().add(vM)); S.visible = true; }
+    I.prepare(function () { var mc = mobiles.coffre; if (!mc || !mc.o) return false; var LS = I.coffreListe; if (LS && LS.ACTIF !== false && I.etat.coffreListe === "attente") return false;   // la liste du coffre se prepare encore
+      var r = mc.o, c = r.getObjectByName("SM_Coffre_Contenu"), t = r.getObjectByName("SM_Coffre_Tiroir"); if (!c || !t || !t.geometry) return false;
+      R = r; contenu = c; tiroir = t; tiroir0 = t.position.clone(); S = creeScie(); gm = new THREE.Group(); gm.name = "Scie_portee"; scene.add(gm); gt = new THREE.Group(); gt.name = "Scie_au_tiroir"; gt.matrixAutoUpdate = false; scene.add(gt);
+      // place dans le tiroir : a plat sur le flanc, lame le long du tiroir, au milieu du bac (boite de la scie et bac du tiroir mesures ici)
+      var bs = new THREE.Box3(), bt, inv = new THREE.Matrix4(); S.updateMatrixWorld(true); S.traverse(function (x) { if (!x.isMesh) return; x.geometry.computeBoundingBox(); bs.union(x.geometry.boundingBox.clone().applyMatrix4(x.matrixWorld)); });
+      R.updateWorldMatrix(true, true); inv.copy(R.matrixWorld).invert(); t.geometry.computeBoundingBox(); bt = t.geometry.boundingBox.clone().applyMatrix4(t.matrixWorld).applyMatrix4(inv);
+      var qR = new THREE.Quaternion().setFromAxisAngle(V3(1, 0, 0), Math.PI / 2), pR = V3((bt.min.x + bt.max.x) / 2 - (bs.min.x + bs.max.x) / 2, bt.min.y + 0.005 + bs.max.z, (bt.min.z + bt.max.z) / 2 - (bs.min.y + bs.max.y) / 2);
+      var M = new THREE.Matrix4().compose(pR, qR, V3(1, 1, 1)).premultiply(R.matrixWorld).premultiply(new THREE.Matrix4().copy(t.matrixWorld).invert());
+      place = new THREE.Group(); place.name = "Place_scie_tiroir"; M.decompose(place.position, place.quaternion, place.scale); gt.add(place); gt.matrix.copy(t.matrixWorld); gt.matrixWorldNeedsUpdate = true;
+      K.tiroir = { bac: [bt.min.x, bt.min.y, bt.min.z, bt.max.x, bt.max.y, bt.max.z].map(function (v) { return +v.toFixed(3); }), scie: [bs.min.x, bs.min.y, bs.min.z, bs.max.x, bs.max.y, bs.max.z].map(function (v) { return +v.toFixed(3); }) };
+      auCoffre(); S.visible = false;
+      var zPrise = new THREE.Box3(bs.min.clone().addScalar(-0.012), bs.max.clone().addScalar(0.012)), ancre = V3((bs.min.x + bs.max.x) / 2, bs.min.y - 0.02, bs.min.z - 0.04);   // au-dessus et en arriere de la scie couchee : l'invite ne la cache pas
+      I.zone({ o: S, prio: 2, ancre: { o: S, p: ancre }, b: zPrise, actif: function () { return K.lieu === "coffre" && !!contenu.visible && tiroirOuvert() && !K.enCours; },
+        texte: function () { return ["Clique pour prendre la scie va-et-vient", "Touche la scie pour la prendre"]; }, agit: prendAuCoffre });
+      I.zone({ o: place, prio: 2, ancre: { o: place, p: ancre }, b: zPrise, actif: function () { return K.lieu === "main" && !!contenu.visible && tiroirOuvert() && !K.enCours; },
+        texte: function () { return ["Clique pour ranger la scie va-et-vient", "Touche ici pour ranger la scie va-et-vient"]; }, agit: rangeAuCoffre });
+      I.anime(function () { tiroir.updateWorldMatrix(true, false); gt.matrix.copy(tiroir.matrixWorld); gt.matrixWorldNeedsUpdate = true; if (K.lieu === "coffre") S.visible = !!contenu.visible; });
+      // la scie portee se pose juste avant le rendu : la page finit de poser les bras du corps apres les modules (en vue avatar la scie restait a 30 cm de la main)
+      var avantRendu = scene.onBeforeRender; scene.onBeforeRender = function () { if (avantRendu) avantRendu.apply(this, arguments); if (K.lieu === "main") { try { porte(); S.updateMatrixWorld(true); } catch (e) { K.erreur = String(e && e.message || e); } } };
+      // (version 104, utilisateur : « Oui, ajoute-la ») la scie figure dans la liste de materiel du coffre (feuille de la porte et liste a l'ecran) ; choisir sa ligne tire le tiroir et l'allume
+      var mats = []; S.traverse(function (x) { if (x.isMesh && mats.indexOf(x.material) < 0) mats.push(x.material); });
+      function tireTiroir() { var C = I.coffre; if (C && C.veutOuvert) C.veutTiroir = true; }
+      function eclaire(dt) { if (!(K.eclat > 0)) return; K.eclat = Math.max(0, K.eclat - dt); var k = K.eclat > 0 ? Math.abs(Math.sin(Math.PI * K.eclat / 0.87)) * 0.85 : 0; mats.forEach(function (m) { if (m.emissive) m.emissive.setRGB(0.95 * k, 0.62 * k, 0.12 * k); }); }
+      I.anime(eclaire);
+      if (LS && LS.ajouteLigne) K.ligne = LS.ajouteLigne({ rep: "scie", q: 1, nom: "Scie va-et-vient", pn: "", pieces: [], special: {
+        puce: function () { return K.lieu === "coffre" ? "au coffre" : K.lieu === "main" ? "en main" : "au plancher"; },
+        lieu: function () { return K.lieu === "coffre" ? "dans le tiroir du coffre" : K.lieu === "main" ? "tu l'as en main" : "en service au plancher secondaire"; },
+        montre: function () { if (K.lieu === "coffre") { tireTiroir(); K.eclat = 2.61; I.message("Scie va-et-vient : dans le tiroir du coffre", 5000); } else I.message(K.lieu === "main" ? "Scie va-et-vient : tu l'as en main" : "Scie va-et-vient : en service au plancher secondaire", 4000); },
+        boutons: function () { return K.lieu === "coffre" ? '<button type="button" class="clair" data-act="montrer">Montrer</button><button type="button" data-act="prendre">Prendre</button>' : K.lieu === "main" ? '<button type="button" data-act="ranger">Ranger</button>' : ""; },
+        agit: function (act) { if (act === "prendre") { tireTiroir(); prendAuCoffre(); } else if (act === "ranger") { tireTiroir(); rangeAuCoffre(); K.eclat = 1.74; } } } });
+      K.S = S; K.coffre = R; K.place = place; K.prendAuCoffre = prendAuCoffre; K.rangeAuCoffre = rangeAuCoffre; K.tiroirOuvert = tiroirOuvert; return true; });
+    I.prepare(function () { var m = mobiles.secondaire; if (!S || !m || !m.o || !mobiles.foreuse || !mobiles.foreuse.o) return false; var p = m.o, g = p.children[0]; if (!g || !g.children.length) return false;
+      var tPrep = performance.now();
+      try { if (typeof quai === "function") quai(); } catch (e) {}
+      K.tQuai = performance.now() - tPrep;
+      // ---- pieces du plancher, dans le repere de g (= coordonnees du monde a la construction)
+      var E = [];
+      g.children.forEach(function (o) { if (!o.isMesh) return; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); var b = o.geometry.boundingBox, c = o.position;
+        E.push({ o: o, geo0: o.geometry, x0: c.x + b.min.x, x1: c.x + b.max.x, y0: c.y + b.min.y, y1: c.y + b.max.y, z0: c.z + b.min.z, z1: c.z + b.max.z, bois: /^wood/.test((o.material && o.material.name) || "") }); });
+      var traverses = E.filter(function (e) { return e.bois && e.y1 - e.y0 > 0.1; }).sort(function (a, b) { return a.x0 - b.x0; }), madriers = E.filter(function (e) { return e.bois && e.y1 - e.y0 <= 0.1; }).sort(function (a, b) { return a.z0 - b.z0; });
+      if (traverses.length !== 3 || madriers.length !== 4) { I.etat.scie = "plancher inattendu (" + traverses.length + " traverses, " + madriers.length + " madriers)"; return true; }
+      var M0 = madriers[0], X0 = M0.x0, X1 = M0.x1, Z0 = traverses[0].z0, Z1 = traverses[0].z1, YT = M0.y1, YB = traverses[0].y0, XM = (X0 + X1) / 2, N = Math.round((X1 - X0) / K.DX), PAS = (X1 - X0) / N;
+      var d = new Float32Array(N + 1), d0 = new Float32Array(N + 1), gapD = new Float32Array(N + 1), gapS = new Float32Array(N + 1), req = new Float32Array(N + 1), surTraverse = new Uint8Array(N + 1);
+      for (var i0 = 0; i0 <= N; i0++) { var xi = X0 + i0 * PAS; surTraverse[i0] = traverses.some(function (t) { return xi >= t.x0 - 0.004 && xi <= t.x1 + 0.004; }) ? 1 : 0; gapD[i0] = gapS[i0] = 9; }
+      function axes(L, n) { var nn = [Math.abs(n[0]), Math.abs(n[1]), Math.abs(n[2])], D = nn[0] >= nn[1] && nn[0] >= nn[2] ? 0 : nn[1] >= nn[2] ? 1 : 2; return D === L ? [(L + 1) % 3, (L + 2) % 3] : [L, 3 - L - D]; }
+      var touches = E.filter(function (e) { return e.z0 < Z0 + K.DMAX + 0.01; });
+      touches.forEach(function (e) { if (!e.bois) return; var G0 = e.geo0, bb = G0.boundingBox, t = [bb.max.x - bb.min.x, bb.max.y - bb.min.y, bb.max.z - bb.min.z]; e.L = t[0] >= t[1] && t[0] >= t[2] ? 0 : t[1] >= t[2] ? 1 : 2;
+        var P0 = G0.attributes.position, N0 = G0.attributes.normal, U0 = G0.attributes.uv, a0 = axes(e.L, [N0.getX(0), N0.getY(0), N0.getZ(0)]), q0 = [P0.getX(0), P0.getY(0), P0.getZ(0)];
+        e.du = U0 ? U0.getX(0) - q0[a0[0]] / 1.6 : 0; e.dv = U0 ? U0.getY(0) - q0[a0[1]] / 0.6 : 0; });
+      function prof(x) { var f = (x - X0) / PAS; if (f <= 0) return d[0]; if (f >= N) return d[N]; var i = Math.floor(f); return d[i] + (d[i + 1] - d[i]) * (f - i); }
+      // ---- (version 105, utilisateur : « rend la coupe ultraréaliste ») le bord du plancher cote foreuse est une grille de cases de K.CASE (5 mm) : 1 = bois.
+      // La lame enleve les cases qu'elle traverse : un trait de scie de 5 mm, a la vitesse d'une vraie scie. Rien d'autre ne disparait : un morceau ne quitte
+      // le plancher que lorsque le trait l'a separe du reste (retour au bord, a un bout du plancher ou a un autre trait) ; il tombe alors sous son poids.
+      // Les chants coupes ont la couleur du bois frais. Le plancher tient par sa rangee du fond, que la scie n'atteint pas.
+      var CE = K.CASE, NX = Math.round((X1 - X0) / CE), NZ = Math.round((K.DMAX + 0.02) / CE), NC = NX * NZ, G = new Uint8Array(NC), vuC = new Uint8Array(NC), pileC = new Int32Array(NC); G.fill(1);
+      var matCoupe = new THREE.MeshStandardMaterial({ name: "bois_coupe_frais", color: new THREE.Color(0xd8b98a).convertSRGBToLinear(), roughness: 0.92, metalness: 0 });
+      touches.forEach(function (e) { e.mat0 = e.o.material; });
+      function majProfil() { var r = PAS / CE, ix, i, j, dc = new Float32Array(NX); for (ix = 0; ix < NX; ix++) { j = 0; while (j < NZ && !G[j * NX + ix]) j++; dc[ix] = j * CE; }
+        for (i = 0; i <= N; i++) { var a = Math.max(0, Math.min(NX - 1, Math.round(i * r) - 1)), b = Math.max(0, Math.min(NX - 1, Math.round(i * r))); d[i] = Math.min(dc[a], dc[b]); } }
+      function boisEn(x, z) { var ix = Math.floor((x - X0) / CE), jz = Math.floor(z / CE); return ix >= 0 && ix < NX && jz >= 0 && jz < NZ && G[jz * NX + ix] === 1; }
+      // la lame va de (xa, za) a (xb, zb) : les cases traversees sont enlevees ; rend le nombre de cases de bois coupees
+      function tranche(xa, za, xb, zb) { tsNote(xa, za, xb, zb); var l = Math.hypot(xb - xa, zb - za), n = Math.max(1, Math.ceil(l / (CE * 0.4))), nb = 0;
+        for (var k = 0; k <= n; k++) { var ix = Math.floor((xa + (xb - xa) * k / n - X0) / CE), jz = Math.floor((za + (zb - za) * k / n) / CE); if (ix < 0 || ix >= NX || jz < 0 || jz >= NZ - 3) continue; var c = jz * NX + ix; if (G[c]) { G[c] = 0; nb++; } } return nb; }
+      // morceaux de bois que les traits ont separes du plancher
+      function separes() { var n = 0, c, k, ix, out = []; vuC.fill(0);
+        function voisins(c0) { var x = c0 % NX, z = (c0 - x) / NX; if (x > 0 && G[c0 - 1] && !vuC[c0 - 1]) { vuC[c0 - 1] = 1; pileC[n++] = c0 - 1; } if (x < NX - 1 && G[c0 + 1] && !vuC[c0 + 1]) { vuC[c0 + 1] = 1; pileC[n++] = c0 + 1; }
+          if (z > 0 && G[c0 - NX] && !vuC[c0 - NX]) { vuC[c0 - NX] = 1; pileC[n++] = c0 - NX; } if (z < NZ - 1 && G[c0 + NX] && !vuC[c0 + NX]) { vuC[c0 + NX] = 1; pileC[n++] = c0 + NX; } }
+        for (ix = 0; ix < NX; ix++) { c = (NZ - 1) * NX + ix; if (G[c]) { vuC[c] = 1; pileC[n++] = c; } } while (n) voisins(pileC[--n]);
+        for (c = 0; c < NC; c++) { if (!G[c] || vuC[c]) continue; var cases = []; vuC[c] = 1; pileC[n++] = c; while (n) { k = pileC[--n]; cases.push(k); voisins(k); } out.push(cases); } return out; }
+      // ---- (version 106, « rend la coupe ultraréaliste » ; sur la capture de la 105 les bords coupes en biais faisaient des marches de 5 mm) chants lisses.
+      // La grille de cases dit toujours CE QUI est coupe ; le chemin reel de la lame (TS, segments ranges par cases de 1 cm) dit OU passe le bord : chaque
+      // sommet d'un chant coupe est pose a une demi-largeur de trait (2,5 mm) du chemin de la lame, du cote du bois. Un bord coupe sans lame (essais) est adouci.
+      var TS = [], tsCase = {}, tsA = null, tsB = null, TSB = 0.01, TSR = 0.012, tsR = { x: 0, z: 0, d: 0 };
+      function tsAjoute(xa, za, xb, zb) { var k = TS.length / 4, i, j; TS.push(xa, za, xb, zb); var i0 = Math.floor((Math.min(xa, xb) - TSR - X0) / TSB), i1 = Math.floor((Math.max(xa, xb) + TSR - X0) / TSB), j0 = Math.floor((Math.min(za, zb) - TSR) / TSB), j1 = Math.floor((Math.max(za, zb) + TSR) / TSB);
+        for (j = j0; j <= j1; j++) for (i = i0; i <= i1; i++) { var c = (j + 64) * 1024 + i + 64; (tsCase[c] || (tsCase[c] = [])).push(k); } }
+      function tsVide(suite) { if (tsA && Math.hypot(tsB.x - tsA.x, tsB.z - tsA.z) > 1e-5) tsAjoute(tsA.x, tsA.z, tsB.x, tsB.z); tsA = suite && tsB ? { x: tsB.x, z: tsB.z } : null; tsB = tsA ? { x: tsA.x, z: tsA.z } : null; }
+      function tsNote(xa, za, xb, zb) { if (tsA && Math.hypot(xa - tsB.x, za - tsB.z) > 1e-4) tsVide(false);
+        if (!tsA) { tsA = { x: xa, z: za }; tsB = { x: xb, z: zb }; }
+        else { var ux = tsB.x - tsA.x, uz = tsB.z - tsA.z, l = Math.hypot(ux, uz); if (l > 1e-5 && Math.abs(ux * (zb - tsA.z) - uz * (xb - tsA.x)) / l > 0.0003) tsVide(true); tsB.x = xb; tsB.z = zb; }
+        if (Math.hypot(tsB.x - tsA.x, tsB.z - tsA.z) >= 0.003) tsVide(true); }
+      function tsRaz() { TS.length = 0; tsCase = {}; tsA = null; tsB = null; }
+      // point du chemin de la lame le plus proche de (x, z), a moins de TSR ; z compte depuis le bord
+      function tsPres(x, z) { var L = tsCase[(Math.floor(z / TSB) + 64) * 1024 + Math.floor((x - X0) / TSB) + 64]; if (!L) return null; var best = TSR * TSR, bx = 0, bz = 0, vu = false;
+        for (var i = 0; i < L.length; i++) { var o = L[i] * 4, ax = TS[o], az = TS[o + 1], dx = TS[o + 2] - ax, dz = TS[o + 3] - az, l2 = dx * dx + dz * dz, t = l2 > 0 ? ((x - ax) * dx + (z - az) * dz) / l2 : 0; if (t < 0) t = 0; else if (t > 1) t = 1;
+          var qx = ax + dx * t - x, qz = az + dz * t - z, d2 = qx * qx + qz * qz; if (d2 < best) { best = d2; bx = qx + x; bz = qz + z; vu = true; } }
+        if (!vu) return null; tsR.x = bx; tsR.z = bz; tsR.d = Math.sqrt(best); return tsR; }
+      // maillage d'une piece (madrier, traverse, bande peinte) d'apres une grille M : geo = dessus, dessous et chants d'origine (matiere de la piece) ; geoC = chants
+      // coupes (bois frais). Le contour du bois est releve sur la grille (bois a gauche), ses sommets coupes sont poses le long du chemin de la lame, puis le
+      // dessus et le dessous sont triangules ; le bois garde le fil de la piece entiere (regle de uvBois).
+      var mOut = new Int32Array((NX + 2) * (NZ + 2) * 2);
+      function maille(e, M, reste) { var P = [[], []], Nn = [[], []], U = [[], []], c = e.o.position, y0 = e.y0, y1 = e.y1, DEMI = CE / 2, ix, jz, plein = 0;
+        var ixa = Math.max(0, Math.round((e.x0 - X0) / CE)), ixb = Math.min(NX, Math.round((e.x1 - X0) / CE)), jza = Math.max(0, Math.round((e.z0 - Z0) / CE)), jzb = Math.min(NZ, Math.round((e.z1 - Z0) / CE));
+        // (version 106, utilisateur : « corrige il rezte du bois ») une piece plus mince qu'une case (peinture rouge des chants, 3 mm) n'avait aucune case :
+        // celle du chant avant restait entiere en travers de l'entaille, celles des bouts perdaient leurs 32 premiers cm. Elle suit la case du bord qu'elle couvre.
+        if (ixb <= ixa) { ixa = Math.max(0, Math.min(NX - 1, Math.floor(((e.x0 + e.x1) / 2 - X0) / CE))); ixb = ixa + 1; }
+        if (jzb <= jza) { jza = Math.max(0, Math.min(NZ - 1, Math.floor(((e.z0 + e.z1) / 2 - Z0) / CE))); jzb = jza + 1; }
+        var W = ixb - ixa, H = jzb - jza, W1 = W + 1;
+        function som(g, x, y, z, n) { P[g].push(x - c.x, y - c.y, z - c.z); Nn[g].push(n[0], n[1], n[2]); if (e.bois) { var q = [x - c.x, y - c.y, z - c.z], a = axes(e.L, n); U[g].push(q[a[0]] / 1.6 + e.du, q[a[1]] / 0.6 + e.dv); } else U[g].push(0, 0); }
+        function geoDe(g) { var o = new THREE.BufferGeometry(); o.setAttribute("position", new THREE.BufferAttribute(new Float32Array(P[g]), 3)); o.setAttribute("normal", new THREE.BufferAttribute(new Float32Array(Nn[g]), 3)); o.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(U[g]), 2)); if (P[g].length) { o.computeBoundingBox(); o.computeBoundingSphere(); } return o; }
+        function X(i) { return i <= ixa ? e.x0 : i >= ixb ? e.x1 : X0 + i * CE; }
+        function Z(j) { return j <= jza ? e.z0 : j >= jzb ? e.z1 : Z0 + j * CE; }   // la derniere rangee (jamais coupee) va jusqu'au bout de la piece
+        function bois(i, j) { return i >= ixa && i < ixb && j >= jza && j < jzb && M[j * NX + i] === 1; }
+        for (jz = jza; jz < jzb; jz++) for (ix = ixa; ix < ixb; ix++) if (M[jz * NX + ix] === 1) plein++;
+        if (!plein) return { geo: geoDe(0), geoC: geoDe(1), vide: true, coupes: false, intact: false };
+        // 1. aretes du contour, bois a gauche ; type 1 = bord d'origine de la piece, 2 = bois coupe
+        var eA = [], eB = [], eT = [], ne = 0, nN2 = W1 * (H + 1) * 2; for (ix = 0; ix < nN2; ix++) mOut[ix] = -1;
+        function arete(a, b, t) { eA.push(a); eB.push(b); eT.push(t); if (mOut[a * 2] < 0) mOut[a * 2] = ne; else mOut[a * 2 + 1] = ne; ne++; }
+        for (jz = jza; jz < jzb; jz++) for (ix = ixa; ix < ixb; ix++) { if (M[jz * NX + ix] !== 1) continue; var n00 = (jz - jza) * W1 + ix - ixa, n10 = n00 + 1, n01 = n00 + W1, n11 = n01 + 1;
+          if (!bois(ix, jz - 1)) arete(n00, n10, jz - 1 < jza ? 1 : 2); if (!bois(ix + 1, jz)) arete(n10, n11, ix + 1 >= ixb ? 1 : 2); if (!bois(ix, jz + 1)) arete(n11, n01, jz + 1 >= jzb ? 1 : 2); if (!bois(ix - 1, jz)) arete(n01, n00, ix - 1 < ixa ? 1 : 2); }
+        // 2. boucles ; a un noeud ou deux cases de bois ne se touchent que par le coin, on tourne a gauche (on reste sur sa case)
+        var pris = new Uint8Array(ne), polys = [];
+        for (var s = 0; s < ne; s++) { if (pris[s]) continue; var B = [], k = s, garde = 0;
+          do { pris[k] = 1; B.push(k); var nb = eB[k], o0 = mOut[nb * 2], o1 = mOut[nb * 2 + 1], sv = o0; if (o1 >= 0) { var dk = eB[k] - eA[k], ga = dk === 1 ? W1 : dk === -1 ? -W1 : dk === W1 ? -1 : 1; sv = eB[o0] - eA[o0] === ga ? o0 : o1; } k = sv; } while (k !== s && k >= 0 && !pris[k] && garde++ < 200000);
+          var V = sommets(B); if (V.length >= 3) polys.push(V); }
+        // 3. sommets d'une boucle : bords d'origine alignes fondus, sommets coupes poses le long du chemin de la lame, le reste adouci, points inutiles retires
+        function dirAr(k) { var d = eB[k] - eA[k]; return d === 1 ? [1, 0] : d === -1 ? [-1, 0] : d === W1 ? [0, 1] : [0, -1]; }
+        function sommets(B) { var n = B.length, L = [], i, v;
+          for (i = 0; i < n; i++) { var ke = B[i], kp = B[(i + n - 1) % n], a = eA[ke], jx = a % W1, jj = (a - jx) / W1, ds = dirAr(ke), de = dirAr(kp); if (eT[ke] === 1 && eT[kp] === 1 && ds[0] === de[0] && ds[1] === de[1]) continue;
+            L.push({ x: X(ixa + jx), z: Z(jza + jj) - Z0, t: eT[ke], te: eT[kp], ds: ds, de: de, pose: false }); }
+          n = L.length; if (n < 3) return [];
+          for (i = 0; i < n; i++) { v = L[i]; v.x0 = v.x; v.z0 = v.z; if (v.t === 1 && v.te === 1) { v.pose = true; continue; }
+            if (v.t === 2 && v.te === 2) {   // sommet d'un chant coupe : a DEMI du chemin de la lame, du cote du bois
+              var wx = -(v.ds[1] + v.de[1]), wz = v.ds[0] + v.de[0], wl = Math.hypot(wx, wz), q = tsPres(v.x, v.z); if (!q || q.d > 0.008 || wl < 1e-6) continue; wx /= wl; wz /= wl;
+              var ux = v.x - q.x, uz = v.z - q.z; if (q.d > 0.0003) { ux /= q.d; uz /= q.d; if (ux * wx + uz * wz < 0) { ux = -ux; uz = -uz; } } else { ux = wx; uz = wz; }
+              var nx = q.x + ux * DEMI, nz = q.z + uz * DEMI, q2 = tsPres(nx, nz); if (q2 && q2.d < DEMI - 0.0003 && q2.d > 0.0003) { var u2x = (nx - q2.x) / q2.d, u2z = (nz - q2.z) / q2.d; if (u2x * wx + u2z * wz >= 0) { nx = q2.x + u2x * DEMI; nz = q2.z + u2z * DEMI; } }
+              if (Math.hypot(nx - v.x, nz - v.z) <= 0.0078) { v.x = nx; v.z = nz; v.pose = true; } continue; }
+            // sommet ou un chant coupe rejoint un bord d'origine : il glisse le long de ce bord jusqu'a DEMI du chemin de la lame, du cote du bois
+            var db = v.t === 1 ? v.ds : [-v.de[0], -v.de[1]], ax = db[0] !== 0 ? 0 : 1, sb = db[ax], pos = ax === 0 ? v.x : v.z, pos0 = pos, vu = false;
+            for (var it = 0; it < 9; it++) { var qq = tsPres(ax === 0 ? pos : v.x, ax === 0 ? v.z : pos); if (!qq) break; vu = true; var ec = ax === 0 ? pos - qq.x : pos - qq.z; if (qq.d < 0.0003 || ec * sb < 0) { pos = (ax === 0 ? qq.x : qq.z) + sb * DEMI; continue; }
+              var gr = ec / qq.d; if (Math.abs(gr) < 0.15) gr = sb * 0.15; var dp = (DEMI - qq.d) / gr; if (Math.abs(dp) < 0.00005) break; pos += Math.max(-0.005, Math.min(0.005, dp)); }
+            // un trait qui croise le bord en biais y laisse une empreinte large (2,5 mm / sin de l'angle) : le sommet glisse jusqu'a 3 cm, sans depasser son voisin du bord
+            var vo = v.t === 1 ? L[(i + 1) % n] : L[(i + n - 1) % n], lim = (ax === 0 ? vo.x : vo.z) - sb * 0.0005; if ((pos - lim) * sb > 0) pos = lim;
+            if (vu && Math.abs(pos - pos0) <= 0.03) { if (ax === 0) v.x = pos; else v.z = pos; } v.pose = true; }
+          // bords coupes sans lame a proximite : adoucis (moyenne des voisins), a moins d'une demi-case de leur noeud
+          for (var pa = 0; pa < 3; pa++) { var nxs = [], nzs = []; for (i = 0; i < n; i++) { v = L[i]; if (v.pose) { nxs.push(v.x); nzs.push(v.z); continue; } var sx = 0, sz = 0; for (var w = -2; w <= 2; w++) { var o = L[(i + w + n) % n]; sx += o.x; sz += o.z; } sx /= 5; sz /= 5; var ex = sx - v.x0, ez = sz - v.z0, el = Math.hypot(ex, ez); if (el > DEMI) { sx = v.x0 + ex / el * DEMI; sz = v.z0 + ez / el * DEMI; } nxs.push(sx); nzs.push(sz); }
+            for (i = 0; i < n; i++) { L[i].x = nxs[i]; L[i].z = nzs[i]; } }
+          var R = []; for (i = 0; i < n; i++) { v = L[i]; var a0 = R[R.length - 1]; if (a0 && a0.t === v.t && Math.hypot(v.x - a0.x, v.z - a0.z) < 0.0002) continue; R.push(v); }
+          var Sx = [], m = R.length; for (i = 0; i < m; i++) { v = R[i]; var p0 = Sx.length ? Sx[Sx.length - 1] : R[m - 1], p1 = R[(i + 1) % m], ex2 = p1.x - p0.x, ez2 = p1.z - p0.z, l2 = Math.hypot(ex2, ez2);
+            if (p0.t === v.t && l2 > 1e-6 && Math.abs(ex2 * (v.z - p0.z) - ez2 * (v.x - p0.x)) / l2 < 0.00012 && (v.x - p0.x) * (p1.x - v.x) + (v.z - p0.z) * (p1.z - v.z) > 0) continue; Sx.push(v); }
+          return Sx; }
+        // 4. dessus et dessous : contours exterieurs (aire positive) et leurs trous, triangules
+        function aire(V) { var a = 0; for (var i = 0, n = V.length; i < n; i++) { var p = V[i], q = V[(i + 1) % n]; a += p.x * q.z - q.x * p.z; } return a / 2; }
+        function dedans(V, x, z) { var r = false; for (var i = 0, n = V.length, j = n - 1; i < n; j = i++) { var a = V[i], b = V[j]; if ((a.z > z) !== (b.z > z) && x < (b.x - a.x) * (z - a.z) / (b.z - a.z) + a.x) r = !r; } return r; }
+        var ext = [], trous = []; polys.forEach(function (V) { var a = aire(V); if (Math.abs(a) < 2e-6) return; if (a > 0) ext.push({ V: V, T: [] }); else trous.push(V); });
+        trous.forEach(function (T) { for (var i = 0; i < ext.length; i++) if (dedans(ext[i].V, T[0].x, T[0].z)) { ext[i].T.push(T); return; } });
+        var HAUT_N = [0, 1, 0], BAS_N = [0, -1, 0];
+        ext.forEach(function (E2) { var tous = E2.V.slice(), ct = E2.V.map(function (v) { return new THREE.Vector2(v.x, v.z); }), th = E2.T.map(function (T) { T.forEach(function (v) { tous.push(v); }); return T.map(function (v) { return new THREE.Vector2(v.x, v.z); }); }), F;
+          try { F = THREE.ShapeUtils.triangulateShape(ct, th); } catch (err) { F = []; }
+          for (var f = 0; f < F.length; f++) { var a = tous[F[f][0]], b = tous[F[f][1]], d = tous[F[f][2]]; if (!a || !b || !d) continue; var sg = (b.x - a.x) * (d.z - a.z) - (d.x - a.x) * (b.z - a.z); if (sg > 0) { var tmp = b; b = d; d = tmp; }
+            som(0, a.x, y1, a.z + Z0, HAUT_N); som(0, b.x, y1, b.z + Z0, HAUT_N); som(0, d.x, y1, d.z + Z0, HAUT_N); som(0, a.x, y0, a.z + Z0, BAS_N); som(0, d.x, y0, d.z + Z0, BAS_N); som(0, b.x, y0, b.z + Z0, BAS_N); } });
+        // 5. chants : d'origine (matiere de la piece) ou coupes (bois frais, normales adoucies le long d'une coupe courbe)
+        function chants(V) { var n = V.length, N2 = [], i; for (i = 0; i < n; i++) { var a = V[i], b = V[(i + 1) % n], dx = b.x - a.x, dz = b.z - a.z, l = Math.hypot(dx, dz) || 1; N2.push([dz / l, 0, -dx / l]); }
+          function nor(i, j) { var p = N2[i], q = N2[j]; if (V[i].t !== 2 || V[j].t !== 2 || p[0] * q[0] + p[2] * q[2] < 0.76) return null; var x = p[0] + q[0], z = p[2] + q[2], l = Math.hypot(x, z) || 1; return [x / l, 0, z / l]; }
+          for (i = 0; i < n; i++) { var A = V[i], Bv = V[(i + 1) % n], g = A.t === 2 ? 1 : 0, nA = nor((i + n - 1) % n, i) || N2[i], nB = nor(i, (i + 1) % n) || N2[i], za = A.z + Z0, zb = Bv.z + Z0;
+            som(g, A.x, y0, za, nA); som(g, A.x, y1, za, nA); som(g, Bv.x, y1, zb, nB); som(g, A.x, y0, za, nA); som(g, Bv.x, y1, zb, nB); som(g, Bv.x, y0, zb, nB); } }
+        ext.forEach(function (E2) { chants(E2.V); E2.T.forEach(chants); });
+        return { geo: geoDe(0), geoC: geoDe(1), vide: !P[0].length, coupes: P[1].length > 0, intact: plein === W * H }; }
+      // les chants coupes de chaque piece sont une maille a part, hors des collisions (dans gs, qui suit le plancher)
+      function reconstruit() { touches.forEach(function (e) { var r = maille(e, G, true), ancien = e.o.geometry; if (!e.c) { e.c = new THREE.Mesh(new THREE.BufferGeometry(), matCoupe); e.c.name = "Chants_coupes"; e.c.receiveShadow = true; e.c.position.copy(e.o.position); gs.add(e.c); }
+          var ancienC = e.c.geometry; if (r.intact) { e.o.geometry = e.geo0; e.o.visible = true; e.c.visible = false; r.geo.dispose(); r.geoC.dispose(); } else { e.o.geometry = r.geo; e.o.visible = !r.vide; e.c.geometry = r.geoC; e.c.visible = r.coupes; if (ancienC !== e.c.geometry) ancienC.dispose(); }
+          if (ancien !== e.geo0 && ancien !== e.o.geometry) ancien.dispose(); }); majTrace(); }
+      function coupeFaite() { for (var i = 0; i <= N; i++) if (d[i] > 0.004) return true; return false; }
+      // ---- ce qui suit le plancher sans entrer dans ses collisions : scie, trace du contour
+      var gs = new THREE.Group(); gs.name = "Scie_plancher_secondaire"; gs.matrixAutoUpdate = false; scene.add(gs);
+      var qRepos = new THREE.Quaternion().setFromAxisAngle(HAUT, 200 * Math.PI / 180).multiply(new THREE.Quaternion().setFromAxisAngle(V3(1, 0, 0), Math.PI / 2)), pRepos = V3(K.REPOS[0], YT + K.REPOS[1], K.REPOS[2]);
+      var jaune = new THREE.MeshBasicMaterial({ color: 0xffe14a, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }), noirTrace = new THREE.MeshBasicMaterial({ color: 0x0d0e10, toneMapped: false }), trace = new THREE.Group(); gs.add(trace); trace.visible = false;
+      // repere rouge : rouge franc dans un cadre blanc (le rouge du rendu de tons se confondait avec la peinture rouge du bord)
+      var repere = new THREE.Group(), repB = new THREE.Mesh(new THREE.BoxGeometry(0.058, 0.002, 0.058), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false })), repR = new THREE.Mesh(new THREE.BoxGeometry(0.036, 0.004, 0.036), new THREE.MeshBasicMaterial({ color: 0xff2a1e, toneMapped: false })); repR.position.y = 0.002; repere.add(repB); repere.add(repR); repere.name = "Repere_contact"; repere.visible = false; gs.add(repere);
+      // ---- releve du contour de la foreuse devant le plancher (module de collisions), par tranches pour ne pas figer l'image
+      var rel = { i: 0 }, w3 = new THREE.Vector3();
+      function libreEn(x, y, zp) { w3.set(x, y, Z0 - zp); g.localToWorld(w3); return COLLISIONS.sphereLibre(w3.x, w3.y, w3.z, 0.008); }
+      function releveTranche(n) { if (typeof COLLISIONS === "undefined" || !COLLISIONS || !COLLISIONS.sphereLibre) { K.releve = "sans collisions"; return; } g.updateWorldMatrix(true, false);
+        for (var k = 0; k < n && rel.i <= N; k++, rel.i++) { var x = X0 + rel.i * PAS, zp, gd = K.DMAX + 0.05, gsv = K.DMAX + 0.05;
+          for (zp = 0.045; zp <= K.DMAX + 0.05; zp += 0.0125) { if (!libreEn(x, YT - 0.066, zp) || !libreEn(x, YT - 0.04, zp) || !libreEn(x, YT - 0.012, zp)) { gd = zp - 0.006; break; } }
+          for (zp = 0.045; zp <= K.DMAX + 0.05; zp += 0.0125) { if (!libreEn(x, YB + 0.03, zp) || !libreEn(x, YB + 0.08, zp) || !libreEn(x, YB + 0.13, zp)) { gsv = zp - 0.006; break; } }
+          gapD[rel.i] = gd; gapS[rel.i] = gsv; }
+        if (rel.i > N) { K.releve = "fait"; faitTrace(); } }
+      // jeu libre devant la colonne i (coupe traversante : la traverse compte la ou il y en a une)
+      function jeuDevant(i) { return surTraverse[i] ? Math.min(gapD[i], gapS[i]) : gapD[i]; }
+      // trace a suivre : avance visee = le jeu que 70 % des colonnes n'ont pas (le flanc de la foreuse) ; coupe demandee = ce qui depasse
+      function faitTrace() { var tri = Array.prototype.slice.call(gapD).sort(function (a, b) { return a - b; }), vise = Math.max(0.04, Math.min(0.22, tri[Math.floor(K.CENTILE * N)] - K.JEU)); K.avanceVisee = vise;
+        for (var i = 0; i <= N; i++) req[i] = Math.max(0, Math.min(K.DMAX, vise - jeuDevant(i) + K.JEU));
+        tirets.length = 0;
+        for (i = 0; i < N; i++) { var ra = req[i], rb = req[i + 1], xm = X0 + (i + 0.5) * PAS; if (i % 3 !== 2 && (ra > 0.003 || rb > 0.003)) tirets.push({ x: xm, z: (ra + rb) / 2, lx: PAS * 0.9, lz: K.TIRET });
+          if (Math.abs(rb - ra) > 0.012) { var nb = Math.max(1, Math.round(Math.abs(rb - ra) / 0.03)); for (var q = 0; q < nb; q++) tirets.push({ x: X0 + (i + 1) * PAS, z: ra + (rb - ra) * (q + 0.5) / nb, lx: K.TIRET, lz: Math.abs(rb - ra) / nb * 0.6 }); } }
+        majTrace(); }
+      // (version 106, utilisateur : « indique ou couper ») le trace a suivre revient (la version 104 l'avait retire sur « ne pas indiquer ou couper ») : tirets
+      // jaunes sur le platelage, le long du contour de la foreuse reporte sur le bord. Un tiret s'efface avec le bois qui le porte : la lame le mange, ou le
+      // morceau qui tombe l'emporte ; ce qui reste de jaune sur le plancher est ce qui reste a couper.
+      // Le jaune est franc (hors du rendu de tons, qui le palissait en creme) et borde de noir (K.BORD) : il se lit sur le bois clair comme sur la peinture rouge.
+      var tirets = [], traceN = new THREE.Mesh(new THREE.BufferGeometry(), noirTrace), traceM = new THREE.Mesh(new THREE.BufferGeometry(), jaune); traceN.name = "Trace_de_coupe_bord"; traceM.name = "Trace_de_coupe"; traceN.frustumCulled = false; traceM.frustumCulled = false; trace.add(traceN); trace.add(traceM);
+      function majTrace() { var P = [], Q = [], nt = 0, y = YT + 0.009, yn = YT + 0.007, b = K.BORD; function quad(T, xa, xb, za, zb, yy) { T.push(xa, yy, za, xa, yy, zb, xb, yy, zb, xa, yy, za, xb, yy, zb, xb, yy, za); }
+        for (var k = 0; k < tirets.length; k++) { var t = tirets[k]; if (!boisEn(t.x, t.z)) continue; nt++; var xa = t.x - t.lx / 2, xb = t.x + t.lx / 2, za = Z0 + t.z - t.lz / 2, zb = Z0 + t.z + t.lz / 2; quad(P, xa, xb, za, zb, y); quad(Q, xa - b, xb + b, za - b, zb + b, yn); }
+        function geo(T) { var go = new THREE.BufferGeometry(); go.setAttribute("position", new THREE.BufferAttribute(new Float32Array(T), 3)); return go; }
+        traceM.geometry.dispose(); traceM.geometry = geo(P); traceN.geometry.dispose(); traceN.geometry = geo(Q); K.trace = nt; K.tirets = tirets.length; }
+      // ---- pointeur : point du dessus du platelage vise (repere de g). Un trait ne part que pres du bord a couper (K.MARGE au-dela de la coupe deja
+      // faite ou du trace) : un toucher plus loin sur le plancher ne coupe rien.
+      var rayon = new THREE.Raycaster(), ndcS = new THREE.Vector2(), invG = new THREE.Matrix4(), rl = new THREE.Ray(), cur = { x: XM, z: -0.03 }, cible = { x: XM, z: -0.03 }, entree = { x: XM, z: -0.03 }, survol = false, ptr = null, dirU = V3(1, 0, 0), temps = 0, sale = false;
+      function vise(e) { var r = canvas.getBoundingClientRect(); ndcS.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height * 2 - 1)); rayon.setFromCamera(ndcS, cam); g.updateWorldMatrix(true, false); invG.copy(g.matrixWorld).invert(); rl.copy(rayon.ray).applyMatrix4(invG);
+        if (Math.abs(rl.direction.y) < 1e-6) return null; var t = (YT - rl.origin.y) / rl.direction.y; if (t <= 0) return null; var x = rl.origin.x + t * rl.direction.x, zr = rl.origin.z + t * rl.direction.z - Z0;
+        var ic = Math.max(0, Math.min(N, Math.round((x - X0) / PAS))), lim = Math.min(K.DMAX + 0.02, Math.max(prof(x), K.releve === "fait" ? req[ic] : 0) + K.MARGE);
+        return { x: x, z: zr, dans: x >= X0 - 0.04 && x <= X1 + 0.04 && zr >= -0.07 && zr <= lim }; }
+      function borne(h) { return { x: Math.max(X0 - 0.02, Math.min(X1 + 0.02, h.x)), z: Math.max(-0.03, Math.min(K.DMAX, h.z)) }; }
+      function dansCoupe() { return K.lieu === "coupe" && K.vue && vueGuidee(); }
+      function peutCouper() { return dansCoupe() && K.mode === "scie" && !K.enCours && K.avance === 0 && !(typeof modeDeplacer !== "undefined" && modeDeplacer); }
+      // dans la vue de coupe aucun toucher sur la scene ne rend la main (la page le ferait) : il est arrete ici, qu'il lance un trait ou non
+      function debutTrait(e) { if (e.target !== canvas || !dansCoupe() || e.button > 0) return; e.stopPropagation(); e.preventDefault(); K.touchers = (K.touchers || 0) + 1; if (ptr !== null || !peutCouper()) return; var h = vise(e); if (!h || !h.dans) return;
+        ptr = e.pointerId; repere.visible = false; cible = borne(h); chemin.length = 0; chemin.push({ x: cible.x, z: Math.max(-0.03, prof(cible.x) - 0.03) }, { x: cible.x, z: cible.z }); K.phase = "entree"; I.message("", 1); try { canvas.setPointerCapture(e.pointerId); } catch (x) {} }
+      function suitTrait(e) { if (ptr !== null && e.pointerId === ptr) { var h = vise(e); if (h) { cible = borne(h); var wd = chemin[chemin.length - 1]; if (!wd || Math.hypot(cible.x - wd.x, cible.z - wd.z) > 0.004) chemin.push({ x: cible.x, z: cible.z }); } e.stopPropagation(); return; } if (e.target !== canvas || !dansCoupe()) return; e.stopPropagation();
+        if (K.mode === "scie" && e.pointerType === "mouse") { var h2 = vise(e); survol = !!(h2 && h2.dans); if (survol) cible = borne(h2); } }
+      function finTrait(e) { if (ptr !== null && e.pointerId === ptr) { ptr = null; K.phase = "vol"; e.stopPropagation(); termineTrait(); return; } if (e.target === canvas && dansCoupe()) e.stopPropagation(); }
+      window.addEventListener("pointerdown", debutTrait, true); window.addEventListener("pointermove", suitTrait, true); window.addEventListener("pointerup", finTrait, true); window.addEventListener("pointercancel", finTrait, true);
+      // ---- chutes : un morceau detache tombe sous son poids sur le plancher principal (15 cm plus bas ; un bout de traverse y repose deja) et y reste.
+      // Au moment de pousser le plancher, les chutes sont jetees en pile au bout du plancher, cote sortie.
+      var chutes = [], vols = [], tombes = [], hPile = 0, colPile = 0, gp = new THREE.Group(); gp.name = "Chutes_plancher_secondaire"; scene.add(gp);
+      function faitChute(cases) { var M = new Uint8Array(NC), i, bx = [1e9, -1e9, 1e9, -1e9]; for (i = 0; i < cases.length; i++) { var c = cases[i], ix = c % NX, jz = (c - ix) / NX; M[c] = 1; if (ix < bx[0]) bx[0] = ix; if (ix + 1 > bx[1]) bx[1] = ix + 1; if (jz < bx[2]) bx[2] = jz; if (jz + 1 > bx[3]) bx[3] = jz + 1; }
+        var xa = X0 + bx[0] * CE, xb = X0 + bx[1] * CE, za = Z0 + bx[2] * CE, zb = Z0 + bx[3] * CE, gr = new THREE.Group(), centre = V3((xa + xb) / 2, (M0.y0 + M0.y1) / 2, (za + zb) / 2), avecT = false, n = 0, ht = traverses[0].y1 - traverses[0].y0;
+        touches.forEach(function (e) { var r = maille(e, M, false); if (r.vide) { r.geo.dispose(); r.geoC.dispose(); return; } n++; if (e.bois && e.y1 - e.y0 > 0.1) avecT = true;
+          var m0 = new THREE.Mesh(r.geo, e.mat0), m1 = new THREE.Mesh(r.geoC, matCoupe); m0.castShadow = true; m0.receiveShadow = true; m1.receiveShadow = true; m0.position.copy(e.o.position).sub(centre); m1.position.copy(m0.position); gr.add(m0); gr.add(m1); });
+        if (!n) return null; gr.position.copy(centre); gr.userData = { l: xb - xa, pr: zb - za, h: (M0.y1 - M0.y0) + (avecT ? ht : 0), bas: avecT ? ht : 0, pile: false, cases: cases.length };
+        g.updateWorldMatrix(true, false); g.add(gr); gr.updateWorldMatrix(true, false); gp.attach(gr); chutes.push(gr); tombes.push({ gr: gr, t: 0, y0: gr.position.y, h: avecT ? 0 : M0.y0 - YB }); K.tombees = (K.tombees || 0) + 1; return gr; }
+      // une chute par terre est jetee en pile au bout du plancher, cote sortie : le morceau tombe, se pose, puis part (vu du dessus, un morceau tombe 15 cm plus
+      // bas a l'air encore en place : c'est en partant qu'il ouvre l'entaille)
+      function jette(gr) { var u = gr.userData, hm = M0.y1 - M0.y0; if (u.pile) return; u.pile = true; if (hPile + u.h > 0.34) { hPile = 0; colPile++; } g.updateWorldMatrix(true, false);
+        var cp = V3(X1 + K.PILE.dx + colPile * 0.95 + u.l / 2, YB + hPile + u.bas + hm / 2, Z0 + K.PILE.z + u.pr / 2); hPile += u.h; g.localToWorld(cp);
+        for (var w = tombes.length - 1; w >= 0; w--) if (tombes[w].gr === gr) tombes.splice(w, 1);
+        vols.push({ gr: gr, t: 0, a: gr.position.clone(), b: cp, qa: gr.quaternion.clone(), qb: g.getWorldQuaternion(new THREE.Quaternion()) }); }
+      function ramasse() { chutes.slice().forEach(jette); }
+      function aRamasser() { return chutes.some(function (gr) { return !gr.userData.pile; }); }
+      // apres un passage de lame : les morceaux separes tombent, le profil du bord et les mailles sont refaits
+      function apresCoupe(fin) { tsVide(true); var ms = separes(), detache = false; ms.forEach(function (cases) { if (cases.length >= K.MIETTE) faitChute(cases); for (var i = 0; i < cases.length; i++) G[cases[i]] = 0; detache = true; }); majProfil(); reconstruit();
+        if (detache || fin) { try { I.collisions(p, false); p.updateMatrixWorld(true); I.collisions(p, true); } catch (e) { K.erreur = String(e && e.message || e); } verifie(); } }
+      function termineTrait() { K.traits++; S.userData.lame.position.x = 0; chemin.length = 0; apresCoupe(true); majCrayon(); }
+      // trait au crayon : le chemin que le joueur a trace et que la scie n'a pas encore coupe (son propre trait, pas une indication)
+      var chemin = [], crayonPos = new Float32Array(900 * 3), crayonGeo = new THREE.BufferGeometry(); crayonGeo.setAttribute("position", new THREE.BufferAttribute(crayonPos, 3)); crayonGeo.setDrawRange(0, 0);
+      var crayon = new THREE.Line(crayonGeo, new THREE.LineBasicMaterial({ color: 0x15171a })); crayon.frustumCulled = false; gs.add(crayon);
+      function majCrayon() { var n = 0, l = 0, px = cur.x, pz = cur.z; if (K.phase === "coupe" || K.phase === "entree") { crayonPos[0] = cur.x; crayonPos[1] = YT + 0.004; crayonPos[2] = Z0 + cur.z; n = 1;
+          for (var i = 0; i < chemin.length; i++) { l += Math.hypot(chemin[i].x - px, chemin[i].z - pz); px = chemin[i].x; pz = chemin[i].z; if (n < 900) { crayonPos[n * 3] = px; crayonPos[n * 3 + 1] = YT + 0.004; crayonPos[n * 3 + 2] = Z0 + pz; n++; } } }
+        K.reste = l; crayonGeo.setDrawRange(0, n > 1 ? n : 0); crayonGeo.attributes.position.needsUpdate = true; }
+      // ---- avance du plancher jusqu'a toucher la foreuse, recul, remise
+      function accoste() { try { if (typeof quai !== "function") return true; var q = quai(); if (!q) return false; var dl = Math.atan2(Math.sin(p.rotation.y - q.lacet), Math.cos(p.rotation.y - q.lacet)); return Math.hypot(p.position.x - q.x, p.position.z - q.z) < 0.02 && Math.abs(dl) < 0.02; } catch (e) { return true; } }
+      function avancePossible() { var mn = 9, im = 0; for (var i = 0; i <= N; i++) { var v = jeuDevant(i) + d[i]; if (v < mn) { mn = v; im = i; } } K.contact = im; return Math.max(0, Math.min(K.DMAX, mn - K.JEU)); }
+      function jourMax(a) { var mx = 0; for (var i = 0; i <= N; i++) { var v = Math.min(gapD[i], K.DMAX) + d[i] - a; if (v > mx) mx = v; } return mx; }
+      var file = [], cours = null, p0 = new THREE.Vector3(), dirA = new THREE.Vector3(), dePuis = { p: new THREE.Vector3(), q: new THREE.Quaternion() };
+      function glisse(dz, auQuai) { return { d: K.T_AVANCE * Math.max(0.35, Math.min(1, Math.abs(dz) / 0.12)), debut: function () { p0.copy(p.position); dirA.set(0, 0, -1).applyQuaternion(p.quaternion).multiplyScalar(dz); I.collisions(p, false); },
+        f: function (u) { p.position.copy(p0).addScaledVector(dirA, I.adouci(u)); p.updateMatrixWorld(true); I.collisions(p, false); },
+        fin: function () { p.updateMatrixWorld(true); I.collisions(p, true); try { if (auQuai && typeof relSecondaire !== "undefined") { relSecondaire = null; quai(); } if (typeof finDeplacement === "function") finDeplacement(m); } catch (e) { K.erreur = String(e && e.message || e); } } }; }
+      function scieVers(pp, qq, dur) { return { d: dur, debut: function () { dePuis.p.copy(S.position); dePuis.q.copy(S.quaternion); }, f: function (u) { var a = I.adouci(u); S.position.copy(dePuis.p).lerp(pp, a); S.position.y += 0.08 * Math.sin(Math.PI * a); S.quaternion.copy(dePuis.q).slerp(qq, a); S.userData.lame.position.x = 0; } }; }
+      function lance(f) { K.enCours = true; file = f; cours = null; }
+      // ---- vue de coupe (version 103, utilisateur : « je veux vue du dessus pourbien voir ou couper ») : camera a la verticale du bord du plancher cote
+      // foreuse, regard droit vers le bas. Ecran couche : bord a l'horizontale, foreuse en haut. Ecran debout (telephone) : bord a la verticale, foreuse a
+      // droite, pour que toute la longueur du plancher tienne dans la hauteur de l'ecran. La page est mise en vue guidee (cadre()), la pose est tenue ici
+      // a chaque image, et tant que la coupe dure aucun toucher sur la scene ne rend la main : on en sort par le bouton « Retour » (ou une fleche du clavier).
+      var vueDe = { p: new THREE.Vector3(), q: new THREE.Quaternion() }, vueA = { p: new THREE.Vector3(), q: new THREE.Quaternion() }, vueT = 0, vueFov = 60, vueFovA = 60, pV = new THREE.Vector3(), qV = new THREE.Quaternion(), mV = new THREE.Matrix4();
+      function vueCoupe() { try { if (typeof cadre !== "function") return; g.updateWorldMatrix(true, false); var V = K.VUE, large = cam.aspect >= 1, qg = g.getWorldQuaternion(new THREE.Quaternion()), tg = g.localToWorld(V3(XM + V.dx, YT, Z0 + V.vise));
+          var fovV = Math.min(cam.fov, V.fov), tv = Math.tan(fovV * Math.PI / 360), D = Math.max(V.dmin, large ? V.demi / (tv * cam.aspect) : V.demi / tv), pc = tg.clone(); pc.y += D; if (pc.y > 3.9) pc.y = 3.9;
+          var hautEcran = (large ? V3(0, 0, -1) : V3(-1, 0, 0)).applyQuaternion(qg); hautEcran.y = 0; hautEcran.normalize(); var dv = V3(0, 0.94, 0.34).applyQuaternion(qg).normalize();
+          vueDe.p.copy(cam.position); vueDe.q.copy(cam.quaternion); vueFov = cam.fov; vueFovA = fovV; cadre({ tgt: tg.toArray(), dir: dv.toArray(), r: V.demi }); if (!vueGuidee()) return;
+          vueA.p.copy(pc); mV.lookAt(pc, tg, hautEcran); vueA.q.setFromRotationMatrix(mV); vueT = 0; K.vue = true; } catch (e) { K.erreur = String(e && e.message || e); } }
+      function tientVue(dt) { if (!K.vue) return; if (!vueGuidee()) { K.vue = false; if (K.lieu === "coupe") finCoupe(false); return; } vueT = Math.min(1, vueT + dt / K.VUE.T); var a = I.adouci(vueT), gg = guide, X = gg.K; pV.copy(vueDe.p).lerp(vueA.p, a); qV.copy(vueDe.q).slerp(vueA.q, a);
+        gg.p0.copy(pV); gg.p1.copy(pV); gg.q0.copy(qV); gg.q1.copy(qV); if (X) { if (!X.chemin || X.chemin.length !== 2) X.chemin = [pV.clone(), pV.clone()]; else { X.chemin[0].copy(pV); X.chemin[1].copy(pV); } X.cumul = [0, 0]; X.fondu = false; X.vis = 0; var fv = vueFov + (vueFovA - vueFov) * a; X.fov0 = fv; X.fov1 = fv; X.ox0 = 0; X.oy0 = 0; X.ox1 = 0; X.oy1 = 0; X.s = X.T; X.e = 1; } }
+      // ---- coupe : entree dans la vue du dessus, sortie, poussee, recul, planche neuve
+      var retour = null;
+      // de combien la coupe depasse le trace en profondeur ; une entaille elargie de moins de K.LARGE sur le cote (largeur du trait de scie) ne compte pas
+      function exces() { var mx = 0, n = Math.round(K.LARGE / PAS); if (K.releve !== "fait") return 0; for (var i = 0; i <= N; i++) { if (d[i] <= 0.004) continue; var r = 0; for (var k = Math.max(0, i - n); k <= Math.min(N, i + n); k++) if (req[k] > r) r = req[k]; if (d[i] - r > mx) mx = d[i] - r; } return mx; }
+      // erreur de coupe (utilisateur : « si erreur offre possibilité mettre nouvelle planche ») : coupe plus profonde que le trace d'au moins K.ERREUR ;
+      // plancher pousse, il resterait devant la foreuse un trou de 3 po ou plus, ou le pied passe (regle de la fiche de l'etape 18)
+      function verifie() { K.exces = exces(); majBarre(); }   // (version 104) plus d'avertissement apres le trait : le joueur constate en poussant
+      function commence() { if (K.lieu !== "main" || K.enCours) return; S.scale.set(1, 1, 1); retour = { x: etat.x, z: etat.z, lacet: etat.lacet, tangage: etat.tangage }; vueCoupe(); if (!K.vue) { retour = null; return; }
+        K.lieu = "coupe"; gs.add(S); S.visible = true; cur.x = XM; cur.z = -0.03; cible = { x: XM, z: -0.03 }; survol = false; ptr = null; K.phase = "vol"; I.etat.scie = "coupe"; if (K.releve === "non") { K.releve = "en cours"; rel.i = 0; }
+        if (K.avance > 0) { K.mode = "repos"; S.position.copy(pRepos); S.quaternion.copy(qRepos); I.message("Plancher déjà poussé : « Tirer » pour le recouper", 4500); }
+        else { K.mode = "scie"; poseScie(cur.x, cur.z, 0.10); S.position.copy(vS); S.quaternion.copy(qS); I.message(I.tactile ? "Suis le tracé jaune : glisse le doigt depuis le bord et garde-le posé, la scie suit ton trait" : "Suis le tracé jaune : glisse depuis le bord, bouton enfoncé, la scie suit ton trait", 6000); } majBarre(); }
+      function finCoupe(rend) { if (K.lieu !== "coupe") return; ptr = null; K.lieu = "main"; K.mode = "repos"; K.phase = "vol"; K.vue = false; I.etat.scie = "scie en main"; S.userData.lame.position.x = 0; gm.add(S); S.visible = false;
+        if (rend && vueGuidee()) { try { libere(); } catch (e) {} }
+        if (retour) { try { COLLISIONS.pose(retour.x, retour.z, undefined, "scie"); etat.lacet = retour.lacet; etat.tangage = retour.tangage; } catch (e) {} retour = null; } majBarre(); }
+      function quitte() { if (K.lieu !== "coupe" || K.enCours) return; finCoupe(true); }
+      function pousse() { if (K.lieu !== "coupe" || K.mode !== "scie" || K.enCours || K.releve !== "fait" || !coupeFaite()) return; var a = avancePossible(), eta = accoste(); K.mode = "repos"; ptr = null; K.phase = "vol"; chemin.length = 0; S.userData.lame.position.x = 0; var f = [{ d: aRamasser() ? K.T_CHUTE + 0.15 : 0, debut: ramasse, f: function () {} }, scieVers(pRepos, qRepos, 0.7)];
+        if (a < 0.008) { f.push({ d: 0, f: function () {}, fin: function () { K.mode = "scie"; I.message("Le plancher bute tout de suite contre la foreuse : coupe le long du tracé jaune", 4000); majBarre(); } }); lance(f); majBarre(); return; }
+        f.push(glisse(a, eta)); f.push({ d: 0, f: function () {}, fin: function () { K.avance = a; K.jour = jourMax(a); var juste = a >= K.avanceVisee - 0.012, e = exces(), trou = e >= K.ERREUR, cm = Math.round(a * 100); K.exces = e; K.epouse = juste && !trou; K.fautive = trou; if (!juste && !trou) { repere.position.set(Math.max(X0 + 0.03, Math.min(X1 - 0.03, X0 + K.contact * PAS)), YT + 0.009, Z0 + d[K.contact] + 0.03); repere.visible = true; }
+          // le constat : il epouse la foreuse, il la touche au repere rouge, ou la coupe laisse un trou ou le pied passe (alors « Planche neuve » s'allume)
+          I.message(trou ? "Plancher avancé de " + cm + " cm, mais la coupe laisse un trou de " + Math.round((e + K.JEU) * 100) + " cm devant la foreuse : le pied passe (3 po). Mets une planche neuve." : juste ? "Plancher avancé de " + cm + " cm : il épouse la foreuse" : "Plancher avancé de " + cm + " cm : il touche la foreuse au repère rouge (il manque " + Math.max(1, Math.round((K.avanceVisee - a) * 100)) + " cm). Tire-le et recoupe le long du tracé.", trou ? 7000 : 5000); majBarre(); } }); lance(f); majBarre(); }
+      function recule() { if (K.lieu !== "coupe" || K.enCours || K.avance <= 0) return; var a = K.avance, eta = accoste(); lance([glisse(-a, eta), { d: 0, f: function () {}, fin: function () { K.avance = 0; K.mode = "scie"; K.phase = "vol"; majBarre(); } }]); majBarre(); }
+      function planche() { if (K.lieu !== "coupe" || K.enCours || !coupeFaite()) return; var f = [], a = K.avance, eta = accoste(); if (a > 0) f.push(glisse(-a, eta)); repere.visible = false; K.mode = "repos"; ptr = null; K.phase = "vol";
+        f.push({ d: 0.3, debut: function () { K.avance = 0; chutes.forEach(function (gr) { if (gr.parent) gr.parent.remove(gr); }); chutes.length = 0; vols.length = 0; hPile = 0; colPile = 0; tsRaz(); G.fill(1); tombes.length = 0; chemin.length = 0; majProfil(); reconstruit(); I.collisions(p, false); p.updateMatrixWorld(true); I.collisions(p, true); K.planches = (K.planches || 0) + 1; }, f: function () {},
+          fin: function () { K.mode = "scie"; K.fautive = false; K.exces = 0; I.message("Planche neuve posée : recoupe le long du tracé jaune", 4000); majBarre(); } }); lance(f); majBarre(); }
+      // ---- barre de la coupe (memes boutons ronds que l'ecran du coffre) : « Retour » ; « Planche neuve », « Tirer », « Pousser » selon l'etat
+      var barre = null, BT = {};
+      function creeBarre() { if (barre) return; var ico = function (c) { return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + c + "</svg>"; };
+        barre = document.createElement("div"); barre.id = "scie103-barre";
+        barre.innerHTML = '<div><button type="button" class="c88-b" data-a="retour" title="Quitter la coupe, la scie reste en main">' + ico('<path d="M14.5 5l-7 7 7 7"/>') + "<span>Retour</span></button></div><h2>Coupe du plancher</h2>" +
+          '<div><button type="button" class="c88-b" data-a="planche" title="Mettre une planche neuve et recommencer la coupe" hidden>' + ico('<path d="M3 11h18v6H3zM7.5 14h.01M16.5 14h.01M12 3v5M9.5 5.5h5"/>') + "<span>Planche neuve</span></button>" +
+          '<button type="button" class="c88-b" data-a="tirer" title="Tirer le plancher en arrière pour recouper" hidden>' + ico('<path d="M12 4.5v11M7 11l5 5 5-5M5 19.5h14"/>') + "<span>Tirer</span></button>" +
+          '<button type="button" class="c88-b" data-a="pousser" title="Pousser le plancher contre la foreuse" hidden>' + ico('<path d="M12 19.5v-11M7 13l5-5 5 5M5 4.5h14"/>') + "<span>Pousser</span></button></div>";
+        document.body.appendChild(barre); ["retour", "planche", "tirer", "pousser"].forEach(function (a) { BT[a] = barre.querySelector('[data-a="' + a + '"]'); });
+        barre.addEventListener("click", function (e) { var b = e.target && e.target.closest ? e.target.closest("[data-a]") : null; if (!b) return; var a = b.getAttribute("data-a"); K.boutons = (K.boutons || 0) + 1; if (a === "retour") quitte(); else if (a === "planche") planche(); else if (a === "tirer") recule(); else if (a === "pousser") pousse(); }); }
+      function majBarre() { if (!barre) return; var c = K.lieu === "coupe", libre = c && !K.enCours, fait = coupeFaite(); BT.pousser.hidden = !(libre && K.mode === "scie" && fait && K.avance === 0); BT.tirer.hidden = !(libre && K.avance > 0); BT.planche.hidden = !(libre && fait); BT.planche.setAttribute("aria-pressed", K.fautive ? "true" : "false"); }
+      try { creeBarre(); } catch (e) { K.erreur = String(e && e.message || e); }
+      // ---- chaque image
+      var mB = new THREE.Matrix4(), qS = new THREE.Quaternion(), vS = new THREE.Vector3(), finPrec = false;
+      // la scie pendant la coupe : lame vers le bas et un peu vers la foreuse, poignee vers le plancher (vers celui qui coupe) : vue du dessus, elle se lit ; dents vers le sens de la marche
+      function poseScie(x, zp, haut) { var t = K.INCLINE * Math.PI / 180, X = V3(0, -Math.cos(t), -Math.sin(t)), Y = dirU.clone().negate(); Y.y = 0; if (Y.lengthSq() < 1e-6) Y.set(-1, 0, 0); Y.addScaledVector(X, -Y.dot(X)); if (Y.lengthSq() < 1e-6) Y.set(-1, 0, 0); Y.normalize();
+        var Z = new THREE.Vector3().crossVectors(X, Y); mB.makeBasis(X, Y, Z); qS.setFromRotationMatrix(mB); vS.set(x, YT + haut, Z0 + zp); }
+      I.anime(function (dt) { var enCoupe = K.lieu === "coupe", cl = enCoupe && K.vue; if (classeMise !== cl) { classeMise = cl; try { document.body.classList.toggle("scie102-coupe", cl); } catch (e) {} majBarre(); }
+        g.updateWorldMatrix(true, false); gs.matrix.copy(g.matrixWorld); gs.matrixWorldNeedsUpdate = true; gs.visible = I.vu(g); temps += dt; tientVue(dt);
+        trace.visible = enCoupe && K.mode === "scie" && K.releve === "fait";
+        if (K.releve === "en cours") { try { releveTranche(14); } catch (e) { K.releve = "erreur"; K.erreur = String(e && e.message || e); } }
+        for (var v = vols.length - 1; v >= 0; v--) { var o = vols[v]; o.t += dt / K.T_CHUTE; var a = I.adouci(Math.min(1, o.t)); o.gr.position.copy(o.a).lerp(o.b, a); o.gr.position.y += 0.22 * Math.sin(Math.PI * a); o.gr.quaternion.copy(o.qa).slerp(o.qb, a); if (o.t >= 1) vols.splice(v, 1); }
+        for (var w = tombes.length - 1; w >= 0; w--) { var tb = tombes[w], tc = tb.h > 0 ? Math.sqrt(tb.h / 4.905) : 0, tr = tb.h > 0 ? 2 * Math.sqrt(0.12 * tb.h / 4.905) : 0, ur; tb.t += dt; ur = tb.t - tc;
+          if (tb.h > 0) tb.gr.position.y = tb.t < tc ? tb.y0 - 4.905 * tb.t * tb.t : tb.y0 - tb.h + (ur < tr ? Math.max(0, 0.12 * tb.h - 4.905 * (ur - tr / 2) * (ur - tr / 2)) : 0);
+          if (ur >= tr && tb.gr.userData.ySol === undefined) tb.gr.userData.ySol = tb.gr.position.y; if (ur >= tr + K.T_POSE) jette(tb.gr); }
+        if (finPrec !== K.enCours) { finPrec = K.enCours; majBarre(); }
+        if (K.enCours) { if (!cours) { cours = file.shift(); if (!cours) { K.enCours = false; return; } cours.t = 0; try { if (cours.debut) cours.debut(); } catch (e) { K.erreur = String(e && e.message || e); } }
+          cours.t += dt; var u = cours.d > 0 ? Math.min(1, cours.t / cours.d) : 1; try { cours.f(u); if (u >= 1 && cours.fin) cours.fin(); } catch (e) { K.erreur = String(e && e.message || e); u = 1; } if (u >= 1) cours = null; return; }
+        if (!(enCoupe && K.mode === "scie")) return;
+        // la scie : en l'air elle file vers le pointeur ; trait en cours, elle suit le chemin trace par le joueur, a la vitesse d'une vraie scie dans le bois
+        // (plus lente au-dessus d'une traverse, libre dans le vide ou dans un trait deja fait), et enleve le bois que sa lame traverse
+        var dansBois = false;
+        if (K.phase === "coupe") { var resteT = dt, garde = 0; while (resteT > 1e-5 && chemin.length && garde++ < 200) { var wq = chemin[0], dxq = wq.x - cur.x, dzq = wq.z - cur.z, dq = Math.hypot(dxq, dzq); if (dq < 1e-5) { chemin.shift(); continue; }
+            var ux = dxq / dq, uz = dzq / dq, bo = boisEn(cur.x + ux * CE * 1.2, cur.z + uz * CE * 1.2) || boisEn(cur.x + ux * CE * 0.6, cur.z + uz * CE * 0.6) || boisEn(cur.x, cur.z),   /* du bois dans la case d'apres : la lame est a l'ouvrage (la case ou elle se tient est deja ouverte) */ vq = bo ? (surTraverse[Math.max(0, Math.min(N, Math.round((cur.x - X0) / PAS)))] ? K.V_TRAVERSE : K.V_SCIE) : K.V_VIDE, pq = Math.min(dq, vq * resteT);
+            if (tranche(cur.x, cur.z, cur.x + ux * pq, cur.z + uz * pq)) sale = true; if (bo) dansBois = true; cur.x += ux * pq; cur.z += uz * pq; if (pq > 0.0002) dirU.set(ux, 0, uz); resteT -= pq / vq; if (pq >= dq - 1e-6) chemin.shift(); } }
+        else { var but = K.phase === "entree" ? chemin[0] : cible; if (!but) { K.phase = "vol"; but = cible; } var dx = but.x - cur.x, dz = but.z - cur.z, dist = Math.hypot(dx, dz), pas = Math.min(dist, K.V_LIBRE * dt);
+          if (dist > 1e-5) { cur.x += dx / dist * pas; cur.z += dz / dist * pas; if (pas > 0.0005) dirU.set(dx / dist, 0, dz / dist); } if (K.phase === "entree" && dist - pas < 0.004) { chemin.shift(); K.phase = "coupe"; } }
+        if (sale) { sale = false; apresCoupe(false); } majCrayon(); K.dansBois = dansBois;
+        var enBois = K.phase !== "vol"; poseScie(cur.x, cur.z, enBois ? 0.004 : (survol ? 0.06 : 0.10)); S.position.lerp(vS, enBois ? 1 : Math.min(1, dt * 14)); S.quaternion.slerp(qS, Math.min(1, dt * (enBois ? 10 : 8))); var marche = K.phase === "coupe" && chemin.length > 0; S.userData.lame.position.x = marche ? 0.0065 * Math.sin(temps * 150) : 0; if (marche && dansBois) { S.position.x += 0.0006 * Math.sin(temps * 131); S.position.y += 0.0005 * Math.sin(temps * 173); } });
+      // ---- invites : la scie dans le coffre ouvert (prendre), sa place vide (ranger), le bord du plancher cote foreuse (couper, ou ou trouver la scie)
+      var zBande = new THREE.Box3(V3(X0, YT - 0.02, Z0 - 0.06), V3(X1, YT + 0.05, Z0 + K.DMAX));
+      I.zone({ o: g, prio: 1, ancre: { o: g, p: V3(XM, YT, Z0) }, b: zBande, actif: function () { return I.vu(g) && K.lieu !== "coupe" && !K.enCours && !(typeof modeDeplacer !== "undefined" && modeDeplacer); },
+        texte: function () { return K.lieu === "main" ? ["Clique pour couper le plancher secondaire", "Touche ici pour couper le plancher secondaire"] : ["Pour couper ce bord : scie va-et-vient, dans le tiroir du coffre à outils", "Pour couper ce bord : scie va-et-vient, dans le tiroir du coffre à outils"]; },
+        agit: function () { if (K.lieu === "main") commence(); else I.message("La scie va-et-vient est rangée dans le tiroir du coffre à outils : va la chercher", 3500); } });
+      // ---- invite a pousser (version 104, utilisateur : « une fois coupé invite a pousser le plancher de cette maniere le joueur constate si le plancher est
+      // adéquatement couper pour épouser la foreuse ») : des qu'un trait a enleve du bois et que les chutes sont posees, l'invite « Pousser » s'affiche sur le
+      // plancher (invite de la page, imposee par I.viseForcee : dans la vue du dessus les touchers sont arretes, rien n'est pointe) ; la toucher pousse le
+      // plancher, et le message dit ce qu'il en est (il epouse la foreuse, il bute avant de l'epouser, ou la coupe laisse un trou). Plancher pousse sans
+      // epouser la foreuse : l'invite devient « Tirer », pour recouper.
+      var ancreInv = V3(XM, YT, Z0 + 0.58), zVide = new THREE.Box3(V3(XM - 0.01, YB - 0.5, Z0), V3(XM + 0.01, YB - 0.49, Z0 + 0.01));
+      function inviteQuoi() { if (!dansCoupe() || K.enCours || ptr !== null || vols.length) return null; if (K.mode === "scie" && K.avance === 0 && coupeFaite()) return "pousser"; if (K.avance > 0 && !K.epouse) return "tirer"; return null; }
+      var zInvite = I.zone({ o: g, ancre: { o: g, p: ancreInv }, b: zVide, actif: function () { return inviteQuoi() !== null; },
+        texte: function () { return inviteQuoi() === "tirer" ? ["Clique pour tirer le plancher en arrière", "Touche ici pour tirer le plancher en arrière"] : ["Clique pour pousser le plancher contre la foreuse", "Touche ici pour pousser le plancher contre la foreuse"]; },
+        agit: function () { var q = inviteQuoi(); K.invites = (K.invites || 0) + 1; if (q === "pousser") pousse(); else if (q === "tirer") recule(); } });
+      var forceAvant = I.viseForcee; I.viseForcee = function () { var z0 = forceAvant ? forceAvant() : null; if (z0) return z0; if (!inviteQuoi()) return null; // ecran debout (telephone) : le plancher ne laisse que 12 cm a cote de la bande de coupe ; l'invite se met au bout du plancher, cote sortie, hors de la bande
+        if (cam.aspect >= 1) ancreInv.set(XM, YT, Z0 + 0.68); else ancreInv.set(X1 + 0.20, YT, Z0 + 0.20); return zInvite; };   // ecran couche : sous le message du milieu de l'ecran
+      K.inviteQuoi = inviteQuoi;
+      // pour les essais : coupe ideale le long du trace (part f de la profondeur demandee), sans pointeur
+      K.coupeSelonTrace = function (f) { if (K.releve !== "fait") return false; var r = PAS / CE; for (var ix = 0; ix < NX; ix++) { var i = Math.max(0, Math.min(N, Math.round((ix + 0.5) / r))), nj = Math.min(NZ - 3, Math.round(req[i] * (f === undefined ? 1 : f) / CE)); for (var jz = 0; jz < nj; jz++) G[jz * NX + ix] = 0; } K.traits++; apresCoupe(true); return true; };
+      K.traitsLame = function () { return TS.length / 4; }; K.lame = TS; K.etatCoupe = function () { var v = 0; for (var c = 0; c < NC; c++) if (!G[c]) v++; return { vides: v, reste: K.reste || 0, cur: [cur.x, cur.z], phase: K.phase, tombent: tombes.length, dansBois: !!K.dansBois, parTerre: chutes.filter(function (x) { return !x.userData.pile; }).length }; };
+      K.g = g; K.p = p; K.d = d; K.req = req; K.gapD = gapD; K.gapS = gapS; K.chutes = chutes; K.commence = commence; K.quitte = quitte; K.pousse = pousse; K.recule = recule; K.planche = planche; K.vueCoupe = vueCoupe; K.accoste = accoste; K.avancePossible = avancePossible; K.jourMax = jourMax; K.excesCoupe = exces;
+      K.mesures = { X0: X0, X1: X1, Z0: Z0, Z1: Z1, YT: YT, YB: YB, N: N, PAS: PAS };
+      K.tPrep = performance.now() - tPrep; if (I.etat.scie === "attente") I.etat.scie = K.lieu === "main" ? "scie en main" : "pret"; return true; });
+  })();
   // ---- inter_table.js (tour 6) : table a carottes (web_table63/table_carottes.js, trois boites, celle du fond vide).
   // Le plus simple et credible : la boite de DEVANT (cote allee) glisse vers le visiteur puis revient. Course courte (8 cm) : la boite
   // (0,197 m de large) garde son centre sur le plateau (bord a z 0,44 m). Ce qui se passe vraiment a la table : question a l'utilisateur.
@@ -11774,13 +12391,17 @@
       oeil: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>',
       depart: '<path d="M4 11l8-7 8 7M6 9.5V20h12V9.5M10 20v-5h4v5"/>',
       ranger: '<path d="M4.5 8h15v12h-15zM3 4h18v4H3zM10 12h4"/>',
+      accroupir: '<path d="M11 6.6a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8zM10.5 8.8l-2.3 5.4 6.3-.4-.6 6.2M9.8 10.8l4.4 1M12.4 20h3.6"/>',
+      relever: '<path d="M12 6.4a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8zM12 8.6v6.2M12 14.8l-2.6 6M12 14.8l2.6 6M8.6 12.6l3.4-2.6 3.4 2.6"/>',
+      plusbas: '<path d="M12 3.5v10.5M7.5 9.5l4.5 4.5 4.5-4.5M4.5 19.5h15"/>',
+      pencher: '<path d="M16.2 7.6a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8zM14.2 9.2l-5.7 4.6v6.7M11.9 11.1l4.3 2.3"/>',
       installer: '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/>',
       point: '<path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>' };
     // mot court sous la pastille, d'apres le texte complet du bouton (les autres codes continuent d'ecrire ce texte)
     var MOTS = [[/^Installer$/i, "Installer", "installer"], [/^Déplacer$/i, "Déplacer", "deplacer"], [/^Terminer$/i, "Terminer", "termine"], [/^Levage et transport$/i, "Levage", "joue"],
       [/^Travailleurs : ([0-9]+ %)$/i, "$1", "equipe"], [/^Travailleurs : en attente$/i, "Travailleurs", "equipe"], [/^Travailleurs : réessayer$/i, "Réessayer", "equipe"],
       [/^Voir la foreuse.*$/i, "Foreuse", "foreuse"], [/^Foreuse : ([0-9]+ %)$/i, "$1", "foreuse"], [/^Foreuse : réessayer$/i, "Réessayer", "foreuse"], [/^Foreuse en place$/i, "Foreuse ✓", "foreuse"],
-      [/^Vue avatar$/i, "Vue avatar", "avatar"], [/^Vue 1re personne$/i, "1re personne", "oeil"], [/^Retour au départ$/i, "Départ", "depart"], [/^Ranger les pièces \(([0-9]+)\)$/i, "Ranger ($1)", "ranger"]];
+      [/^S'accroupir$/i, "S'accroupir", "accroupir"], [/^Se relever$/i, "Se relever", "relever"], [/^Plus bas$/i, "Plus bas", "plusbas"], [/^Se pencher$/i, "Se pencher", "pencher"], [/^Se redresser$/i, "Se redresser", "relever"], [/^Vue avatar$/i, "Vue avatar", "avatar"], [/^Vue 1re personne$/i, "1re personne", "oeil"], [/^Retour au départ$/i, "Départ", "depart"], [/^Ranger les pièces \(([0-9]+)\)$/i, "Ranger ($1)", "ranger"]];
     function maj(b) { var t = (b.textContent || "").trim(), mot = t, ico = "point";
       for (var i = 0; i < MOTS.length; i++) if (MOTS[i][0].test(t)) { mot = t.replace(MOTS[i][0], MOTS[i][1]); ico = MOTS[i][2]; break; }
       if (b.getAttribute("data-jeu") !== mot) b.setAttribute("data-jeu", mot); if (t && b.getAttribute("title") !== t) b.setAttribute("title", t);
@@ -11955,6 +12576,8 @@
       [/^(examiner|regarder|voir|trouver|la fiche)/i, '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'],
       [/^(démarrer|arrêter)/i, '<path d="M12 3v9"/><path d="M6.3 7.3a8 8 0 1 0 11.4 0"/>'],
       [/^(pousser|tirer|repousser|lever|reposer)/i, '<path d="M12 4v16"/><path d="M7 9l5-5 5 5"/><path d="M7 15l5 5 5-5"/>'],
+      [/^(couper|scier)/i, '<path d="M3 8h13l5 3-5 3H3z"/><path d="M4 14l1.5 2.5L7 14l1.5 2.5L10 14l1.5 2.5L13 14l1.5 2.5L16 14"/><path d="M6 8V5h4v3"/>'],
+      [/^(remettre|refaire)/i, '<path d="M4 12a8 8 0 1 0 2.6-5.9"/><path d="M4 4v5h5"/>'],
       [/^(prendre|décrocher|sortir|ranger)/i, '<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/>']];
     function picto(a) { for (var i = 0; i < PICTOS.length; i++) if (PICTOS[i][0].test(a)) return '<svg viewBox="0 0 24 24" aria-hidden="true">' + PICTOS[i][1] + "</svg>"; return ""; }
 
@@ -12257,7 +12880,7 @@
     T.active(T.ACTIF);
   })();
   // ---- patch_version.js : numero de version de la page
-  try { window.__version = 101; } catch (e) {}
+  try { window.__version = 111; } catch (e) {}
   cam.position.set(etat.x, SOL + 1.62, etat.z); requestAnimationFrame(boucle);
 })();
 </script>
@@ -12518,7 +13141,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "101-1f701888", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "111-1012a015", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
