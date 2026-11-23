@@ -15614,6 +15614,53 @@
     try { if (/video/.test(location.hash || "")) { var essais = 0; (function attend() { var b = document.getElementById("acc-construire"), acc = document.getElementById("accueil"), pret = typeof etape !== "undefined";
         if (b && acc && !acc.hidden && b.offsetParent) { b.click(); setTimeout(attend, 1500); return; } if ((!acc || acc.hidden) && pret && essais > 2) { setTimeout(function () { NV.joue(0); }, 2500); return; } essais++; if (essais < 400) setTimeout(attend, 500); })(); } } catch (e) { err(e, "adresse"); }
   })();
+  // ---- inter_voix_v157.js (v157 + voix, 2026-11-23) : demande de l'utilisateur « le site est deploye version 157, ajoute les voix a l'app ».
+  // Les 55 blocs du script v25 (inter_narration_v155.js) ont leur fichier voix/bloc_<id>.mp3 : formateur = voix « Steve », apprenti = voix « Adam »
+  // (ElevenLabs eleven_v4, niveau egalise, 0,35 s de silence en fin de bloc). Ce module ne change rien au module de narration : il lui donne
+  // NV.AUDIO = "voix/" et la duree reelle de chaque bloc (K.DUREES), puis s'occupe de ce qu'un navigateur exige pour faire entendre une voix :
+  //  1. un geste de l'utilisateur : NV.joue() est enveloppe. Sans geste (adresse « #video »), un bouton « Lancer la visite narree » attend le clic.
+  //     L'accueil recoit un bouton « Visite narree » (meme parcours que « #video » : construire le plancher, puis lecture du debut).
+  //  2. un seul lecteur audio, debloque pendant le geste (iOS refuse un lecteur cree apres coup) : « new Audio("voix/...") » rend ce lecteur.
+  //  3. les fichiers sont charges d'avance par fetch (blob) : le service worker n'a pas a servir de lecture partielle (Range), Safari compris.
+  // Pendant la visite narree lancee depuis l'accueil : bouton « Quitter » en haut a droite (NV.arrete). K.ACTIF = false : rien (pas de voix).
+  (function () { var NV = window.__narrationV155; if (!NV || !NV.ACTIF || typeof NV.joue !== "function") return;
+    var K = { ACTIF: true, DOSSIER: "voix/", DUREES: {"1":5.54,"2":3.74,"3":7.37,"4":21.5,"5":7.81,"6":4.99,"7":1.62,"8":15.41,"9":8.52,"10":11.28,"11":10.95,"12":8.59,"13":3.6,"14":4.49,"15":10.0,"16":16.17,"17":8.2,"18":10.42,"19":1.91,"20":7.05,"21":12.75,"22":2.74,"23":8.72,"24":9.48,"25":10.24,"26":3.08,"27":6.03,"28":2.12,"29":11.52,"30":2.72,"31":21.08,"32":1.59,"33":28.13,"34":2.48,"35":17.21,"36":9.98,"37":1.36,"38":25.36,"39":10.48,"40":12.93,"41":2.17,"42":13.37,"43":14.26,"44":4.1,"45":13.56,"46":20.98,"47":1.67,"47a":4.62,"48":32.37,"48a":22.86,"49":14.13,"50":2.19,"51":18.1,"52":13.45,"53":2.38}, etat: "attente", charges: 0, total: 0, geste: false, erreur: null };
+    try { window.__voixV157 = K; } catch (e) {}
+    if (!K.ACTIF || !window.fetch || !window.Audio || !window.URL || !URL.createObjectURL) { K.etat = "coupe"; return; }
+    NV.AUDIO = K.DOSSIER; NV.BLOCS.forEach(function (b) { if (K.DUREES[b.id] > 0) b.d = K.DUREES[b.id]; });
+    var Natif = window.Audio, lecteur = null, blobs = {}, pret = false, attente = false, depuis = 0, joue0 = NV.joue, arrete0 = NV.arrete, boite = null, bAcc = null;
+    var SILENCE = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=";
+    function Lecteur(src) { if (lecteur && typeof src === "string" && src.indexOf(K.DOSSIER) === 0) { try { lecteur.pause(); } catch (e) {} lecteur.src = blobs[src] || src; return lecteur; } return arguments.length ? new Natif(src) : new Natif(); }
+    Lecteur.prototype = Natif.prototype; try { window.Audio = Lecteur; } catch (e) {}
+    function debloque() { K.geste = true; if (!lecteur) lecteur = new Natif(); try { lecteur.src = SILENCE; var p = lecteur.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+    function avance() { var t = K.etat === "chargement" ? "Chargement des voix : " + K.charges + " / " + K.total : null;
+      if (boite) boite.querySelector("span").textContent = t || "Avec les voix · 9 min"; if (bAcc) bAcc.querySelector("span").textContent = t || "Le formateur explique chaque étape · 9 min"; }
+    function charge() { if (pret || K.etat === "chargement") return; K.etat = "chargement"; var L = NV.BLOCS.map(function (b) { return K.DOSSIER + "bloc_" + b.id + ".mp3"; }); K.total = L.length; K.charges = 0; avance();
+      L.forEach(function (u) { fetch(u).then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.blob(); }).then(function (bl) { blobs[u] = URL.createObjectURL(bl); }, function (e) { K.erreur = u + " : " + String(e && e.message || e); })
+        .then(function () { K.charges++; if (K.charges >= K.total) { pret = true; K.etat = "pret"; } avance(); if (pret && attente) { attente = false; part(); } }); }); }
+    function part() { if (boite) boite.hidden = true; K.etat = "lecture"; joue0.call(NV, depuis); }
+    function invite() { if (!boite) { boite = document.createElement("div"); boite.id = "voix157-invite"; boite.innerHTML = '<button type="button"><b>▶ Lancer la visite narrée</b><span>Avec les voix · 9 min</span></button>'; document.body.appendChild(boite);
+        boite.firstChild.addEventListener("click", function () { debloque(); NV.joue(depuis); }); } boite.hidden = false; }
+    NV.joue = function (d) { depuis = d || 0; if (!K.geste) { invite(); return; } if (!pret) { attente = true; charge(); return; } part(); };
+    K.son = function () { return lecteur ? { pause: lecteur.paused, t: Math.round(lecteur.currentTime * 10) / 10, duree: Math.round(lecteur.duration * 10) / 10, fini: lecteur.ended, blob: /^blob:/.test(lecteur.src) } : null; };   // etat du lecteur (essais)
+    NV.arrete = function () { var r = arrete0.apply(NV, arguments); try { if (lecteur) lecteur.pause(); } catch (e) {} document.body.classList.remove("voix-quitter"); if (K.etat === "lecture") K.etat = "pret"; return r; };
+    var css = document.createElement("style");
+    css.textContent = "#accueil .acc-narree{flex:none;display:flex;justify-content:center;padding:10px max(20px,env(safe-area-inset-right,0px)) 0 max(20px,env(safe-area-inset-left,0px))}#accueil #acc-choix-depart[hidden]~.acc-narree{display:none}" +
+      "#acc-narree{display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;gap:4px 12px;width:auto;min-height:44px;margin:0;padding:11px 22px;border-radius:999px;background:var(--plaque);border:1px solid var(--plaque-bord);color:var(--texte);font:400 15px/1.2 var(--f-texte);text-transform:none;letter-spacing:0;cursor:pointer}" +
+      "#acc-narree b{font:700 16px/1 var(--f-titre);letter-spacing:.08em;text-transform:uppercase;color:var(--signal)}#acc-narree span{color:#c5ccd2}#acc-narree:hover,#acc-narree:focus-visible{border-color:var(--signal)}" +
+      "#voix157-invite{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(8,10,12,.6)}#voix157-invite[hidden]{display:none}" +
+      "#voix157-invite button{display:flex;flex-direction:column;align-items:center;gap:7px;width:auto;margin:0;padding:18px 32px;border:0;border-radius:999px;background:var(--signal);color:var(--signal-encre);text-transform:none;letter-spacing:0;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.5)}" +
+      "#voix157-invite b{font:700 20px/1 var(--f-titre);letter-spacing:.08em;text-transform:uppercase}#voix157-invite span{font:500 14px/1 var(--f-texte)}" +
+      "#voix157-quitter{display:none;position:fixed;z-index:9;top:calc(10px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));width:auto;min-height:40px;margin:0;padding:9px 16px;border-radius:999px;background:rgba(20,23,26,.72);border:1px solid rgba(255,255,255,.28);color:#fff;font:500 14px/1 var(--f-texte);text-transform:none;letter-spacing:0;cursor:pointer}" +
+      "body.mode-video.voix-quitter #voix157-quitter{display:block}";
+    document.head.appendChild(css);
+    var q = document.createElement("button"); q.type = "button"; q.id = "voix157-quitter"; q.textContent = "✕ Quitter la visite narrée"; q.addEventListener("click", function () { NV.arrete(); }); document.body.appendChild(q);
+    var acc = document.getElementById("accueil"), pied = acc && acc.querySelector(".acc-pied");
+    if (acc && pied) { var rang = document.createElement("div"); rang.className = "acc-narree"; rang.innerHTML = '<button type="button" id="acc-narree"><b>▶ Visite narrée</b><span>Le formateur explique chaque étape · 9 min</span></button>'; acc.insertBefore(rang, pied); bAcc = rang.firstChild;
+      bAcc.addEventListener("click", function () { debloque(); charge(); document.body.classList.add("voix-quitter"); var essais = 0;
+        (function attend() { var b = document.getElementById("acc-construire"), ok = typeof etape !== "undefined";
+          if (b && !acc.hidden && b.offsetParent) { b.click(); setTimeout(attend, 1500); return; } if (acc.hidden && ok && essais > 2) { setTimeout(function () { NV.joue(0); }, 2500); return; } essais++; if (essais < 400) setTimeout(attend, 500); })(); }); }
+  })();
   // ---- inter_ordre_pose_v19.js (chantier v19 « ordre_pose », 2026-11-20, correction b du meme soir) : a l'arrivee d'une etape par « Suivant », les
   // pieces se posent dans l'ordre de la procedure (scenario v19, repliques 15, 20-21, 26-27 et 52-54). La page posait deja les pieces de l'etape une a
   // une (montre(n, anime) : anim = { t, liste }, chaque piece tombe de 0,5 m en 420 ms a partir de son t0), mais triees par x puis z : a l'etape 4 le
@@ -19568,7 +19615,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "157-0818f632", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "157-33bd70b5", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
