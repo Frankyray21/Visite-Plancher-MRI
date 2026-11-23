@@ -19,16 +19,28 @@ node fabrique_pwa.js <dossier de la page construite> <ce dossier>
 | `sw.js` | Service worker : met tout le site en cache, vérifie chaque fichier (SHA-256) |
 | `manifest.webmanifest`, `icones/` | Ce qu'il faut pour installer l'application |
 | `*.txt` | Modèles 3D et textures (GLB et JPEG en base 64) |
+| `voix/` | Voix de la visite narrée : un fichier `bloc_<id>.mp3` par bloc du script de narration (55 blocs, version 25) |
 | `version.json` | Version du site (numéro de la page et empreinte du contenu) |
 | `.gitattributes` | Interdit à git de convertir les fins de ligne : les empreintes en dépendent |
 
 ## Hors ligne
 
-À la première visite, le service worker télécharge tout le site (environ 58 Mo) et l'application affiche
+À la première visite, le service worker télécharge tout le site (environ 113 Mo) et l'application affiche
 « hors ligne ✓ » à côté de sa version quand chaque fichier est vérifié dans le cache. Une nouvelle version
 s'installe en arrière-plan ; l'application propose alors « Nouvelle version : recharger ».
 
 three.js vient de jsDelivr et les polices de Google Fonts ; les deux sont aussi mis en cache.
+
+## Visite narrée
+
+Sur l'accueil, le bouton « Visite narrée » construit le plancher puis enchaîne les 55 blocs du script : la caméra suit les plans de chaque
+étape, les sous-titres s'affichent et les voix jouent (formateur et apprenti, environ 9 minutes). L'adresse terminée par `#video` fait le même
+parcours sans l'interface, pour enregistrer une vidéo : un bouton « Lancer la visite narrée » attend un clic, exigé par les navigateurs avant
+de jouer du son.
+
+Les voix et leur module (`inter_voix_v157.js`, dans `index.html`) ont été ajoutés à la version 157 déjà déployée, hors de la chaîne de
+construction : `index.html`, `sw.js` et `version.json` portent une nouvelle empreinte (`157-33bd70b5`). À reporter dans la source de la visite
+avant la prochaine fabrication, sinon les voix disparaîtront.
 
 ## Vérifier
 
