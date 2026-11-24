@@ -6048,6 +6048,23 @@
       FLAQUES_REFLET: true,  // reflet de la galerie dans les flaques (image cube unique, refaite si le chantier change ; pas en mode allege)
       CLARTE: 1.0,           // clarte d'ensemble du roc fabrique (repli) ; CLARTE_SOL pour le sol
       CLARTE_SOL: 1.0,
+      // ---- sol scanne (patch_sol_scan, 2026-11-24) : boue pietinee « Brown Mud 03 » (Poly Haven, CC0) et depots de cuttings, par-dessus le
+      // sol fabrique, qui garde ses flaques, ses ornieres et ses eboulis. Chaque effet se coupe ici.
+      // Deux textures seulement (clarte-rugosite-occlusion, normales-relief) : le programme du sol en lit deja 15 et beaucoup d'appareils
+      // en acceptent 16 ; avec le sol scanne il n'en lit pas une de plus (le detail fabrique et le releve du roc ne lui servent plus).
+      SOL_SCAN: true,              // faux : sol fabrique seul (c'est aussi le repli automatique : fichier absent, nuanceur non compile)
+      SOL_SCAN_TOUR_M: 1.3,        // un tour de la boue scannee = 1,3 m x 1,3 m reels (taille du releve Poly Haven)
+      SOL_SCAN_HEX_M: 0.6,         // anti-repetition : cellules du pavage hexagonal tous les 0,6 m, chacune tournee et decalee au hasard
+      SOL_SCAN_TEINTE: [1.266, 0.963, 0.585],   // teinte moyenne du releve (lineaire, pour une clarte de 1) : brun
+      SOL_SCAN_SATURATION: 0.45,   // part de cette teinte : boue grise comme le roc (1 = brun du releve)
+      SOL_SCAN_CLARTE: 1.0,
+      SOL_SCAN_NORMALES: 1.0,      // force du relief des normales
+      SOL_SCAN_RELIEF_M: 0.04,     // relief par parallaxe : 4 cm entre le fond des empreintes et le haut des mottes (mode normal, moins de 7 m)
+      FLAQUES_RELIEF: 0.09,        // l'eau remplit d'abord les creux de la boue : bord des flaques decoupe par le relief, mottes qui emergent
+      CUTTINGS: true,              // boue fine grise du forage : deposee autour des flaques et dans les creux humides
+      CUTTINGS_SEUIL: 0.64,        // etendue des depots (plus bas : plus loin des flaques)
+      CUTTINGS_CLARTE: 1.0, CUTTINGS_FORCE: 0.9,
+      SOL_SCAN_FICHIERS: {"1":[["a","sol_boue_cro_1k.txt",679576],["b","sol_boue_nnr_1k.txt",964848]],"2":[["a","sol_boue_cro_2k.txt",2594524],["b","sol_boue_nnr_2k.txt",2870496]]},
       GARDE_PARALLAXE: 0.033, // mode normal : si la mediane des images depasse 33 ms une fois le roc pose, on coupe d'abord la parallaxe...
       GARDE_MEDIANE: 0.036   // ... puis, au-dela de 36 ms, version simplifiee (0 : jamais)
     };
@@ -6061,6 +6078,11 @@
     var U = { solT: { value: null }, solA: { value: new THREE.Vector4(-0.625, -3.025, 19.25, 6.0) }, bords: { value: null },
       treil: { value: new THREE.Vector4(0.0, 0.08, 0.0, 1.0) }, rouil: { value: new THREE.Vector4(0, 0, 0, 0) }, reg: { value: new THREE.Vector4(ROC.FACETTES, ROC.RELIEF, ROC.CLARTE, ROC.CLARTE_SOL) },
       mc: { value: null }, mn: { value: null }, mo: { value: null },
+      pa: { value: null }, pb: { value: null },   // sol scanne : clarte-rugosite-occlusion, normales-relief
+      pp: { value: new THREE.Vector4(1 / ROC.SOL_SCAN_TOUR_M, ROC.SOL_SCAN_TOUR_M / ROC.SOL_SCAN_HEX_M, 0, 1) },
+      pq: { value: new THREE.Vector4(ROC.SOL_SCAN_SATURATION, ROC.SOL_SCAN_CLARTE, ROC.SOL_SCAN_NORMALES, ROC.SOL_SCAN_RELIEF_M) },
+      pz: { value: new THREE.Vector4(ROC.CUTTINGS_SEUIL, ROC.CUTTINGS_CLARTE, ROC.CUTTINGS ? ROC.CUTTINGS_FORCE : 0, ROC.FLAQUES_RELIEF) },
+      pt: { value: new THREE.Vector4(ROC.SOL_SCAN_TEINTE[0], ROC.SOL_SCAN_TEINTE[1], ROC.SOL_SCAN_TEINTE[2], 0) },
       mp: { value: new THREE.Vector4(1 / ROC.MEGA_TOUR_M, ROC.MEGA_TOUR_M / ROC.MEGA_HEX_M, 0.124 * ROC.MEGA_PARALLAXE_ECHELLE, ROC.MEGA_PARALLAXE_LOIN) },
       mq: { value: new THREE.Vector4(ROC.MEGA_NORMALES, ROC.MEGA_AO, ROC.MEGA_AO_DIRECT, ROC.MEGA_CLARTE) },
       mv: { value: new THREE.Vector4(ROC.MEGA_VARIATION, ROC.MEGA_MIROIR ? 1 : 0, ROC.MEGA_ROT_DEG * Math.PI / 180, ROC.MEGA_PARALLAXE_PAS) },
@@ -6112,6 +6134,23 @@
       chargeNiveau(1, function (T, err) { MG.ms.niveau1 = Math.round(performance.now() - MG.t1); if (!T) { MG.etat = "echec1"; MG.erreur = err; note("releve 1K : " + err + " -> roche du tour 1");
           var q = document.getElementById("pct-roche"); if (q) q.textContent = "—"; return; }
         MG.attente1 = T; MG.etat = "televerse1"; majBarre(); }); }
+    // ---------------------------------------------------------------- sol scanne (patch_sol_scan, 2026-11-24) : textures publiees a cote de la page
+    // Niveau 1 (1K) des l'ouverture ; niveau 2 (2K) quand le releve du roc passe lui-meme en 2K. Tant que rien n'est la, ou si un fichier
+    // manque, ou si le nuanceur ne compile pas : sol fabrique, comme avant.
+    var SS = { etat: "coupe", niveau: 0, erreur: null, ms: {}, octets: 0, tex: null, attente: null, nivAttente: 0, abandon: false };
+    RC.solScan = SS;
+    function solScanActif() { return !!(ROC.SOL && ROC.SOL_SCAN && !SS.abandon && SS.tex); }
+    function chargeSolScan(niv, fini) { var L = ROC.SOL_SCAN_FICHIERS[niv], res = {}, reste = L.length, rate = false, t0 = performance.now();
+      function echec(e) { if (rate) return; rate = true; fini(null, String(e && e.message || e)); }
+      L.forEach(function (f) { var cle = f[0], nom = f[1];
+        texteTelecharge(nom, f[2], function () {}).then(function (b64) { if (rate) return;
+          deBase64(b64, function (u8) { SS.octets += u8.length;
+            enImage(u8, function (img) { if (rate) return; if (!img || img.width < 64 || img.width !== img.height) { echec(nom + " : image " + (img && img.width)); return; }
+              res[cle] = enTexture(img); res[cle].userData = { taille: img.width }; if (--reste === 0) { SS.ms["niveau" + niv] = Math.round(performance.now() - t0); fini(res); } }, echec); }, echec); }).catch(echec); }); }
+    function televerseSol(T) { var cles = ["a", "b"]; for (var i = 0; i < cles.length; i++) { var x = T[cles[i]]; if (x && !x.userData.ok) { try { renderer.initTexture(x); } catch (e) {} x.userData.ok = true; return false; } } return true; }
+    function octetsSolScan(T) { return 2 * T.a.userData.taille * T.a.userData.taille * 4 * 4 / 3; }
+    if (ROC.SOL && ROC.SOL_SCAN) { SS.etat = "charge1";
+      chargeSolScan(1, function (T, err) { if (!T) { SS.etat = "echec1"; SS.erreur = err; note("sol scanne 1K : " + err + " -> sol fabrique"); return; } SS.attente = T; SS.nivAttente = 1; SS.etat = "televerse1"; }); }
     function megaActif() { return ROC.MEGA && !MG.abandon && (MG.etat === "pret1" || MG.etat === "pret2") && !!U.mc.value; }
     function pomActif() { return megaActif() && ROC.MEGA_PARALLAXE && RC.fin && !RC.sansPom; }
 
@@ -6356,6 +6395,46 @@
       // (sauf sous 8,6 deg de la paroi, ou vn est borne a 0,15 pour limiter l'etirement)
       "  return (d.x * U - d.y * V) / rcMP.x - A * creux * prof; }",
       "#endif",
+      "#endif",
+      // ---- sol scanne (patch_sol_scan) : boue Poly Haven en pavage hexagonal (cellules tournees), relief par parallaxe
+      "#ifdef RC_PH",
+      "uniform sampler2D rcPA; uniform sampler2D rcPB; uniform vec4 rcPP; uniform vec4 rcPQ; uniform vec4 rcPZ; uniform vec4 rcPT;",
+      "#if __VERSION__ >= 300", "#define PH_TG(t, q, a, b) textureGrad(t, q, a, b)", "#elif defined(GL_EXT_shader_texture_lod)", "#define PH_TG(t, q, a, b) texture2DGradEXT(t, q, a, b)", "#else", "#define PH_TG(t, q, a, b) texture2D(t, q)", "#endif",
+      "vec2 phRot(vec2 v, float a) { float c = cos(a), s = sin(a); return vec2(c * v.x - s * v.y, s * v.x + c * v.y); }",
+      "void phHex(vec2 st, out vec3 w, out vec2 a, out vec2 b, out vec2 c) {",
+      "  vec2 sk = vec2(st.x - 0.57735027 * st.y, 1.15470054 * st.y), i0 = floor(sk); vec3 t = vec3(fract(sk), 0.0); t.z = 1.0 - t.x - t.y;",
+      "  float s = step(0.0, -t.z), s2 = 2.0 * s - 1.0; w = vec3(-t.z * s2, s - t.y * s2, s - t.x * s2); a = i0 + vec2(s, s); b = i0 + vec2(s, 1.0 - s); c = i0 + vec2(1.0 - s, s); }",
+      // tirage d'une cellule : decalage dans le tour (xy), rotation quelconque (z) : la boue pietinee n'a pas de sens
+      "vec3 phHexT(vec2 v) { vec3 h = rcH3(vec3(v, 29.0)); return vec3(h.xy, h.z * 6.2831853); }",
+      // trois lectures (une par sommet du pavage) melangees selon le relief : la boue la plus haute passe devant (raccord net, sans flou)
+      // cro : clarte (sRGB), rugosite, occlusion ; n : pente dans le repere (x, z) ; h : relief
+      "void phBoue(vec2 q, vec2 gx, vec2 gy, out vec3 cro, out vec2 n, out float h) {",
+      "  vec3 w; vec2 v1; vec2 v2; vec2 v3; phHex(q * rcPP.y, w, v1, v2, v3); vec3 T1 = phHexT(v1), T2 = phHexT(v2), T3 = phHexT(v3);",
+      "  vec2 q1 = phRot(q, T1.z) + T1.xy, q2 = phRot(q, T2.z) + T2.xy, q3 = phRot(q, T3.z) + T3.xy;",
+      "  vec2 a1 = phRot(gx, T1.z), b1 = phRot(gy, T1.z), a2 = phRot(gx, T2.z), b2 = phRot(gy, T2.z), a3 = phRot(gx, T3.z), b3 = phRot(gy, T3.z);",
+      "  vec3 n1 = PH_TG(rcPB, q1, a1, b1).rgb, n2 = PH_TG(rcPB, q2, a2, b2).rgb, n3 = PH_TG(rcPB, q3, a3, b3).rgb;",
+      "  vec3 w2 = w * w, sc = w2 * w2 * w2 * (vec3(n1.b, n2.b, n3.b) + 0.25);",
+      "  vec3 f = max(sc / max(max(sc.x, sc.y), max(sc.z, 1e-7)) - 0.7, 0.0); f *= step(0.004, f / max(dot(f, vec3(1.0)), 1e-6)); f /= max(dot(f, vec3(1.0)), 1e-6);",
+      "  cro = vec3(0.0);",
+      "  if (f.x > 0.0) cro += f.x * PH_TG(rcPA, q1, a1, b1).rgb;",
+      "  if (f.y > 0.0) cro += f.y * PH_TG(rcPA, q2, a2, b2).rgb;",
+      "  if (f.z > 0.0) cro += f.z * PH_TG(rcPA, q3, a3, b3).rgb;",
+      "  n = f.x * phRot(n1.xy * 2.0 - 1.0, -T1.z) + f.y * phRot(n2.xy * 2.0 - 1.0, -T2.z) + f.z * phRot(n3.xy * 2.0 - 1.0, -T3.z); h = dot(f, vec3(n1.b, n2.b, n3.b)); }",
+      "#if defined(RC_FIN) && defined(RC_PARALLAXE)",
+      // relief par parallaxe du sol, sur la cellule dominante du pavage (une lecture par pas) : le haut des mottes est la surface du modele,
+      // le fond des empreintes recule de rcPQ.w metres. Renvoie le decalage (x, z) du point vu ; il reste sur le rayon de l'oeil.
+      "vec2 phParallaxe(vec3 p, vec3 dx, vec3 dy) {",
+      "  vec3 Vw = normalize(cameraPosition - p); float vn = Vw.y; if (vn < 0.03) return vec2(0.0); vn = max(vn, 0.2);",
+      "  vec2 q = p.xz * rcPP.x, gx = dx.xz * rcPP.x, gy = dy.xz * rcPP.x;",
+      "  vec3 w; vec2 v1; vec2 v2; vec2 v3; phHex(q * rcPP.y, w, v1, v2, v3); vec3 Tk = phHexT(w.x >= w.y && w.x >= w.z ? v1 : (w.y >= w.z ? v2 : v3));",
+      "  vec2 uv0 = phRot(q, Tk.z) + Tk.xy, a = phRot(gx, Tk.z), b = phRot(gy, Tk.z), uv = uv0;",
+      "  float n = floor(mix(14.0, 6.0, vn)), pas = 1.0 / n, cur = 1.0, h = PH_TG(rcPB, uv, a, b).b, hp = h;",
+      "  vec2 st = phRot(-Vw.xz / vn * rcPP.x * rcPQ.w, Tk.z) * pas;",
+      "  for (int i = 0; i < 14; i++) { if (float(i) >= n || h >= cur) break; hp = h; uv += st; cur -= pas; h = PH_TG(rcPB, uv, a, b).b; }",
+      "  if (cur >= 0.9999) return vec2(0.0);",
+      "  float apres = h - cur, avant = hp - (cur + pas), tt = h >= cur ? clamp(apres / max(apres - avant, 1e-5), 0.0, 1.0) : 0.0;",
+      "  return phRot(uv - st * tt - uv0, -Tk.z) / rcPP.x; }",
+      "#endif",
       "#endif"].join("\n");
     // couleur, rugosite, normale finale (apres metalnessmap_fragment)
     var F_COUL = ["vec3 rcNW = normalize(vRcN); float rcHum = 0.0; float rcFl = 0.0; float rcAOi = 1.0;",
@@ -6580,19 +6659,44 @@
       "{ vec3 p = vRcW; vec3 N = normalize(vRcN); float dist = length(vViewPosition); float xm = p.x > 18.25 ? 36.5 - p.x : p.x;",
       "  vec2 zw = texture2D(rcBords, vec2((xm + 0.5) / 19.0, 0.5)).rg * 6.0 - 3.0; float dMur = min(p.z - zw.x, zw.y - p.z);",
       "  vec4 mm = texture2D(rcMac, p.xz * 0.083 + 0.21); vec4 mm2 = texture2D(rcMac, p.xz * 0.29 + 0.57); vec4 mm3 = texture2D(rcMac, p.zx * 0.13 + 0.31);",
-      "  vec4 g1 = texture2D(rcGrv, p.xz * 1.9 + 0.13); vec4 gb = texture2D(rcDet, p.xz * 0.9 + vec2(0.2, 0.7));",   // cailloux de 2 a 4 cm
+      "  vec4 g1 = texture2D(rcGrv, p.xz * 1.9 + 0.13); ",   // cailloux de 2 a 4 cm
+      "#ifdef RC_PH", "  vec4 gb = vec4(0.5); vec2 gm = vec2(0.0);", "#ifdef RC_FIN", "  vec4 g2 = texture2D(rcGrv, p.zx * 0.63 + 0.71);", "#else", "  vec4 g2 = g1;", "#endif",
+      "#else", "  vec4 gb = texture2D(rcDet, p.xz * 0.9 + vec2(0.2, 0.7));",
       "#ifdef RC_FIN", "  vec4 g2 = texture2D(rcGrv, p.zx * 0.63 + 0.71); vec2 gm = texture2D(rcDet, p.xz * 3.3 + 0.41).xy * 2.0 - 1.0;", "#else", "  vec4 g2 = g1; vec2 gm = vec2(0.0);", "#endif",   // blocs de 6 a 12 cm (eboulis)
+      "#endif",
       "  float up = smoothstep(0.6, 0.9, N.y);",
+      "#ifdef RC_PH",
+      "  vec3 phDx = rcDx(p), phDy = rcDy(p); vec2 phS = vec2(0.0);",
+      "#if defined(RC_FIN) && defined(RC_PARALLAXE)",
+      "  if (dist < 7.0 && up > 0.5) phS = phParallaxe(p, phDx, phDy) * (1.0 - smoothstep(5.0, 7.0, dist));",
+      "#endif",
+      "  vec3 phC; vec2 phN; float phH; phBoue((p.xz + phS) * rcPP.x, phDx.xz * rcPP.x, phDy.xz * rcPP.x, phC, phN, phH);",
+      "#endif",
       // ornieres de chargeuse le long de la galerie (pas sous le plancher) ; eboulis au pied des parois ; flaques dans les ornieres et les creux
       "  float zc = 0.1 + (mm.r - 0.5) * 0.8, r1 = abs(p.z - zc + 1.0), r2 = abs(p.z - zc - 1.0), rr = min(r1, r2);",
       "  float orn = (1.0 - smoothstep(0.17, 0.32, rr + (mm2.g - 0.5) * 0.08)) * (0.45 + 0.55 * smoothstep(9.9, 11.2, xm)) * smoothstep(1.2, 2.5, xm) * smoothstep(0.15, 0.4, dMur);",
       "  float ebo = max(1.0 - smoothstep(0.12, 0.45 + 0.35 * mm2.b, dMur + (g2.b - 0.5) * 0.1), 1.0 - smoothstep(0.15, 0.7 + 0.3 * mm2.b, xm + 0.2 + (g2.b - 0.5) * 0.1)) * up;",
       "  float X = mm2.r * 0.55 + mm3.g * 0.45 + orn * 0.2;",
+      "#ifdef RC_PH",
+      "  X += (0.5 - phH) * rcPZ.w * (1.0 - ebo);",
+      "#endif",
       "  float fl = smoothstep(0.8, 0.86, X) * (1.0 - ebo) * up;",
       "  float hum = clamp(orn * 0.5 + smoothstep(0.62, 0.8, X) * 0.8 + (1.0 - smoothstep(0.0, 0.25, dMur)) * 0.4, 0.0, 1.0);",
       "  float tas = smoothstep(0.45, 0.8, mm2.a * 0.6 + mm3.b * 0.4), cail = g1.b * (1.0 - orn * 0.7) * (0.18 + 0.82 * tas) * (1.0 - fl) * (0.6 + 0.4 * g1.a), gros = g2.b * ebo;",
       "  vec3 col = mix(vec3(0.076, 0.067, 0.055), vec3(0.094, 0.085, 0.07), mm.b) * (0.8 + 0.4 * mm3.r) * (0.9 + 0.2 * mm2.a) * (0.84 + 0.32 * gb.b);",   // boue tassee, marbree
-      "#ifdef RC_MEGA",
+      "#ifdef RC_PH",
+      "  vec3 phL = pow(phC.r, 2.2) * mix(vec3(1.0), rcPT.rgb, rcPQ.x) * rcPQ.y * (0.86 + 0.28 * mm3.r) * (0.94 + 0.12 * mm2.a) * mix(1.0, phC.b, 0.55);",
+      "  phL *= mix(1.0, 0.7 + 0.45 * phH, hum);",                                           // mouille : le fond des empreintes fonce, le haut des mottes reste clair
+      "  float phM = rcPP.w * up * (1.0 - 0.94 * fl); col = mix(col, phL, phM); cail *= 1.0 - 0.75 * rcPP.w;",   // sous l'eau : le fond sombre du sol fabrique
+      // cuttings : boue fine grise du forage (farine de roche). Elle se depose autour des flaques, en voile dans les creux humides un peu
+      // plus loin ; mouillee et sombre au bord de l'eau, seche, pale et mate plus loin ; elle trouble l'eau peu profonde du bord des flaques
+      "  vec4 cuG = texture2D(rcGrv, p.xz * 6.7 + vec2(0.37, 0.11)); float cuX = X + (g1.a - 0.5) * 0.06 + (cuG.a - 0.5) * 0.03, cuV = (1.0 - fl) * up * rcPZ.z * (1.0 - ebo);",
+      "  float cut = max(smoothstep(rcPZ.x, rcPZ.x + 0.09, cuX), smoothstep(rcPZ.x - 0.14, rcPZ.x, cuX) * (1.0 - smoothstep(0.2, 0.5, phH)) * 0.7) * cuV;",
+      "  float cuM = smoothstep(rcPZ.x + 0.05, 0.8, cuX);",
+      "  vec3 cuC = vec3(0.155, 0.152, 0.146) * rcPZ.y * mix(1.15, 0.8, cuM) * (0.9 + 0.2 * mm2.a) * (0.93 + 0.14 * cuG.a) * mix(1.0, phC.b, 0.3);",
+      "  col = mix(col, cuC, cut); col = mix(col, cuC * 0.5, fl * (1.0 - smoothstep(0.86, 0.93, X)) * 0.55 * rcPZ.z);",
+      "#endif",
+      "#if defined(RC_MEGA) && !defined(RC_PH)",
       // gravier et eboulis : le roc des parois (teinte du releve ; les blocs eboules prennent la couleur du releve, un peu poussiereuse)
       "  col = mix(col, vec3(0.088, 0.08, 0.066) * (0.75 + 0.5 * g1.a), cail * 0.55 * (0.6 + 0.4 * smoothstep(0.4, 0.8, mm.a)));",
       "  col = mix(col, pow(texture2D(rcMC, p.xz * 0.71 + vec2(0.31, 0.57)).rgb, vec3(2.2)) * 0.6 * (0.8 + 0.4 * g2.a), gros * 0.9);",
@@ -6606,6 +6710,12 @@
       "  float zr = r1 < r2 ? p.z - zc + 1.0 : p.z - zc - 1.0;",
       "  pert += vec3(0.0, 0.0, -sign(zr)) * 0.35 * (smoothstep(0.12, 0.22, rr) * (1.0 - smoothstep(0.28, 0.34, rr)) - 0.5 * smoothstep(0.32, 0.38, rr) * (1.0 - smoothstep(0.42, 0.5, rr))) * (0.45 + 0.55 * smoothstep(9.9, 11.2, xm)) * smoothstep(1.2, 2.5, xm) * smoothstep(0.15, 0.4, dMur);",
       "  pert += vec3(0.0, 0.0, (p.z - zw.x) < (zw.y - p.z) ? 1.0 : -1.0) * 0.3 * ebo + vec3(gm.x, 0.0, gm.y) * 0.22 + vec3(gb.x - 0.5, 0.0, gb.y - 0.5) * 0.5;",
+      "#ifdef RC_PH",
+      "  float phR = mix(clamp(phC.g * 1.1 + 0.1, 0.0, 1.0), 0.36, hum * 0.7); phR = mix(phR, mix(0.85, 0.38, cuM), cut);",   // boue mate, luisante quand elle est mouillee ; cuttings secs mats
+      "  rough = mix(rough, phR, phM * (1.0 - gros)); rcAOi = mix(1.0, phC.b, 0.6 * phM);",
+      "  vec2 cuN = cuG.xy * 2.0 - 1.0;",   // les cuttings comblent le relief de la boue : normale aplanie, grain fin quand ils sont secs
+      "  pert = pert * (1.0 - 0.7 * phM) + (vec3(phN.x, 0.0, -phN.y) * rcPQ.z * (1.0 - 0.8 * cut) + vec3(cuN.x, 0.0, cuN.y) * 0.22 * cut * (1.0 - cuM)) * phM;",
+      "#endif",
       "  vec3 nw = normalize(N + pert * (1.0 - fl) * (1.0 - smoothstep(10.0, 22.0, dist)) * rcReg.y); nw = normalize(mix(nw, N, fl * 0.97));",
       "  rcFl = fl; rcHum = hum; diffuseColor.rgb = col * rcReg.w; roughnessFactor = rough; metalnessFactor = 0.0; rcNW = nw; }",
       "#endif"].join("\n");
@@ -6626,18 +6736,18 @@
     function prends(mat, fam) { var d = mat.userData.rc, avant = mat.onBeforeCompile, cle = mat.customProgramCacheKey;
       if (d && avant === d.f) { avant = d.avant; cle = d.cle; }   // nouvelle pose (releve arrive, parallaxe coupee...) : on garde l'enveloppe d'origine
       var u = { rcDet: U.det, rcGrv: U.grv, rcMac: U.mac, rcSolT: U.solT, rcSolA: U.solA, rcBords: U.bords, rcTreil: U.treil, rcRouil: U.rouil, rcReg: U.reg,
-        rcMC: U.mc, rcMN: U.mn, rcMO: U.mo, rcMP: U.mp, rcMQ: U.mq, rcMV: U.mv, rcMS: U.ms, rcFZ: U.fz, rcFY: U.fy, rcFF: U.ff, rcFB: U.fb, rcSO: U.so, rcSOA: U.soa, rcSOB: U.sob, rcSOC: U.soc, rcSOD: U.sod };
+        rcMC: U.mc, rcMN: U.mn, rcMO: U.mo, rcPA: U.pa, rcPB: U.pb, rcPP: U.pp, rcPQ: U.pq, rcPZ: U.pz, rcPT: U.pt, rcMP: U.mp, rcMQ: U.mq, rcMV: U.mv, rcMS: U.ms, rcFZ: U.fz, rcFY: U.fy, rcFF: U.ff, rcFB: U.fb, rcSO: U.so, rcSOA: U.soa, rcSOB: U.sob, rcSOC: U.soc, rcSOD: U.sod };
       var f = function (sh, r) { if (avant && avant !== THREE.Material.prototype.onBeforeCompile) avant.call(this, sh, r); injecte(sh, u, fam); };
       f.__marques = Object.assign({}, avant && avant.__marques, { roc: true });
       if (!d) mat.userData.rc = d = { fam: fam, map: mat.map, normalMap: mat.normalMap, roughnessMap: mat.roughnessMap, rugo: mat.roughness, metal: mat.metalness };
       d.f = f; d.avant = avant; d.cle = cle;
-      mat.onBeforeCompile = f; mat.customProgramCacheKey = function () { return (cle ? cle.call(mat) : "") + "|roc" + cleEtat(); };
+      mat.onBeforeCompile = f; mat.customProgramCacheKey = function () { return (cle ? cle.call(mat) : "") + (fam === "SOL" && solScanActif() ? "|solscan" : "") + "|roc" + cleEtat(); };
       mat.extensions = { derivatives: true, shaderTextureLOD: true };   // WebGL1 seulement (derivees et lectures a derivees explicites)
       if (!("metalnessMap" in d)) d.metalnessMap = mat.metalnessMap;
       mat.map = null; mat.normalMap = null; mat.roughnessMap = null; mat.metalnessMap = null; mat.roughness = 1; mat.metalness = 0;
       var mega = megaActif(), D = mat.defines = mat.defines || {};
       D["RC_" + fam] = ""; if (RC.fin) D.RC_FIN = ""; else delete D.RC_FIN;
-      if (mega) D.RC_MEGA = ""; else delete D.RC_MEGA; if (pomActif()) D.RC_PARALLAXE = ""; else delete D.RC_PARALLAXE; if (ROC.MEGA_PAVAGE) D.RC_HEX = ""; else delete D.RC_HEX; if (mega && ROC.OMBRE_FRONT) D.RC_OMBRE_F = ""; else delete D.RC_OMBRE_F;
+      if (mega) D.RC_MEGA = ""; else delete D.RC_MEGA; if (fam === "SOL") { RC.solScanPose = solScanActif(); if (RC.solScanPose) D.RC_PH = ""; else delete D.RC_PH; } if (pomActif()) D.RC_PARALLAXE = ""; else delete D.RC_PARALLAXE; if (ROC.MEGA_PAVAGE) D.RC_HEX = ""; else delete D.RC_HEX; if (mega && ROC.OMBRE_FRONT) D.RC_OMBRE_F = ""; else delete D.RC_OMBRE_F;
       Object.keys(EFFETS).forEach(function (k) { var on = (mega && SUR[k]) ? !!ROC.SUR_RELEVE[k] : !!ROC[k]; if (on && (k !== "ECLATS" || fam === "ROC")) D[EFFETS[k]] = ""; else delete D[EFFETS[k]]; });
       U.reg.value.x = mega ? ROC.SUR_RELEVE.FACETTES : ROC.FACETTES;
       if (fam === "SOL") { if (ROC.FLAQUES_REFLET && RC.fin) { mat.envMap = cibleCube().renderTarget.texture; mat.envMapIntensity = 2.2; } else if (RC.cube && mat.envMap === RC.cube.renderTarget.texture) mat.envMap = null; }
@@ -6660,6 +6770,9 @@
     // programmes du roc en service (cle d'etat courante) ; si l'un ne compile pas : releve -> roche du tour 1 -> textures d'origine
     function verifie() { var P = renderer.info.programs || [], n = 0, mauvais = null, suff = "|roc" + cleEtat();
       P.forEach(function (p) { var c = String(p.cacheKey); if (c.slice(-suff.length) === suff) { n++; if (p.diagnostics && p.diagnostics.runnable === false) mauvais = p.diagnostics; } });
+      if (solScanActif()) { var mauvaisS = null; P.forEach(function (p) { if (String(p.cacheKey).indexOf("|solscan") >= 0 && p.diagnostics && p.diagnostics.runnable === false) mauvaisS = p.diagnostics; });
+        if (mauvaisS) { SS.abandon = true; SS.erreur = "nuanceur du sol scanne non compile : " + String((mauvaisS.fragmentShader && mauvaisS.fragmentShader.log) || mauvaisS.programLog || "?").slice(0, 300); note(SS.erreur + " -> sol fabrique");
+          if (RC.sol && RC.sol.userData.rc) prends(RC.sol, "SOL"); return -1; } }
       RC.programmes = n; if (!mauvais) return n;
       var log = String((mauvais.fragmentShader && mauvais.fragmentShader.log) || mauvais.programLog || "?").slice(0, 300);
       if (megaActif()) { MG.abandon = true; MG.erreur = "nuanceur du releve non compile : " + log; reprend("releve abandonne -> roche du tour 1"); return -1; }
@@ -6698,6 +6811,11 @@
     function etape(t, brut) {
       // releve : 1K televerse une texture par image des qu'il est arrive (pendant le chargement en general)
       if (MG.attente1 && televerse(MG.attente1)) { MG.tex = MG.attente1; MG.attente1 = null; U.mc.value = MG.tex.c; U.mn.value = MG.tex.n; U.mo.value = MG.tex.o; MG.niveau = 1; MG.etat = "pret1"; RC.octets += octetsReleve(MG.tex); MG.tPret1 = Math.round(t); note("releve 1K pret"); }
+      // sol scanne : une texture televersee par image ; le 1K des qu'il est arrive, le 2K quand la page est calme ; puis echange et liberation du 1K
+      if (SS.attente && SS.abandon) SS.attente = null;
+      if (SS.attente && (SS.nivAttente === 1 || calme()) && televerseSol(SS.attente)) { var vieuxS = SS.tex; SS.tex = SS.attente; SS.attente = null; SS.niveau = SS.nivAttente; SS.etat = "pret" + SS.niveau;
+        U.pa.value = SS.tex.a; U.pb.value = SS.tex.b; RC.octets += octetsSolScan(SS.tex); note("sol scanne " + SS.niveau + "K pret"); if (vieuxS) { SS.aJeter = vieuxS; SS.kJeter = k + 3; } }
+      if (SS.aJeter && k >= SS.kJeter) { RC.octets -= octetsSolScan(SS.aJeter); SS.aJeter.a.dispose(); SS.aJeter.b.dispose(); SS.aJeter = null; note("sol scanne 1K libere"); }
       // textures : des le chargement (derriere l'ecran de chargement si possible), quelques millisecondes par image
       if (!TX) { if (k > 2 || brut === "ecran") fabrique(); if (!ROC.POSE_SANS_TEXTURES) return; }
       if (!RC.roc) RC.roc = trouve("Roc_Galerie"); if (!RC.sol && ROC.SOL) RC.sol = trouve("Sol_Galerie");
@@ -6712,6 +6830,10 @@
         neutraliseFine(); prends(RC.roc, "ROC"); if (RC.sol) prends(RC.sol, "SOL"); accroche(RC.roc); accroche(RC.sol); RC.pret = true; RC.tPret = Math.round(t); RC.avantMesure = !(typeof fluidite !== "undefined" && fluidite.fait); note("roc pose" + (RC.megaPose ? " (releve)" : " (roche du tour 1)")); verif = k + 20; return; }
       // releve arrive apres la pose (reseau lent) : nouvelle pose avec le releve
       if (!RC.megaPose && megaActif() && !pendantMesure(t)) { reprend("releve arrive"); verif = k + 20; }
+      // sol scanne arrive apres la pose (ou abandonne) : nouvelle pose du sol seul
+      if (RC.sol && RC.sol.userData.rc && solScanActif() !== !!RC.solScanPose && !pendantMesure(t)) { note("nouvelle pose du sol : sol scanne " + (solScanActif() ? "arrive" : "retire")); prends(RC.sol, "SOL"); verif = k + 20; }
+      if (SS.etat === "pret1" && MG.lance2 && !SS.lance2 && RC.fin && !SS.abandon) { SS.lance2 = true;
+        chargeSolScan(2, function (T, err) { if (!T) { SS.erreur2 = err; note("sol scanne 2K : " + err + " (on garde le 1K)"); return; } if (SS.abandon || !RC.fin) return; SS.attente = T; SS.nivAttente = 2; }); }
       if (verif && k >= verif) { verif = 0; var nv = verifie(); if (nv < 0) verif = k + 20; else if (!nv) verif = k + 30; else if (!RC.abandon && !RC.libere) { RC.libere = 0; [RC.roc, RC.sol].forEach(function (m) { var d = m && m.userData.rc; if (!d) return; [d.map, d.normalMap, d.roughnessMap, d.metalnessMap !== d.roughnessMap ? d.metalnessMap : null].forEach(function (q) { if (q && q.dispose) { q.dispose(); RC.libere++; } }); }); } }
       if (k % 10 === 0) majTreillis();
       if (k % 60 === 0) { neutraliseFine(); [RC.roc, RC.sol].forEach(function (m) { if (!m || !m.userData.rc) return; var q = m.onBeforeCompile; if (q !== m.userData.rc.f && !(q && q.__marques && q.__marques.roc) && RC.rewrap < 6) { RC.rewrap++; prends(m, m.userData.rc.fam); note("rechaine " + m.name); } }); }
@@ -19615,6 +19737,7 @@
     <h3>Décor</h3>
     <ul>
       <li>Roche : relevé Quixel Megascans «&nbsp;Mine Rock Wall&nbsp;» (<a href="https://www.fab.com/listings/a34f85b0-8d27-4027-a4a3-e4893775a4c0" target="_blank" rel="noopener noreferrer">Fab</a>), teinté pour la visite.</li>
+      <li>Sol de la galerie : «&nbsp;<a href="https://polyhaven.com/a/brown_mud_03" target="_blank" rel="noopener noreferrer">Brown Mud 03</a>&nbsp;», Rob Tuytel, Poly Haven (CC0), teinté pour la visite.</li>
       <li>Clé à tuyau : «&nbsp;<a href="https://polyhaven.com/a/pipe_wrench" target="_blank" rel="noopener noreferrer">Pipe Wrench</a>&nbsp;», Will Evarts, Poly Haven (CC0).</li>
       <li>Équipements de chantier : modélisés d'après la documentation du fabricant. MACHINES ROGER est une marque de son propriétaire.</li>
     </ul>
@@ -19685,7 +19808,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "157-63fd50dc", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "157-99f946da", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
