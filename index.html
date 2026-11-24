@@ -15661,6 +15661,76 @@
         (function attend() { var b = document.getElementById("acc-construire"), ok = typeof etape !== "undefined";
           if (b && !acc.hidden && b.offsetParent) { b.click(); setTimeout(attend, 1500); return; } if (acc.hidden && ok && essais > 2) { setTimeout(function () { NV.joue(0); }, 2500); return; } essais++; if (essais < 400) setTimeout(attend, 500); })(); }); }
   })();
+  // ---- inter_sequence_v157.js (v157 + voix, 2026-11-24) : demande de l'utilisateur « retire les sous-titres et remplace par meilleur visuel pour
+  // expliquer les etapes ... situer dans la sequence et faire des groupes (ex. avant de construire, materiel, etc.) », puis « mets le meme visuel
+  // dans l'app ». Pendant la visite narree (mode video), les sous-titres sont coupes (NV.SOUS_TITRES = false) et remplaces par :
+  //  - en haut, le fil des 7 parties (K.GROUPES) : parties vues cochees, partie en cours en jaune (ecran etroit : seul son nom est ecrit) ;
+  //  - en bas a gauche, la carte de l'etape : partie, numero et titre de l'etape (titres de ETAPES), pastilles des etapes de la partie ;
+  //  - au debut de chaque partie, une carte au centre qui annonce la partie et liste ses etapes (K.CARTE_S secondes), puis la carte de l'etape.
+  // Chaque bloc du script v25 appartient a une partie et a une etape (K.GROUPES[].items[].blocs). Le module lit seulement NV.i et NV.actif :
+  // rien n'est touche dans la narration ni dans la visite. Le bouton « Quitter » des voix passe sous le fil. K.ACTIF = false : rien, sous-titres gardes.
+  (function () { var NV = window.__narrationV155; if (!NV || !NV.ACTIF || !NV.BLOCS) return;
+    function et(n, blocs, titre) { return { no: n, titre: titre || (ETAPES[n] && ETAPES[n].titre) || ("Étape " + n), blocs: blocs, variante: !!titre }; }
+    var K = { ACTIF: true, CARTE_S: 4.5, etat: "attente", g: -1, k: -1, GROUPES: [
+      { nom: "Avant de construire", items: [{ titre: "Présentation", blocs: ["1", "2", "3"] }, { titre: "Matériel nécessaire", blocs: ["4", "5", "6", "7", "8"] }, { titre: "Inspection des lieux", blocs: ["9"] }] },
+      { nom: "Section 1", items: [et(1, ["10"]), et(2, ["11"]), et(3, ["12", "13", "14"]), et(4, ["15"]), et(5, ["16", "17"]), et(6, ["18", "19", "20"]), et(7, ["21", "22"]), et(8, ["23"])] },
+      { nom: "Section 2", items: [et(9, ["24"]), et(10, ["25", "26"]), et(11, ["27", "28", "29"]), et(11, ["30", "31", "32", "33", "34"], "Variante : 6 × 6 de 8 pi"), et(11, ["35"]), et(12, ["36", "37", "38"]), et(13, ["39"])] },
+      { nom: "Accès et protections", items: [et(14, ["40", "41", "42"]), et(15, ["43"]), et(16, ["44"]), et(17, ["45"])] },
+      { nom: "Plancher secondaire", items: [et(18, ["46", "47", "47a"]), et(18, ["48"], "Deux marches et planche taillée selon la tour"), et(18, ["48a"], "Angle de forage et plancher secondaire")] },
+      { nom: "Démantèlement", items: [{ titre: "Démantèlement", blocs: ["49", "50", "51"] }] },
+      { nom: "À retenir", items: [{ titre: "À retenir", blocs: ["52", "53"] }] }] };
+    try { window.__sequenceV157 = K; } catch (e) {}
+    if (!K.ACTIF) return;
+    NV.SOUS_TITRES = false;
+    var OU = {}, NG = K.GROUPES.length, NE = ETAPES.length - 1; K.GROUPES.forEach(function (G, g) { G.items.forEach(function (it, k) { it.blocs.forEach(function (id) { OU[id] = [g, k]; }); }); });
+    K.sansPartie = NV.BLOCS.filter(function (b) { return !OU[b.id]; }).map(function (b) { return b.id; });
+    function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+    function fil(g) { return K.GROUPES.map(function (G, i) { return '<div class="g' + (i < g ? " fait" : i === g ? " ici" : "") + '"><i>' + (i < g ? "✓" : i + 1) + "</i><span>" + esc(G.nom) + "</span></div>"; }).join(""); }
+    // une pastille par etape numerotee (la variante compte avec son etape), ou par partie sans numero
+    function pastilles(g, k) { var vus = [], ici = -1; K.GROUPES[g].items.forEach(function (it, j) { var cle = it.no !== undefined ? "e" + it.no : "p" + j, p = null; vus.forEach(function (v) { if (v.cle === cle) p = v; });
+        if (!p) { p = { cle: cle, no: it.no }; vus.push(p); } if (j === k) ici = vus.indexOf(p); });
+      if (vus.length < 2) return ""; return '<div class="pas">' + vus.map(function (p, i) { return '<u class="' + (i < ici ? "fait" : i === ici ? "ici" : "") + (p.no === undefined ? " point" : "") + '">' + (p.no === undefined ? "" : p.no) + "</u>"; }).join("") + "</div>"; }
+    function carte(g, k) { var G = K.GROUPES[g], it = G.items[k], seul = G.items.length === 1 && it.titre === G.nom;
+      var sur = seul ? "Partie " + (g + 1) + " sur " + NG : (g + 1) + " · " + G.nom + (it.no !== undefined ? " · Étape " + it.no + " sur " + NE : "");
+      return '<p class="sur">' + esc(sur) + '</p><p class="titre">' + (it.no !== undefined && !it.variante ? "<b>" + it.no + "</b>" : "") + "<span>" + esc(it.titre) + "</span></p>" + pastilles(g, k); }
+    function chapitre(g) { var G = K.GROUPES[g], L = []; G.items.forEach(function (it) { if (it.variante) return; if (it.no !== undefined && L.some(function (x) { return x.no === it.no; })) return; L.push(it); });
+      var liste = L.length > 1 ? '<ol class="' + (L.length > 4 ? "deux" : "") + '" style="--rangs:' + Math.ceil(L.length / 2) + '">' + L.map(function (it) { return '<li><b class="' + (it.no === undefined ? "point" : "") + '">' + (it.no === undefined ? "" : it.no) + "</b>" + esc(it.titre) + "</li>"; }).join("") + "</ol>" : "";
+      return '<div class="tete"><p class="no">' + (g + 1) + '</p><div><p class="sur">Partie ' + (g + 1) + " sur " + NG + '</p><p class="nom">' + esc(G.nom) + "</p></div></div>" + liste; }
+    var css = document.createElement("style");
+    css.textContent = "#seq157{position:fixed;inset:0;z-index:8;pointer-events:none;display:none;color:#fff;font-family:var(--f-texte,system-ui),sans-serif}body.mode-video #seq157.vu{display:block}" +
+      "#seq157 p{margin:0}#seq157 .cache{opacity:0;visibility:hidden}" +
+      "#seq157 .fil{position:absolute;left:0;right:0;top:0;display:flex;align-items:stretch;justify-content:center;gap:3px;padding:env(safe-area-inset-top,0px) max(10px,env(safe-area-inset-right,0px)) 0 max(10px,env(safe-area-inset-left,0px));background:#0c0e10;box-shadow:0 2px 10px rgba(0,0,0,.55)}" +
+      "#seq157 .g{display:flex;align-items:center;gap:8px;height:44px;padding:0 13px;font:600 15px/1 var(--f-titre,system-ui),sans-serif;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.45);white-space:nowrap;border-bottom:3px solid transparent}" +
+      "#seq157 .g i{font-style:normal;display:inline-flex;align-items:center;justify-content:center;flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);font:700 13px/1 var(--f-titre,system-ui),sans-serif;letter-spacing:0}" +
+      "#seq157 .g.fait{color:#d5dbe0}#seq157 .g.fait i{background:#d5dbe0;border-color:#d5dbe0;color:#14171a}#seq157 .g.ici{color:#f4c01e;border-bottom-color:#f4c01e;background:rgba(244,192,30,.12)}#seq157 .g.ici i{background:#f4c01e;border-color:#f4c01e;color:#14171a}" +
+      "#seq157 .carte{position:absolute;left:max(14px,env(safe-area-inset-left,0px));bottom:calc(44px + env(safe-area-inset-bottom,0px));max-width:min(620px,calc(100vw - 28px));box-sizing:border-box;padding:13px 20px 15px 18px;background:rgba(16,19,22,.88);border-left:4px solid #f4c01e;border-radius:3px 10px 10px 3px;box-shadow:0 6px 22px rgba(0,0,0,.6);transition:opacity .35s}" +
+      "#seq157 .carte .sur{font:600 14px/1.15 var(--f-titre,system-ui),sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#f4c01e}" +
+      "#seq157 .carte .titre{margin-top:7px;display:flex;align-items:center;gap:12px;font:700 clamp(22px,1.6vw + 12px,31px)/1.04 var(--f-titre,system-ui),sans-serif;letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}" +
+      "#seq157 .carte .titre b{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:42px;box-sizing:border-box;padding:0 8px;border-radius:21px;background:#f4c01e;color:#14171a;font:700 25px/1 var(--f-titre,system-ui),sans-serif}" +
+      "#seq157 .pas{margin-top:11px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}#seq157 .pas u{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:24px;height:24px;padding:0 6px;border-radius:12px;border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.5);font:600 13px/1 var(--f-titre,system-ui),sans-serif}" +
+      "#seq157 .pas u.fait{background:rgba(255,255,255,.15);border-color:transparent;color:#e8ecef}#seq157 .pas u.ici{background:#f4c01e;border-color:#f4c01e;color:#14171a;font-weight:700}#seq157 .pas u.point{min-width:12px;width:12px;height:12px;padding:0}" +
+      "#seq157 .chap{position:absolute;left:50%;top:50%;transform:translate(-50%,-46%);width:max-content;max-width:min(900px,calc(100vw - 28px));max-height:calc(100vh - 110px);overflow:hidden;box-sizing:border-box;padding:clamp(16px,2.2vw,26px) clamp(18px,3vw,38px) clamp(18px,2.4vw,30px);background:rgba(16,19,22,.92);border-top:5px solid #f4c01e;border-radius:4px 4px 14px 14px;box-shadow:0 14px 50px rgba(0,0,0,.7);transition:opacity .35s}" +
+      "#seq157 .chap .tete{display:flex;align-items:center;gap:clamp(12px,1.5vw,18px)}#seq157 .chap .no{flex:none;display:flex;align-items:center;justify-content:center;width:clamp(46px,5vw,64px);height:clamp(46px,5vw,64px);border-radius:50%;background:#f4c01e;color:#14171a;font:700 clamp(28px,3.1vw,40px)/1 var(--f-titre,system-ui),sans-serif}" +
+      "#seq157 .chap .sur{font:600 15px/1 var(--f-titre,system-ui),sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#f4c01e}#seq157 .chap .nom{margin-top:6px;font:700 clamp(30px,3.6vw,46px)/1 var(--f-titre,system-ui),sans-serif;letter-spacing:.02em;text-transform:uppercase}" +
+      "#seq157 .chap ol{list-style:none;margin:clamp(12px,1.6vw,20px) 0 0;padding:0;display:grid;gap:clamp(6px,.7vw,9px) 38px;justify-content:start}#seq157 .chap ol.deux{grid-auto-flow:column;grid-template-rows:repeat(var(--rangs),auto)}" +
+      "#seq157 .chap li{display:flex;align-items:center;gap:10px;font:500 clamp(15px,1.5vw,19px)/1.15 var(--f-texte,system-ui),sans-serif;color:#e8ecef}" +
+      "#seq157 .chap li b{flex:none;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:28px;height:28px;padding:0 6px;border-radius:14px;border:1.5px solid #f4c01e;color:#f4c01e;font:700 15px/1 var(--f-titre,system-ui),sans-serif}#seq157 .chap li b.point{min-width:10px;width:10px;height:10px;padding:0;background:#f4c01e}" +
+      "@media (max-width:1100px){#seq157 .g{padding:0 6px;gap:6px}#seq157 .g span{display:none}#seq157 .g.ici{padding:0 10px}#seq157 .g.ici span{display:inline}}" +
+      "@media (max-width:700px){#seq157 .chap ol.deux{grid-auto-flow:row;grid-template-rows:none}#seq157 .g{height:40px;font-size:13px;padding:0 4px}#seq157 .g i{width:18px;height:18px;font-size:12px}#seq157 .carte .titre b{min-width:34px;height:34px;font-size:20px}#seq157 .carte{bottom:calc(66px + env(safe-area-inset-bottom,0px))}}" +
+      "body.mode-video.voix-quitter #voix157-quitter{top:calc(54px + env(safe-area-inset-top,0px))}@media (prefers-reduced-motion:reduce){#seq157 .carte,#seq157 .chap{transition:none}}";
+    document.head.appendChild(css);
+    var racine = document.createElement("div"); racine.id = "seq157"; racine.setAttribute("aria-hidden", "true"); racine.innerHTML = '<div class="fil"></div><div class="carte cache"></div><div class="chap cache"></div>'; document.body.appendChild(racine);
+    var eFil = racine.children[0], eCarte = racine.children[1], eChap = racine.children[2], minuterie = 0;
+    function maj() { try {
+        if (!NV.actif) { if (K.etat !== "attente") { K.etat = "attente"; K.g = K.k = -1; clearTimeout(minuterie); racine.classList.remove("vu"); eCarte.classList.add("cache"); eChap.classList.add("cache"); } return; }
+        var b = NV.BLOCS[NV.i], ou = b && OU[b.id]; if (!ou || (ou[0] === K.g && ou[1] === K.k)) return;
+        var nouveau = ou[0] !== K.g; K.g = ou[0]; K.k = ou[1]; K.etat = "lecture"; racine.classList.add("vu"); eFil.innerHTML = fil(K.g); eCarte.innerHTML = carte(K.g, K.k);
+        if (nouveau) { eChap.innerHTML = chapitre(K.g); eChap.classList.remove("cache"); eCarte.classList.add("cache"); clearTimeout(minuterie);
+          minuterie = setTimeout(function () { eChap.classList.add("cache"); eCarte.classList.remove("cache"); }, 1000 * (K.GROUPES[K.g].items.length > 1 ? K.CARTE_S : 3)); }
+        else if (eChap.classList.contains("cache")) eCarte.classList.remove("cache");
+      } catch (e) { K.erreur = String(e && e.message || e); } }
+    setInterval(maj, 250);
+  })();
   // ---- inter_ordre_pose_v19.js (chantier v19 « ordre_pose », 2026-11-20, correction b du meme soir) : a l'arrivee d'une etape par « Suivant », les
   // pieces se posent dans l'ordre de la procedure (scenario v19, repliques 15, 20-21, 26-27 et 52-54). La page posait deja les pieces de l'etape une a
   // une (montre(n, anime) : anim = { t, liste }, chaque piece tombe de 0,5 m en 420 ms a partir de son t0), mais triees par x puis z : a l'etape 4 le
@@ -19615,7 +19685,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "157-33bd70b5", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "157-63fd50dc", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);

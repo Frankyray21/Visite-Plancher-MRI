@@ -34,12 +34,13 @@ three.js vient de jsDelivr et les polices de Google Fonts ; les deux sont aussi 
 ## Visite narrée
 
 Sur l'accueil, le bouton « Visite narrée » construit le plancher puis enchaîne les 55 blocs du script : la caméra suit les plans de chaque
-étape, les sous-titres s'affichent et les voix jouent (formateur et apprenti, environ 9 minutes). L'adresse terminée par `#video` fait le même
+étape et les voix jouent (formateur et apprenti, environ 9 minutes). À la place des sous-titres, un fil en haut situe la partie en cours
+(sept parties, d'« Avant de construire » à « À retenir »), une carte donne l'étape, et une carte annonce chaque partie avec ses étapes. L'adresse terminée par `#video` fait le même
 parcours sans l'interface, pour enregistrer une vidéo : un bouton « Lancer la visite narrée » attend un clic, exigé par les navigateurs avant
 de jouer du son.
 
-Les voix et leur module (`inter_voix_v157.js`, dans `index.html`) ont été ajoutés à la version 157 déjà déployée, hors de la chaîne de
-construction : `index.html`, `sw.js` et `version.json` portent une nouvelle empreinte (`157-33bd70b5`). À reporter dans la source de la visite
+Les voix et leurs modules (`inter_voix_v157.js` et `inter_sequence_v157.js`, dans `index.html`) ont été ajoutés à la version 157 déjà déployée, hors de la chaîne de
+construction : `index.html`, `sw.js` et `version.json` portent une nouvelle empreinte (`157-63fd50dc`). À reporter dans la source de la visite
 avant la prochaine fabrication, sinon les voix disparaîtront.
 
 ## Vérifier
