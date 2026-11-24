@@ -271,7 +271,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 157</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 158</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -316,7 +316,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 157</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 158</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -337,7 +337,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 157</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 158</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -490,7 +490,7 @@
   charge("galerie.txt", "galerie", 13656844, function (racine) { /* patch_place_v131.js : mur du bout d'origine retire */ (function () { var L4 = racine.getObjectByName("Galerie_Roc_4"); if (L4 && L4.parent) L4.parent.remove(L4); try { window.__roc4Retire = !!L4; } catch (e) {} })(); racine.traverse(function (o) { if (/Grillage|Soutenement/.test(o.name)) grilles.push(o); if (o.isMesh && /Galerie_Sol/.test(o.name + " " + (o.parent ? o.parent.name : ""))) solGalerie.push(o); }); suiteGalerie(racine); });
   // Le fichier du plancher contient aussi une galerie simplifiee : on la masque, la galerie detaillee la remplace.
   // Titres, explications et cadrages repris de l'outil « Voir en 3D » du site des procedures (etapes.js).
-  var ETAPES = [{"titre":"Avant de commencer","texte":["Lieux inspectés par le superviseur : sol plat, sans débris.","Fonds de trous trouvés et marqués.","À l'entrée : barricade avec flasher orange, premiers soins (2 lave-yeux), extincteur.","Grosses pièces de bois : toujours à deux."],"cam":{"tgt":[13.3,0.7,1.4],"dir":[-0.35,0.38,0.86],"r":1.7}},{"titre":"Marquer la position du plancher","texte":["Plan de forage en main : plancher placé selon la position de la foreuse.","Laser Bosch au sol : il projette la ligne de référence.","Tracer la ligne à la peinture sur la ligne du laser.","Dimensions : 16 × 32 pi."],"cam":{"tgt":[4.9,0,0],"dir":[0.35,0.85,0.4],"r":5.6}},{"titre":"Trouver le point le plus haut","texte":["Laser Bosch : trouve le point le plus haut du sol.","Le premier madrier repose directement sur le sol à cet endroit.","C'est le repère de niveau de tout le plancher."],"cam":{"tgt":[0.9,-0.05,-1.7],"dir":[-0.63,0.34,0.7],"r":2.2}},{"titre":"Structure de base en 6 × 6","texte":["Madriers 6 × 6 dans le sens contraire du forage : les patins de la foreuse les croisent.","Partir du point haut : plancher pas plus haut qu'il faut, moins de blocage."],"cam":{"tgt":[1.5,0.05,-1.3],"dir":[0.8,0.5,0.35],"r":2.4}},{"titre":"Cadrage 16 × 16 pi","texte":["1er madrier sur la ligne de peinture.","2e madrier à 16 pi : cadrage 16 × 16 pi bien droit.","Les autres 6 × 6 entre les deux, environ 32 po centre."],"cam":{"tgt":[2.44,-0.05,0],"dir":[0.38,0.63,0.68],"r":3.2}},{"titre":"Mettre de niveau","texte":["Niveau de 48 po sur un 3 × 8 d'au moins 8 pi.","Sous chaque 6 × 6 : blocage (3 × 8 ou 6 × 6) et coins, en sens contraire du madrier.","Au moins 6 appuis par madrier.","Au bout : le blocage de jonction porte aussi la section 2."],"cam":{"tgt":[2,0.02,0.3],"dir":[0.45,0.3,0.84],"r":1.7}},{"titre":"Couvrir en 3 × 8","texte":["Planches 3 × 8 brut, dans le sens contraire des 6 × 6.","1re planche : un tire-fond à chaque bout.","Marcher sur la partie couverte : jamais enjamber les 6 × 6."],"cam":{"tgt":[2.4,0.1,0.5],"dir":[-0.62,0.55,0.56],"r":2.6}},{"titre":"Resserrer les planches","texte":["Vers la moitié de la section : visser la dernière planche (tire-fond à chaque bout).","Enfoncer des coins : les planches se serrent.","Visser la planche devant les coins, puis retirer les tire-fonds de la dernière.","Sans ça, des écarts s'ouvrent."],"cam":{"tgt":[2.9,0.23,1.15],"dir":[0.3,0.78,0.55],"r":1.25}},{"titre":"Laisser deux planches libres","texte":["Au bout de la section 1 (centre du plancher) : laisser 2 planches libres.","Cet espace sert à partir la section 2.","On les visse à la fin pour joindre les deux sections."],"cam":{"tgt":[4.58,0.1,0.3],"dir":[0.52,0.37,0.77],"r":1.8}},{"titre":"Section 2 : hauteur au laser","texte":["Section 2 : le laser Bosch donne la hauteur sous les 6 × 6.","Ici, le sol descend vers l'entrée : il faut monter la structure."],"cam":{"tgt":[8.15,-0.25,1],"dir":[0.72,0.18,0.67],"r":2.2}},{"titre":"Madrier guide et soutiens","texte":["Madrier guide à 16 pi de la section 1 : il donne la hauteur.","Soutiens en 6 × 6 de 16 pi, dans le sens contraire des madriers.","Blocages et coins dessous pour les mettre de niveau."],"cam":{"tgt":[7.32,-0.25,0],"dir":[0.6,0.32,0.73],"r":3.2}},{"titre":"Madriers, bois de jonction et cage","texte":["Madriers de la section 2 sur les soutiens, dans le prolongement de la section 1, environ 32 po centre.","Au joint, de chaque côté : un 3 × 6 de 24 po vissé dans les deux sections.","Soutiens enlignés vis-à-vis les croisements.","Dans un creux : une cage, bouts de 24 à 36 po croisés."],"cam":{"tgt":[6.2,-0.15,0.9],"dir":[0.5,0.5,0.71],"r":3}},{"titre":"Couvrir la section 2","texte":["Couvrir du bout du plancher vers le centre, sans serrer.","Au centre : poser la planche libre contre la section 1 et la visser le temps du serrage.","Coins enfoncés : la section 2 se resserre vers le bout.","Retirer coins et tire-fonds, poser la 2e planche libre, visser le centre."],"cam":{"tgt":[7.07,0,0],"dir":[0.69,0.42,0.59],"r":3.4}},{"titre":"Couper au ras","texte":["Aucun bout de 6 × 6 ou de 3 × 8 ne dépasse.","Couper carré, égal avec le bord.","Un bout qui dépasse, c'est une chute."],"cam":{"tgt":[8.7,0.1,2.44],"dir":[-0.6,0.35,0.72],"r":1}},{"titre":"Marches","texte":["Plancher de plus de 12 po : des marches.","Giron de 16 po au moins (deux 3 × 8), largeur 36 à 60 po, hauteur 12 po au plus.","Mesurer depuis le dessus du plancher : une marche tous les 9 po.","Chaque module sur 2 appuis (les côtés) : 3 × 8 à plat en bas, bouts de 6 × 6 au-dessus."],"cam":{"tgt":[10,0,0.85],"dir":[0.74,0.36,-0.57],"r":1.15}},{"titre":"Garde-corps et coup de pied","texte":["Plus de 12 po avec un vide : garde-corps (RSST, art. 12).","Lisse du haut entre 1 et 1,2 m, lisse intermédiaire à mi-hauteur.","Un montant aux 4 pi ; lisses en 2 × 4 de 8 pi entiers.","Coup de pied : 2 × 4 sur chant, au ras du plancher."],"cam":{"tgt":[9.9,0.55,0.2],"dir":[0.74,0.36,-0.57],"r":2}},{"titre":"Mains courantes","texte":["Plus d'une marche : mains courantes des deux côtés.","Un montant en haut (bord du plancher) et un en bas (dernière marche).","Côté escalier : main courante à 36 po au-dessus des nez, lisse intermédiaire à mi-hauteur."],"cam":{"tgt":[10.15,0.35,0.96],"dir":[0.74,0.36,-0.57],"r":1.35}},{"titre":"Écart avec la paroi","texte":["Le plancher se monte près de la paroi, comme sous terre.","Écart de 12 po ou moins : rien à ajouter.","Plus de 12 po : garde-corps, comme au bout du plancher."],"cam":{"tgt":[6.6,0,-2.5],"dir":[-0.12,0.77,0.63],"r":1.3}},{"titre":"Plancher secondaire","texte":["À l'arrière de la tête de forage : là où l'on ajoute les tiges et sort le tube carotier.","Forage à l'horizontale : pas de plancher secondaire.","Forage montant : plancher de 9 po sans marche, puis 18 po avec 2 marches et garde-corps.","Au moins 32 × 72 po, collé à la foreuse (moins de 3 po : le pied ne passe pas), 2 planches vissées.","À chaque changement d'angle : ajuster. Pas de bois plané.","Ici : trou descendant à 30°. Plancher secondaire de 9 po, assez long pour deux, placé là où l'axe des tiges atteint la hanche : debout dessus, les tiges se manipulent à la hauteur de la hanche ou plus haut, jamais plus bas."],"cam":{"tgt":[1.2,1.1,-0.8500000000000001],"dir":[0.86,0.32,0.4],"r":2.1}}];
+  var ETAPES = [{"titre":"Avant de commencer","texte":["Lieux inspectés par le superviseur : sol plat, sans débris.","Fonds de trous trouvés et marqués.","À l'entrée : barricade avec flasher orange, premiers soins (2 lave-yeux), extincteur.","Grosses pièces de bois : toujours à deux."],"cam":{"tgt":[13.3,0.7,1.4],"dir":[-0.35,0.38,0.86],"r":1.7}},{"titre":"Marquer la position du plancher","texte":["Plan de forage en main : plancher placé selon la position de la foreuse.","Laser Bosch au sol : il projette la ligne de référence.","Tracer la ligne à la peinture sur la ligne du laser.","Dimensions : 16 × 32 pi."],"cam":{"tgt":[4.9,0,0],"dir":[0.35,0.85,0.4],"r":5.6}},{"titre":"Trouver le point le plus haut","texte":["Laser Bosch : trouve le point le plus haut du sol.","Le premier madrier repose directement sur le sol à cet endroit.","C'est le repère de niveau de tout le plancher."],"cam":{"tgt":[0.9,-0.05,-1.7],"dir":[-0.63,0.34,0.7],"r":2.2}},{"titre":"Structure de base en 6 × 6","texte":["Madriers 6 × 6 dans le sens contraire du forage : les patins de la foreuse les croisent.","Partir du point haut : plancher pas plus haut qu'il faut, moins de blocage."],"cam":{"tgt":[1.5,0.05,-1.3],"dir":[0.8,0.5,0.35],"r":2.4}},{"titre":"Cadrage 16 × 16 pi","texte":["1er madrier sur la ligne de peinture.","2e madrier à 16 pi : cadrage 16 × 16 pi bien droit.","Les autres 6 × 6 entre les deux, environ 32 po centre."],"cam":{"tgt":[2.44,-0.05,0],"dir":[0.38,0.63,0.68],"r":3.2}},{"titre":"Mettre de niveau","texte":["Niveau de 48 po sur un 3 × 8 d'au moins 8 pi.","Sous chaque 6 × 6 : blocage (3 × 8 ou 6 × 6) et coins, en sens contraire du madrier.","Au moins 6 appuis par madrier.","Au bout : le blocage de jonction porte aussi la section 2."],"cam":{"tgt":[2,0.02,0.3],"dir":[0.45,0.3,0.84],"r":1.7}},{"titre":"Couvrir en 3 × 8","texte":["Planches 3 × 8 brut, dans le sens contraire des 6 × 6.","1re planche : un tire-fond à chaque bout.","Marcher sur la partie couverte : jamais enjamber les 6 × 6."],"cam":{"tgt":[2.4,0.1,0.5],"dir":[-0.62,0.55,0.56],"r":2.6}},{"titre":"Resserrer les planches","texte":["Vers la moitié de la section : visser la dernière planche (tire-fond à chaque bout).","Enfoncer des coins : les planches se serrent.","Visser la planche devant les coins, puis retirer les tire-fonds de la dernière.","Sans ça, des écarts s'ouvrent."],"cam":{"tgt":[2.9,0.23,1.15],"dir":[0.3,0.78,0.55],"r":1.25}},{"titre":"Laisser deux planches libres","texte":["Au bout de la section 1 (centre du plancher) : laisser 2 planches libres.","Cet espace sert à partir la section 2.","On les visse à la fin pour joindre les deux sections."],"cam":{"tgt":[4.58,0.1,0.3],"dir":[0.52,0.37,0.77],"r":1.8}},{"titre":"Section 2 : hauteur au laser","texte":["Section 2 : le laser Bosch donne la hauteur sous les 6 × 6.","Ici, le sol descend vers l'entrée : il faut monter la structure."],"cam":{"tgt":[8.15,-0.25,1],"dir":[0.72,0.18,0.67],"r":2.2}},{"titre":"Madrier guide et soutiens","texte":["Madrier guide à 16 pi de la section 1 : il donne la hauteur.","Soutiens en 6 × 6 de 16 pi, dans le sens contraire des madriers.","Blocages et coins dessous pour les mettre de niveau."],"cam":{"tgt":[7.32,-0.25,0],"dir":[0.6,0.32,0.73],"r":3.2}},{"titre":"Madriers, bois de jonction et cage","texte":["Madriers de la section 2 sur les soutiens, dans le prolongement de la section 1, environ 32 po centre.","Au joint, de chaque côté : un 3 × 6 de 24 po vissé dans les deux sections.","Soutiens enlignés vis-à-vis les croisements.","Dans un creux : une cage, bouts de 24 à 36 po croisés."],"cam":{"tgt":[6.2,-0.15,0.9],"dir":[0.5,0.5,0.71],"r":3}},{"titre":"Couvrir la section 2","texte":["Couvrir du bout du plancher vers le centre, sans serrer.","Au centre : poser la planche libre contre la section 1 et la visser le temps du serrage.","Coins enfoncés : la section 2 se resserre vers le bout.","Retirer coins et tire-fonds, poser la 2e planche libre, visser le centre."],"cam":{"tgt":[7.07,0,0],"dir":[0.69,0.42,0.59],"r":3.4}},{"titre":"Couper au ras","texte":["Aucun bout de 6 × 6 ou de 3 × 8 ne dépasse.","Couper carré, égal avec le bord.","Un bout qui dépasse, c'est une chute."],"cam":{"tgt":[8.7,0.1,2.44],"dir":[-0.6,0.35,0.72],"r":1}},{"titre":"Marches","texte":["Plancher de plus de 12 po : des marches.","Giron de 16 po au moins (deux 3 × 8), largeur 36 à 60 po, hauteur 12 po au plus.","Mesurer depuis le dessus du plancher : une marche tous les 9 po.","Chaque module sur 2 appuis (les côtés) : 3 × 8 à plat en bas, bouts de 6 × 6 au-dessus."],"cam":{"tgt":[10,0,0.85],"dir":[0.74,0.36,-0.57],"r":1.15}},{"titre":"Garde-corps et coup de pied","texte":["Plus de 12 po avec un vide : garde-corps (RSST, art. 12).","Lisse du haut entre 1 et 1,2 m, lisse intermédiaire à mi-hauteur.","Un montant aux 4 pi ; lisses en 2 × 4 de 8 pi entiers.","Truc : un 2 × 4 de 8 pi coupé en deux = 2 montants de 48 po ; quatre 2 × 4 = une section de 8 pi.","Coup de pied : 2 × 4 sur chant, au ras du plancher."],"cam":{"tgt":[9.9,0.55,0.2],"dir":[0.74,0.36,-0.57],"r":2}},{"titre":"Mains courantes","texte":["Plus d'une marche : mains courantes des deux côtés.","Un montant en haut (bord du plancher) et un en bas (dernière marche).","Côté escalier : main courante à 36 po au-dessus des nez, lisse intermédiaire à mi-hauteur."],"cam":{"tgt":[10.15,0.35,0.96],"dir":[0.74,0.36,-0.57],"r":1.35}},{"titre":"Écart avec la paroi","texte":["Le plancher se monte près de la paroi, comme sous terre.","Écart de 12 po ou moins : rien à ajouter.","Plus de 12 po : garde-corps, comme au bout du plancher."],"cam":{"tgt":[6.6,0,-2.5],"dir":[-0.12,0.77,0.63],"r":1.3}},{"titre":"Plancher secondaire","texte":["À l'arrière de la tête de forage : là où l'on ajoute les tiges et sort le tube carotier.","Forage à l'horizontale : pas de plancher secondaire.","Forage montant : plancher de 9 po sans marche, puis 18 po avec 2 marches et garde-corps.","Au moins 32 × 72 po, collé à la foreuse (moins de 3 po : le pied ne passe pas), 2 planches vissées.","À chaque changement d'angle : ajuster. Pas de bois plané.","Ici : trou descendant à 30°. Plancher secondaire de 9 po, assez long pour deux, placé là où l'axe des tiges atteint la hanche : debout dessus, les tiges se manipulent à la hauteur de la hanche ou plus haut, jamais plus bas."],"cam":{"tgt":[1.2,1.1,-0.8500000000000001],"dir":[0.86,0.32,0.4],"r":2.1}}];
   var pieces = [], etape = 0, foreuse = null, anim = null, guide = null, suite = null, ETAPE_LEVAGE = -1;   /* patch_sans_levage_v146.js : plus de scene de manutention a l'etape 6 */
   function etapeDe(o) { if (o.userData && typeof o.userData.s === "number") return o.userData.s; var m = /_s(\d\d)_/.exec(o.name || ""); return m ? +m[1] : null; }
   function affiche() { var E = ETAPES[etape], ul = $("etape-texte"); $("etape-num").textContent = "Étape " + etape + " sur " + (ETAPES.length - 1); $("etape-titre").textContent = E.titre;
@@ -10982,6 +10982,11 @@
     // ------------------------------------------------------------ chargement et peinture (rouge sombre mat, chassis noir : comme inter_foreuse_reel)
     function charge() { if (chargement) return chargement; K.etat = "charge";
       chargement = telecharge(K.F[0], K.F[1], function (p) { K.pct = p; majPanneau(); }).then(function (gltf) { S = gltf.scene; S.name = "Foreuse_STM_articulee_v147";
+        /* v158 : cable et boyaux du treuil (jamais montres) retires pour de bon : tout triangle dont un sommet est pondere par ces os (reduits a un point, ils tiraient de grands triangles gris vers la rallonge) */
+        try { S.traverse(function (o) { if (!o.isSkinnedMesh || !o.geometry || !o.geometry.index || !o.skeleton) return; var gg = o.geometry, si = gg.attributes.skinIndex, sw = gg.attributes.skinWeight, ban = {}, nb = 0; o.skeleton.bones.forEach(function (b, i) { if (b.name === "Cable" || b.name === "Treuil_Boyaux") { ban[i] = 1; nb++; } }); if (!nb || !si || !sw) return;
+          var idx = gg.index.array, garde = []; function touche(v) { for (var c = 0; c < 4; c++) if (sw.array[v * 4 + c] > 0.001 && ban[si.array[v * 4 + c]]) return true; return false; }
+          for (var t = 0; t + 2 < idx.length; t += 3) { if (touche(idx[t]) || touche(idx[t + 1]) || touche(idx[t + 2])) continue; garde.push(idx[t], idx[t + 1], idx[t + 2]); }
+          if (garde.length !== idx.length) { gg.setIndex(garde); K.trianglesCable = (K.trianglesCable || 0) + (idx.length - garde.length) / 3; } }); } catch (eC) { K.erreurCable = String(eC); }
         S.rotation.y = Math.PI; S.position.fromArray(K.POS); S.updateMatrixWorld(true); W.copy(S.matrixWorld); Wi.copy(W).invert();
         S.traverse(function (o) { if (o.isBone && RIG.bones.some(function (b) { return b.name === o.name; })) { OS.push(o); OSN[o.name] = o; REPOS[o.name] = o.matrixWorld.clone(); }
           if (o.isMesh) { o.frustumCulled = false; o.castShadow = true; o.receiveShadow = true; peint(o); } });
@@ -11000,15 +11005,15 @@
     function piece(g, sx, sy, sz, x, y, z, mat) { var geo = new THREE.BoxGeometry(sx, sy, sz); if (!mat) { try { uvBois(geo, 900 + (++nB)); } catch (e) {} }
       var m = new THREE.Mesh(geo, mat || bois()); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; g.add(m); mobiles.push({ o: m, y0: y }); return m; }
     function vis(g, x, y, z) { var m = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.008, 6), acier()); m.position.set(x, y + 0.004, z); g.add(m); mobiles.push({ o: m, y0: y + 0.004 }); return m; }
-    function standard(g, x0, Yb) { var B6 = 6 * PO, P3 = 3 * PO, P8 = 8 * PO, x1 = x0 + 72 * PO, z0 = K.Z0, z1 = z0 + 32 * PO, zc = (z0 + z1) / 2, xs = [x0 + 6 * PO + B6 / 2, x1 - 6 * PO - B6 / 2];
+    function standard(g, x0, Yb) { var B6 = 6 * PO, P3 = 3 * PO, P8 = 8 * PO, x1 = x0 + 72 * PO, z0 = K.Z0, z1 = z0 + 32.5 * PO /* v158 : 32 po min. bord a bord, joints compris */, zc = (z0 + z1) / 2, xs = [x0 + 6 * PO + B6 / 2, x1 - 6 * PO - B6 / 2];
       var t66 = xs.map(function (x) { return { m: piece(g, B6, B6, z1 - z0 - 0.006, x, Yb + B6 / 2, zc), x: x }; }), pk = [];
-      for (var k = 0; k < 4; k++) { var z = z0 + (k + 0.5) * P8, pl = piece(g, x1 - x0, P3, P8 - 0.004, (x0 + x1) / 2, Yb + B6 + P3 / 2, z), vk = []; xs.forEach(function (x) { vk.push({ m: vis(g, x, Yb + B6 + P3, z), x: x }); }); if (k < 2) pk.push({ m: pl, v: vk, k: k }); }
+      for (var k = 0; k < 4; k++) { var z = z0 + (k + 0.5) * (z1 - z0) / 4, pl = piece(g, x1 - x0, P3, (z1 - z0) / 4 - 0.004, (x0 + x1) / 2, Yb + B6 + P3 / 2, z), vk = []; xs.forEach(function (x) { vk.push({ m: vis(g, x, Yb + B6 + P3, z), x: x }); }); if (k < 2) pk.push({ m: pl, v: vk, k: k }); }
       return { x0: x0, x1: x1, z0: z0, z1: z1, haut: Yb + B6 + P3, yb: Yb, pk: pk, t66: t66, g: g }; }
     function construit(t) { if (G) { scene.remove(G); G.traverse(function (o) { if (o.geometry) o.geometry.dispose(); }); } G = new THREE.Group(); G.name = "Plancher_secondaire_angle_v147"; mobiles = [];
       var x0 = cibleX(t), info = null, B6 = 6 * PO, P3 = 3 * PO, P8 = 8 * PO;
-      if (t.typ === 2) { var ax0 = x0, ax1 = x0 + 88 * PO, az0 = K.Z0, az1 = az0 + 48 * PO, azc = (az0 + az1) / 2, Y = K.SOL, axs = [ax0 + 6 * PO + B6 / 2, (ax0 + ax1) / 2, ax1 - 6 * PO - B6 / 2];
+      if (t.typ === 2) { var ax0 = x0, ax1 = x0 + 88 * PO, az0 = K.Z0, az1 = az0 + 48.5 * PO /* v158 */, azc = (az0 + az1) / 2, Y = K.SOL, axs = [ax0 + 6 * PO + B6 / 2, (ax0 + ax1) / 2, ax1 - 6 * PO - B6 / 2];
         axs.forEach(function (x) { piece(G, B6, B6, az1 - az0 - 0.006, x, Y + B6 / 2, azc); });
-        for (var k = 0; k < 6; k++) { var z = az0 + (k + 0.5) * P8; piece(G, ax1 - ax0, P3, P8 - 0.004, (ax0 + ax1) / 2, Y + B6 + P3 / 2, z); [axs[0], axs[2]].forEach(function (x) { vis(G, x, Y + B6 + P3, z); }); }
+        for (var k = 0; k < 6; k++) { var z = az0 + (k + 0.5) * (az1 - az0) / 6; piece(G, ax1 - ax0, P3, (az1 - az0) / 6 - 0.004, (ax0 + ax1) / 2, Y + B6 + P3 / 2, z); [axs[0], axs[2]].forEach(function (x) { vis(G, x, Y + B6 + P3, z); }); }
         info = standard(G, x0, Y + B6 + P3); info.dessous = true;
         // garde-corps au bout sans marche (cote front de taille, x0) : montants 2 x 4, lisse superieure a 1,07 m du plancher, intermediaire, coup de pied 4 po
         var L2 = 1.5 * PO, L4 = 3.5 * PO, xg = x0 - L2 / 2 - 0.002, yh = info.haut + 1.07, yb = K.SOL;
@@ -11128,6 +11133,8 @@
         cache(typeof foreuse !== "undefined" ? foreuse : null);
         scene.traverse(function (o) { if (/^(Plancher_secondaire_dessous|Tire_fonds_secondaire_v19|Scie_plancher_secondaire|Chants_coupes|Chutes_plancher_secondaire|Trace_de_coupe|Foreuse_tige)/.test(o.name || "") && o.visible) caches.push(o); });
         caches.slice().forEach(function (o) { o.visible = false; });
+        /* v158 : le plancher secondaire de l'etape 18 est cache en entier (groupe) : les pieces encore invisibles pendant l'animation de pose echappaient a la regle maille par maille et reapparaissaient */
+        try { var tfs18 = scene.getObjectByName("Tire_fonds_secondaire_v19"), g18 = tfs18 && tfs18.parent; if (g18 && g18.visible && caches.indexOf(g18) < 0) { g18.visible = false; caches.push(g18); } } catch (e18) {}
         maillesPlancher.forEach(function (m) { if (!m.visible) return; var b = new THREE.Box3().setFromObject(m); if (b.min.y > 0.225 && b.max.x < 3.2 && b.min.x > 0.0 && b.min.z > -0.7 && b.max.z < 0.9) { m.visible = false; caches.push(m); } });
         panneau().style.display = ""; majPanneau();
         charge().then(function () { if (!K.ouvert) return; S.visible = true; regle(K.angle); if (G) G.visible = true; });
@@ -12608,7 +12615,7 @@
   // K.ACTIF = false : rien (aucun ecran ni etiquette).
   (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
     var K = { ACTIF: true, ID: "demontage", COUCHE: 27,
-      T: { a: [3000, 6000], b: [6000, 14000], c: [14000, 22000], e: [22200, 24400] },
+      T: { a: [1e12, 1e12 + 3000] /* v158 : plancher secondaire garde tel quel au demantelement (utilisateur 2026-11-24), jamais demonte */, b: [6000, 14000], c: [14000, 22000], e: [22200, 24400] },
       // LEVE 0.30 : le dessus d'une planche levee reste sous 0,62 m, la hauteur ou s'arrete la salete de inter_salete.js (sinon la planche redevient propre)
       DUREE: 600, LEVE: 0.30, SORT: 1.4,
       // cloture d'une paroi a l'autre : parois mesurees a x 0,75 (z -2,51 / +2,58 a 0,3 m ; -2,54 / +2,60 a 0,9 m), piquets de bout a 4-5 cm du roc
@@ -12845,7 +12852,7 @@
       // correction b : les deux panneaux de la video (r65 « Démantèlement : dans l'ordre », r68 « Boue de forage sous le plancher »), en gardant le choix A
       // d'aujourd'hui pour l'ordre des 6 x 6 et « laver les madriers » (question Q7 de transversal_decisions.md, a trancher par l'utilisateur)
       texte: [
-        "Après le départ de la foreuse : plancher secondaire d'abord (récupérable).",
+        "Après le départ de la foreuse : on lave le plancher au boyau d'eau ; le plancher secondaire reste tel quel, on le réutilise.",
         "Plancher principal : les planches du fond en premier ; clous et tire-fonds enlevés à mesure.",
         "Structure de 6 × 6 : seulement quand toutes les planches et tous les tire-fonds sont enlevés ; de la sortie vers le fond, sans jamais enjamber le bois. Grosses pièces à deux.",
         "Laver les madriers à l'eau.",
@@ -12860,7 +12867,7 @@
     function fen(a, b) { return function () { return K.ouvert && K.t >= a && K.t < b; }; }
     // correction b : fenetres decalees de 2,6 s (etat de depart), consignes de la boue (r67-68) avec la structure, mots des panneaux de la video,
     // au plus 3 etiquettes a la fois ; etiquette « garde-corps et marches en dernier » retiree (hors procedure ; ordre de demonter())
-    [["dem-secondaire", "1. Plancher secondaire d'abord : récupérable", [2.2, 0.95, 0.3], 600, 6000],
+    [["dem-secondaire", "1. Plancher secondaire : gardé tel quel, on le réutilise", [2.2, 0.95, 0.3], 600, 6000],
      ["dem-planches", "2. Plancher principal : les planches du fond en premier ; clous et tire-fonds enlevés à mesure", [4.5, 0.6, -1.2], 6000, 14000],
      ["dem-6x6", "3. Les 6 × 6 de la sortie vers le fond : ne jamais enjamber le bois", [8.5, 0.3, 1.2], 14000, 17000],
      ["dem-boue", "Boue de forage sous le plancher : glissante", [6.4, 0.15, -1.05], 14000, 17000],
@@ -15736,7 +15743,7 @@
     try { if (/video/.test(location.hash || "")) { var essais = 0; (function attend() { var b = document.getElementById("acc-construire"), acc = document.getElementById("accueil"), pret = typeof etape !== "undefined";
         if (b && acc && !acc.hidden && b.offsetParent) { b.click(); setTimeout(attend, 1500); return; } if ((!acc || acc.hidden) && pret && essais > 2) { setTimeout(function () { NV.joue(0); }, 2500); return; } essais++; if (essais < 400) setTimeout(attend, 500); })(); } } catch (e) { err(e, "adresse"); }
   })();
-  // ---- inter_voix_v157.js (v157 + voix, 2026-11-23) : demande de l'utilisateur « le site est deploye version 157, ajoute les voix a l'app ».
+  // ---- inter_voix_v157.js (v157 + voix, 2026-11-23) : demande de l'utilisateur « le site est deploye version 158, ajoute les voix a l'app ».
   // Les 55 blocs du script v25 (inter_narration_v155.js) ont leur fichier voix/bloc_<id>.mp3 : formateur = voix « Steve », apprenti = voix « Adam »
   // (ElevenLabs eleven_v4, niveau egalise, 0,35 s de silence en fin de bloc). Ce module ne change rien au module de narration : il lui donne
   // NV.AUDIO = "voix/" et la duree reelle de chaque bloc (K.DUREES), puis s'occupe de ce qu'un navigateur exige pour faire entendre une voix :
@@ -17691,7 +17698,7 @@
           if (dist > 1e-5) { cur.x += dx / dist * pas; cur.z += dz / dist * pas; if (pas > 0.0005) dirU.set(dx / dist, 0, dz / dist); } if (K.phase === "entree" && dist - pas < 0.004) { chemin.shift(); K.phase = "coupe"; } }
         if (sale) { sale = false; apresCoupe(false); } majCrayon(); K.dansBois = dansBois;
         var enBois = K.phase !== "vol"; poseScie(cur.x, cur.z, enBois ? 0.004 : (survol ? 0.06 : 0.10)); S.position.lerp(vS, enBois ? 1 : Math.min(1, dt * 14)); S.quaternion.slerp(qS, Math.min(1, dt * (enBois ? 10 : 8))); var marche = K.phase === "coupe" && chemin.length > 0; S.userData.lame.position.x = marche ? 0.0065 * Math.sin(temps * 150) : 0; if (marche && dansBois) { S.position.x += 0.0006 * Math.sin(temps * 131); S.position.y += 0.0005 * Math.sin(temps * 173); } });
-      // ---- (version 157) plancher ajuste d office : taille le long du contour, pousse contre la foreuse, une seule fois, sans animation ni message
+      // ---- (version 158) plancher ajuste d office : taille le long du contour, pousse contre la foreuse, une seule fois, sans animation ni message
       function office() { try { if (typeof etape === "undefined" || etape < 18 || !I.vu(g) || !mobiles.foreuse.o.visible || !accoste()) return;
           if (K.releve !== "fait") { releveExact(); K.releve = "fait"; faitTrace(); }
           K.coupeSelonTrace(1); autoEncoches(); var a = avancePossible(); K.office = "fait"; K.officeAvance = +a.toFixed(4); if (a < 0.002) return;
@@ -19808,7 +19815,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "157-99f946da", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "158-a4553036", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
@@ -19930,6 +19937,343 @@
       if (parti || Date.now() - t0 > 40000) { clearInterval(guet); setTimeout(function () { enregistre(false); }, 1500); } }, 500);
     if (SW.controller) demande();
   })();
+</script>
+
+<!-- PATCHS_SITE_V158 (2026-11-24) : avatar sur le plancher secondaire de l'ecran angle, lavage au demantelement ; sources C:/IA/video/depot/patchs_video, variante site par v158/corrections_v158.js -->
+<script>
+// a16_avatar_secondaire.js — regle de l'utilisateur (2026-11-24) : « lorsqu'on parle des planchers secondaires, ajoute toujours l'avatar pour qu'on
+// constate la hauteur de travail ». Un travailleur (copie du travailleur de la demo T1, 1,72 m) se tient DEBOUT SUR le plancher secondaire, derriere la
+// tete de forage, face a la foreuse (-z), la ou l'axe des tiges passe entre sa hanche (0,91 m) et le milieu de son tronc (1,15 m) : « travailler sur
+// la foreuse entre les hanches et le milieu du tronc ».
+//  - Narration (video) : blocs 46, 47 et 48a seulement. Hors ecran : sur le plancher secondaire de l'etape 18 (rattache a son pivot, il suit le
+//    plancher). Ecran « angle147 » ouvert (bloc 48a) : sur le plancher de l'ecran (« Plancher_secondaire_angle_v147 », refait a chaque tranche) ;
+//    a l'horizontale (pas de plancher secondaire) : sur le plancher principal.
+//  - Visite normale : quand l'ecran « angle147 » est ouvert.
+//  - Jamais ailleurs (demantelement 49-51, autres etapes) : cache par les couches (bit 30), jamais par .visible.
+// Le travailleur T1 lui-meme n'est pas touche (inter_travailleur_repos le cache par couches a chaque image) : on en fait une COPIE
+// (THREE.SkeletonUtils.clone) sans sa lampe de casque. Etat : window.__a16 { place, hanche, tronc, axe, erreur, ... }.
+// (La copie dans la vignette « avoir18 » a ete retiree : le bloc 48 et la vignette sortent de la video, demande de l'utilisateur.)
+(function () {
+  "use strict";
+  var I = window.__inter71;
+  if (!I || typeof I.anime !== "function" || typeof THREE === "undefined" || !THREE.SkeletonUtils) return;
+  var V3 = THREE.Vector3, CACHE = 1 << 30, VU = 1, BLOCS = { "46": 1, "47": 1, "48a": 1 };
+  var A = window.__a16 = { place: null, hanche: 0.91, tronc: 1.15, axe: null, erreur: null, erreurs: 0, mode: null, pose: null, sol: null, x: null, z: null, montre: false };
+  function err(e, ou) { A.erreurs++; A.erreur = ou + " : " + String(e && e.message || e); }
+  function sceneVisite() { var K = window.__laserOutilsV19; if (K && K.groupe && K.groupe.parent && K.groupe.parent.isScene) return K.groupe.parent;
+    var P = window.__perso && window.__perso.persos, r = P && (P.T1 || P.T2 || P.AV), o = r && r.racine; while (o && o.parent) o = o.parent; return o && o.isScene ? o : null; }
+  function T1() { var P = window.__perso && window.__perso.persos; return P && P.T1 && P.T1.racine || null; }
+  function nMailles(o) { var n = 0; o.traverse(function (q) { if (q.isMesh) n++; }); return n; }
+
+  // ------------------------------------------------------------ la copie et sa pose (mesuree une fois, dans son propre repere)
+  var C = null, nSrc = 0;
+  function masque(m) { if (!C) return; C.traverse(function (q) { if (q.layers.mask !== m) q.layers.mask = m; }); }
+  function fabrique() { var src = T1(); if (!src) return false;
+    if (C && C.parent) C.parent.remove(C);
+    var c = THREE.SkeletonUtils.clone(src), lampes = []; c.name = "Avatar_plancher_secondaire_a16";
+    c.traverse(function (q) { if (q.isLight) lampes.push(q); if (q.isMesh) q.frustumCulled = false; });
+    lampes.forEach(function (l) { if (l.parent) l.parent.remove(l); });
+    c.position.set(0, 0, 0); c.quaternion.identity(); c.updateMatrixWorld(true);
+    // sommets poses (avec leurs os) : bas des pieds et haut de la tete
+    var v = new V3(), ymin = 1e9, ymax = -1e9;
+    c.traverse(function (q) { if (!q.isSkinnedMesh || !q.visible) return; var p = q.geometry.attributes.position, st = Math.max(1, Math.floor(p.count / 3000));
+      for (var i = 0; i < p.count; i += st) { v.fromBufferAttribute(p, i); q.boneTransform(i, v); v.applyMatrix4(q.matrixWorld); if (v.y < ymin) ymin = v.y; if (v.y > ymax) ymax = v.y; } });
+    function os(n) { var o = c.getObjectByName(n); return o ? o.getWorldPosition(new V3()) : null; }
+    var fl = os("foot_l"), fr = os("foot_r"), tl = os("thigh_l"), tr = os("thigh_r"), pe = os("pelvis"), he = os("head"), bl = os("ball_l");
+    if (!fl || !fr || !tl || !tr || !pe || ymin > 1e8) throw new Error("os ou sommets introuvables sur la copie de T1");
+    var f = new V3().subVectors(tl, tr).cross(new V3(0, 1, 0)); f.y = 0; f.normalize();   // devant = gauche x haut (personnage)
+    var pied = new V3((fl.x + fr.x) / 2, ymin, (fl.z + fr.z) / 2), taille = ymax - ymin;
+    A.pose = { taille: +taille.toFixed(3), bassin: +(pe.y - ymin).toFixed(3), tete: he ? +(he.y - ymin).toFixed(3) : null, piedsDy: +Math.abs(fl.y - fr.y).toFixed(3),
+      penche: he ? +Math.hypot(he.x - pe.x, he.z - pe.z).toFixed(3) : null, orteils: bl ? +new V3(bl.x - fl.x, 0, bl.z - fl.z).normalize().dot(f).toFixed(2) : null,
+      ecartPieds: +Math.hypot(fl.x - fr.x, fl.z - fr.z).toFixed(3) };
+    C = c; C.userData.a16 = { pied: pied, lacet: Math.atan2(f.x, f.z) }; nSrc = nMailles(src); masque(CACHE); return true; }
+
+  // pose la copie : pieds au point monde « cible », face a -z, enfant de « parent »
+  var qW = new THREE.Quaternion(), qP = new THREE.Quaternion(), Y = new V3(0, 1, 0);
+  function pose(parent, cible) { var u = C.userData.a16; if (C.parent !== parent) parent.add(C);
+    parent.updateMatrixWorld(true); qW.setFromAxisAngle(Y, Math.PI - u.lacet);   // lacet vise : -z (atan2(0, -1) = PI)
+    parent.getWorldQuaternion(qP); C.quaternion.copy(qP.invert().multiply(qW));
+    var o = u.pied.clone().applyQuaternion(qW), w = cible.clone().sub(o); C.position.copy(parent.worldToLocal(w)); C.updateMatrixWorld(true); }
+
+  // ------------------------------------------------------------ hauteur de l'axe des tiges au-dessus du plancher, a l'abscisse x
+  function surLigne(a, d, x) { if (Math.abs(d.x) < 1e-6) return null; return a.y + d.y * (x - a.x) / d.x; }
+  function axePrincipal(s) { var t = s.getObjectByName("Foreuse_tige_arriere"); if (!t) return null; t.updateWorldMatrix(true, false);
+    var a = t.getWorldPosition(new V3()), d = Y.clone().applyQuaternion(t.getWorldQuaternion(new THREE.Quaternion())); return { a: a, d: d, src: "tige" }; }
+  function axeAngle(s) { var S = s.getObjectByName("Foreuse_STM_articulee_v147"); if (!S) return null; var ta = S.getObjectByName("Tige_Arriere"), tv = S.getObjectByName("Tige_Avant"); if (!ta || !tv) return null;
+    S.updateWorldMatrix(true, true); var a = ta.getWorldPosition(new V3()), b = tv.getWorldPosition(new V3()); return { a: a, d: b.sub(a), src: "os Tige_Arriere/Tige_Avant" }; }
+  // x ou se tenir : 0,30 m du bout x0 si l'axe y est entre hanche et milieu du tronc (2 cm de marge), sinon le x le plus pres de 1,03 m
+  function choisitX(ax, x0, x1, haut) { function h(x) { if (!ax) return null; var y = surLigne(ax.a, ax.d, x); return y === null ? null : y - haut; }
+    var xp = Math.min(x1 - 0.25, x0 + 0.30), hp = h(xp); if (hp === null || (hp >= A.hanche + 0.02 && hp <= A.tronc - 0.02)) return { x: xp, h: hp };
+    var mid = (A.hanche + A.tronc) / 2, best = { x: xp, h: hp };
+    for (var x = x0 + 0.25; x <= x1 - 0.25 + 1e-6; x += 0.025) { var hx = h(x); if (hx !== null && Math.abs(hx - mid) < Math.abs(best.h - mid)) best = { x: x, h: hx }; }
+    return best; }
+
+  // ------------------------------------------------------------ plancher secondaire de l'etape 18 (groupe sans nom sous un pivot)
+  function boiteSecondaire(s) { var tf = s.getObjectByName("Tire_fonds_secondaire_v19"), g = tf && tf.parent;
+    if (!g) s.traverse(function (o) { if (!g && o.isMesh && o.material && o.material.name === "wood_secondaire" && o.parent && !o.parent.isScene && o.parent.name !== "Plancher_secondaire_dessous") g = o.parent; });
+    if (!g || !g.parent) return null; g.updateWorldMatrix(true, true); var b = new THREE.Box3(), bb = new THREE.Box3();
+    g.children.forEach(function (m) { if (!m.isMesh || !m.material || m.material.name !== "wood_secondaire") return; if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); bb.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld); b.union(bb); });
+    if (b.isEmpty()) return null; return { g: g, p: g.parent, b: b }; }
+
+  // ------------------------------------------------------------ chaque image
+  var n = 0, cle = "";
+  function veut() { var NV = window.__narrationV155, G = I.angleStm, ang = !!(G && G.ouvert);
+    if (NV && NV.actif) { var b = NV.BLOCS[NV.i], id = b ? String(b.id) : ""; if (!BLOCS[id]) return null; if (b.c && b.c.ecran === "angle147") return ang ? "angle" : null; return ang ? "angle" : "principal"; }
+    return ang ? "angle" : null; }
+  function place(mode, s) {
+    if (mode === "principal") { var B = boiteSecondaire(s); if (!B) return false; var ax = axePrincipal(s), haut = B.b.max.y;
+      if (!ax) { var hp0 = 0.766, pente = 0.577; ax = { a: new V3(0, B.b.max.y - 0.2286 + hp0 + pente * 0.095, -1.07), d: new V3(1, pente, 0), src: "formule l. 1789" }; }
+      var c = choisitX(ax, B.b.min.x, B.b.max.x, haut), z = B.b.min.z + 0.30; pose(B.p, new V3(c.x, haut, z));
+      A.sol = { haut: +haut.toFixed(3), x: [+B.b.min.x.toFixed(3), +B.b.max.x.toFixed(3)], z: [+B.b.min.z.toFixed(3), +B.b.max.z.toFixed(3)] }; fixe(c, z, ax.src); return true; }
+    var G = I.angleStm, P = G && G._PM ? G._PM() : null, ax2 = axeAngle(s), Gg = s.getObjectByName("Plancher_secondaire_angle_v147");
+    if (!ax2) return false;
+    if (P && Gg) { var c2 = choisitX(ax2, P.x0, P.x1, P.haut), z2 = P.z0 + 0.30; pose(Gg, new V3(c2.x, P.haut, z2));
+      A.sol = { haut: +P.haut.toFixed(3), x: [+P.x0.toFixed(3), +P.x1.toFixed(3)], z: [+P.z0.toFixed(3), +P.z1.toFixed(3)], tranche: G.tranche && G.tranche.id }; fixe(c2, z2, ax2.src); return true; }
+    // a l'horizontale : pas de plancher secondaire, debout sur le plancher principal au meme endroit
+    var sol = G && G.SOL || 0.23, x3 = 0.87, y3 = surLigne(ax2.a, ax2.d, x3); pose(s, new V3(x3, sol, -0.15));
+    A.sol = { haut: sol, tranche: G.tranche && G.tranche.id, sansSecondaire: true }; fixe({ x: x3, h: y3 === null ? null : y3 - sol }, -0.15, ax2.src); return true; }
+  function fixe(c, z, src) { A.x = +c.x.toFixed(3); A.z = +z.toFixed(3); A.axe = c.h === null ? null : +c.h.toFixed(3); A.axeSource = src;
+    A.dansBornes = A.axe !== null && A.axe >= A.hanche && A.axe <= A.tronc; }
+
+  I.anime(function () { try { n++;
+      var src = T1(); if (!src) return;
+      if (!C || (n % 120 === 0 && nMailles(src) !== nSrc)) { if (!fabrique()) return; cle = ""; }
+      var mode = veut(), s = sceneVisite();
+      if (!mode || !s) { if (A.montre) { masque(CACHE); A.montre = false; } A.mode = null; return; }
+      var G = I.angleStm, Gg = mode === "angle" ? s.getObjectByName("Plancher_secondaire_angle_v147") : null;
+      var k = mode + "|" + (Gg ? Gg.uuid + "|" + Gg.position.x.toFixed(3) : "") + "|" + (G && G.angle);
+      if (k !== cle || n % 30 === 0) { var ok = place(mode, s); if (!ok) { masque(CACHE); A.montre = false; return; } cle = k; A.mode = mode; A.place = mode === "angle" ? (A.sol && A.sol.sansSecondaire ? "plancher principal (angle 0)" : "plancher de l'ecran angle147") : "plancher secondaire etape 18"; }
+      // ecran angle : on attend que les pieces du plancher refait soient posees (elles tombent de 0,4 m une a une)
+      var pret = true; if (Gg) { Gg.traverse(function (q) { if (q.isMesh && q.geometry && q.geometry.type === "BoxGeometry" && !q.visible) pret = false; }); }
+      if (pret && !A.montre) { masque(VU); A.montre = true; } else if (!pret && A.montre) { masque(CACHE); A.montre = false; }
+    } catch (e) { err(e, "image"); try { masque(CACHE); A.montre = false; } catch (x) {} } });
+
+  // debut du bloc 46 : la copie est prete d'avance
+  try { var VP = window.__videoPlans; if (VP && VP.au) VP.au("46", function () { try { if (!C) fabrique(); } catch (e) { err(e, "bloc 46"); } }); } catch (e) { err(e, "VP.au"); }
+})();
+
+</script>
+<script>
+// a17_lavage.js — lavage du plancher principal au boyau d'eau au démantèlement (vidéo narrée, bloc 49, écran « demontage »).
+// Nouvelle voix du bloc 49 (à enregistrer) : « Au démantèlement, après le départ de la foreuse : on lave le plancher au boyau d'eau. Le plancher
+// secondaire, on le garde tel quel : il va resservir. … Le principal, en commençant par les planches du fond … ». L'animation joue sur la phrase
+// « on lave le plancher au boyau d'eau », estimée de T0 = 1,2 s à T1 = 6,5 s de voix (constantes ci-dessous).
+// Ce que l'on voit (sobre : aucune particule en nuage, aucune poussière) :
+//  - un boyau d'eau (matière du boyau jaune de mine de la scène, « Boyau_arrosage », sinon tube sombre) qui arrive du sol de la galerie par les
+//    marches de l'entrée (x ≈ 10,6 → 9,75) et monte jusqu'à une lance tenue à hauteur de main (copie de la lance de la page, I.boyau.lanceTenue) au
+//    bord du plancher côté entrée, dans l'ouverture du garde-corps (z 0,31-1,61) ;
+//  - un jet (tube fin semi-transparent bleuté qui suit une parabole, s'élargit vers l'impact), une éclaboussure plate et 28 gouttelettes en arc
+//    au point frappé ; le jet balaie le plancher en deux passes de gauche (+z) à droite (-z) : moitié du fond (x ≈ 1,2-3,8) puis moitié de l'entrée
+//    (x ≈ 5,8-8,4), en ondulant ; s'il frappe le dessus du plancher secondaire (gardé, x 0,57-2,40), l'impact se pose dessus (pas de traversée) ;
+//  - une pellicule d'eau brillante (plan mince MeshStandardMaterial rugosité 0,1, métal 0,2, opacité 0,35, 4 mm au-dessus des planches) dont la
+//    carte alpha s'étend derrière le passage du jet, puis sèche lentement ; elle s'efface du fond vers la sortie au rythme du départ des planches ;
+//  - la saleté du plancher (nuanceur des madriers, inter_salete.js : K.resalit / K.lave) s'efface sous le jet ; tout est propre à T1.
+// Planches encore en place pendant le lavage : la fenêtre b (planches) du module démontage, [6000, 14000] ms depuis l'ouverture (= 4,8 s de voix,
+// AVANT la fin du lavage), est repoussée en vidéo à B_VIDEO = [7900, 14000] (6,7 s de voix) : posée avant chaque ouverture (enveloppes de K.ouvre et de
+// l'ouvre() de l'écran « demontage », et à chaque image tant que l'écran est fermé), remise hors vidéo (écran fermé). a02 n'est pas touché.
+// Caméra et clé : a05_table_fin.js (bloc 49 : plongée douce depuis l'entrée à t 0, clé « On lave le plancher au boyau d'eau » à T0).
+// Rien hors du mode vidéo (NV.actif et body.mode-video) ; tout sous try/catch ; état dans window.__a17 ; la pellicule et le boyau sont des objets
+// propres au patch (groupe « Lavage_a17 » sous la scène), montrés/cachés par leur .visible (aucun personnage), jamais rien sur les pièces de la page.
+(function () {
+  "use strict";
+  var I = window.__inter71;
+  if (!I || typeof I.anime !== "function" || typeof THREE === "undefined") return;
+  var V3 = THREE.Vector3, HAUT = new V3(0, 1, 0);
+  var A = window.__a17 = { phase: "attente", progression: 0, objets: 0, erreur: null, erreurs: 0, lave: 0, fenetreB: null, construit: false, t: null,
+    impact: null, boyauMat: null, lance: null, plancher: null, secondaire: null, film: 0, dirt: null, reglages: { opacite: null } };   // reglages.opacite : essai (null = 0,35)
+  function err(e, ou) { A.erreurs++; A.erreur = ou + " : " + String(e && e.message || e).slice(0, 200); }
+  function NV() { return window.__narrationV155; }
+  function VP() { return window.__videoPlans; }
+  function enVideo() { return true; }   /* variante SITE (v158) : le lavage joue a chaque ouverture de l'ecran demontage, horloge = K.t */
+  function sceneVisite() { var K = window.__laserOutilsV19; if (K && K.groupe && K.groupe.parent && K.groupe.parent.isScene) return K.groupe.parent;
+    var P = window.__perso && window.__perso.persos, r = P && (P.T1 || P.T2 || P.AV), o = r && r.racine; while (o && o.parent) o = o.parent; return o && o.isScene ? o : null; }
+  function ss(a, b, v) { var t = Math.min(1, Math.max(0, (v - a) / (b - a))); return t * t * (3 - 2 * t); }
+  function cl(v, a, b) { return v < a ? a : v > b ? b : v; }
+
+  // ---------------------------------------------------------------- instants (secondes de voix du bloc 49)
+  // À RECALER sur phrases_mp3.json quand la voix 49 sera réenregistrée (fin du silence avant « on lave » / fin de « boyau d'eau »).
+  var BLOC = "49", T0 = 3.1, T1 = 6.2;   // voix v26 (20,0 s, 2026-11-24) : « on lave le plancher au boyau d'eau » = 3,10 → 5,24 s ; « Le plancher secondaire… » à 5,24
+  var T_SORTIE = 0.45;            // s : après T1, le jet s'arrête puis le boyau et la lance s'effacent en fondu
+  var T_SECHE = 9.0;              // s : la pellicule passe de 0,35 à 0,10 d'opacité en T_SECHE après T1 (le bois sèche lentement)
+  // fenêtre b (planches) du module démontage en mode vidéo : début ≥ 1200 (carton) + T1 × 1000 + 200 ms de marge → 7900 (origine : 6000)
+  var B_VIDEO = [10600, 18600];   // voix v26 : « Le principal, en commençant par les planches du fond » à 9,40 s → planches dès 1200 + 9400 ms, fenêtre de 8 s
+  A.fenetreB = B_VIDEO;
+
+  // ---------------------------------------------------------------- fenêtre b du démontage (planches) repoussée en vidéo
+  var tB0 = null;
+  function poseB() { var K = I.demontage; if (!K || !K.T) return; if (K.T.b !== B_VIDEO) { if (tB0 === null) tB0 = K.T.b; K.T.b = B_VIDEO; } }
+  function rendB() { var K = I.demontage; if (!K || !K.T || K.ouvert || tB0 === null) return; K.T.b = tB0; tB0 = null; }
+  try { var K0 = I.demontage; if (K0 && typeof K0.ouvre === "function" && !K0.__a17) { var ouvreK = K0.ouvre;
+      K0.ouvre = function () { try { if (enVideo() && !K0.ouvert) poseB(); } catch (e) { err(e, "K.ouvre"); } return ouvreK.apply(this, arguments); }; K0.__a17 = true; }
+    var E = window.__ecransV19, s0 = E && E.liste ? E.liste.filter(function (s) { return s.id === "demontage"; })[0] : null;
+    if (s0 && typeof s0.ouvre === "function" && !s0.__a17) { var ouvreS = s0.ouvre;
+      s0.ouvre = function () { try { var K = I.demontage; if (enVideo() && K && !K.ouvert) poseB(); } catch (e) { err(e, "s.ouvre"); } return ouvreS.apply(this, arguments); }; s0.__a17 = true; }
+  } catch (e) { err(e, "enveloppes"); }
+
+  // ---------------------------------------------------------------- mesures de la scène (une fois, à la construction)
+  var PL = { x0: 0, x1: 9.754, z0: -2.438, z1: 2.438, haut: 0.236 };                 // planches du plancher principal (mesuré 2026-11-24)
+  var SEC = { x0: 0.567, x1: 2.402, z0: -0.628, z1: 0.191, haut: 0.466 };            // plancher secondaire gardé (DR 18), dessus
+  function mesure(s) { try { var b = new THREE.Box3(), bb = new THREE.Box3(), n = 0;
+      s.traverse(function (o) { if (o.isMesh && /^P(07_s06|07_s12|13_s12)_\d{3}$/.test(o.name)) { bb.setFromObject(o); if (!bb.isEmpty()) { b.union(bb); n++; } } });
+      if (n > 10 && b.max.x - b.min.x > 5) PL = { x0: b.min.x, x1: b.max.x, z0: b.min.z, z1: b.max.z, haut: b.max.y };
+    } catch (e) { err(e, "mesure planches"); }
+    try { var tf = s.getObjectByName("Tire_fonds_secondaire_v19"), g = tf && tf.parent; if (g) { g.updateWorldMatrix(true, true); var c = new THREE.Box3().setFromObject(g);
+        if (!c.isEmpty() && c.max.x - c.min.x < 6) SEC = { x0: c.min.x, x1: c.max.x, z0: c.min.z, z1: c.max.z, haut: c.max.y }; }
+    } catch (e) { err(e, "mesure secondaire"); }
+    A.plancher = PL; A.secondaire = SEC; }
+  function hauteurImpact(x, z) { return (x > SEC.x0 - 0.05 && x < SEC.x1 + 0.05 && z > SEC.z0 - 0.05 && z < SEC.z1 + 0.05) ? SEC.haut : PL.haut; }
+
+  // ---------------------------------------------------------------- objets du patch
+  var G = null, boyau = null, lance = null, jet = null, disque = null, gouttes = [], film = null, filmTex = null, filmA = null;
+  var NX = 160, NZ = 80, N_JET = 22, R_JET = 6, N_GOUTTES = 28;
+  var MAIN = new V3(9.35, 1.0, 0.95);        // main qui tient la lance : 40 cm en dedans du bord d'entrée, dans l'ouverture du garde-corps (z 0,31-1,61)
+  var matEau = null, matDisque = null, matGoutte = null;
+  function matiereBoyau(s) { var m = null;
+    try { var b = s.getObjectByName("Boyau_arrosage"); if (b) b.traverse(function (o) { if (!m && o.isMesh && o.material && !Array.isArray(o.material) && o.material.map && o.material.roughness > 0.7) m = o.material; }); } catch (e) {}
+    if (m) { A.boyauMat = "Boyau_arrosage (jaune de mine)"; var c = m.clone(); c.transparent = true; c.opacity = 1; return c; }
+    A.boyauMat = "tube sombre (secours)"; return new THREE.MeshStandardMaterial({ color: 0x17181a, roughness: 0.74, metalness: 0, transparent: true, opacity: 1 }); }
+  function construit(s) {
+    mesure(s);
+    G = new THREE.Group(); G.name = "Lavage_a17"; G.visible = false; s.add(G);
+    // pellicule d'eau : plan sur les planches, carte alpha peinte derrière le jet
+    filmA = new Uint8Array(NX * NZ * 4); filmTex = new THREE.DataTexture(filmA, NX, NZ, THREE.RGBAFormat); filmTex.magFilter = filmTex.minFilter = THREE.LinearFilter; filmTex.generateMipmaps = false; filmTex.needsUpdate = true;
+    // teinte sombre et chaude : le bois mouillé fonce sans griser (essais 2026-11-24 : pellicule claire = planches blanchies, gris-bleu = bois terne) ;
+    // le reflet des lampes (rugosité 0,1) donne le brillant
+    var mf = new THREE.MeshStandardMaterial({ color: 0x241a12, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.35, depthWrite: false, alphaMap: filmTex, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
+    mf.name = "a17_pellicule";
+    var gf = new THREE.PlaneGeometry(PL.x1 - PL.x0, PL.z1 - PL.z0); gf.rotateX(-Math.PI / 2);   // local +y → monde -z : v = (zMax - z) / H, rangée 0 = v 0
+    film = new THREE.Mesh(gf, mf); film.name = "Lavage_pellicule_a17"; film.position.set((PL.x0 + PL.x1) / 2, PL.haut + 0.004, (PL.z0 + PL.z1) / 2); film.renderOrder = 1; film.frustumCulled = false; film.receiveShadow = true; G.add(film);
+    // boyau (tube refait à chaque image du lavage) et lance (copie de la lance de la page)
+    var mb = matiereBoyau(s); boyau = new THREE.Mesh(new THREE.BufferGeometry(), mb); boyau.name = "Lavage_boyau_a17"; boyau.castShadow = true; boyau.frustumCulled = false; G.add(boyau);
+    try { var L0 = I.boyau && I.boyau.lanceTenue; if (L0) { lance = L0.clone(true); lance.name = "Lavage_lance_a17"; lance.traverse(function (q) { q.visible = true; q.layers.set(0); q.frustumCulled = false; }); A.lance = "copie de I.boyau.lanceTenue"; } } catch (e) { err(e, "lance"); lance = null; }
+    if (!lance) { lance = new THREE.Group(); lance.name = "Lavage_lance_a17"; var ml = new THREE.MeshStandardMaterial({ color: 0xa9883f, roughness: 0.5, metalness: 0.45 });
+      var corps = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.2, 12), ml); corps.position.y = -0.1; lance.add(corps);
+      var bec = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.008, 0.06, 12), ml); bec.position.y = -0.225; lance.add(bec); A.lance = "lance simple (secours)"; }
+    lance.traverse(function (q) { if (q.isMesh && q.material && !q.material.__a17) { q.material = q.material.clone(); q.material.transparent = true; q.material.__a17 = true; } });
+    G.add(lance);
+    // jet : tube fin dont le rayon croît vers l'impact ; matière d'eau bleutée semi-transparente (aucune lumière compilée en plus)
+    matEau = new THREE.MeshStandardMaterial({ color: 0xa6c6dc, roughness: 0.08, metalness: 0.05, transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide }); matEau.name = "a17_eau";
+    var gj = new THREE.BufferGeometry(), pos = new Float32Array((N_JET + 1) * R_JET * 3), ix = [];
+    for (var i = 0; i < N_JET; i++) for (var k = 0; k < R_JET; k++) { var a0 = i * R_JET + k, a1 = i * R_JET + (k + 1) % R_JET, b0 = a0 + R_JET, b1 = a1 + R_JET; ix.push(a0, b0, a1, a1, b0, b1); }
+    gj.setAttribute("position", new THREE.BufferAttribute(pos, 3)); gj.setIndex(ix); gj.computeVertexNormals();
+    jet = new THREE.Mesh(gj, matEau); jet.name = "Lavage_jet_a17"; jet.renderOrder = 2; jet.frustumCulled = false; G.add(jet);
+    // éclaboussure plate à l'impact et gouttelettes en arc
+    matDisque = new THREE.MeshStandardMaterial({ color: 0xdce9f1, roughness: 0.1, metalness: 0, transparent: true, opacity: 0.3, depthWrite: false }); matDisque.name = "a17_eclabous";
+    var gd = new THREE.CircleGeometry(0.28, 20); gd.rotateX(-Math.PI / 2); disque = new THREE.Mesh(gd, matDisque); disque.name = "Lavage_eclaboussure_a17"; disque.renderOrder = 2; disque.frustumCulled = false; G.add(disque);
+    matGoutte = new THREE.MeshStandardMaterial({ color: 0xcfe2ee, roughness: 0.05, metalness: 0.05, transparent: true, opacity: 0.7, depthWrite: false }); matGoutte.name = "a17_goutte";
+    var gg = new THREE.SphereGeometry(0.012, 6, 5), al = 4621; function rnd() { al = (al * 16807) % 2147483647; return al / 2147483647; }
+    for (var g = 0; g < N_GOUTTES; g++) { var m = new THREE.Mesh(gg, matGoutte); m.name = "Lavage_goutte_a17"; m.renderOrder = 3; m.frustumCulled = false;
+      m.userData = { a: rnd() * Math.PI * 2, v: 0.5 + 1.1 * rnd(), vy: 0.9 + 0.9 * rnd(), ph: rnd(), dur: 0.3 + 0.2 * rnd() }; gouttes.push(m); G.add(m); }
+    var n = 0; G.traverse(function (q) { if (q.isMesh) n++; }); A.objets = n; A.construit = true;
+    // chauffe : deux images avec tout visible mais le groupe réduit à presque rien (vers l'origine, dans le bois du bout du plancher ; frustumCulled
+    // coupé partout) : les nuanceurs se compilent pendant le carton du bloc, pas au premier jet
+    cible(0, P); poseOutils(0); montreJet(true); chauffe = 2; G.visible = true; G.scale.setScalar(0.0005); A.chauffe = "en cours"; }
+  var chauffe = 0;
+  function finChauffe() { G.scale.setScalar(1); A.chauffe = "faite"; }
+  function opaciteOutils(o) { try { boyau.material.opacity = o; lance.traverse(function (q) { if (q.isMesh && q.material) q.material.opacity = o; }); } catch (e) {} }
+
+  // ---------------------------------------------------------------- pellicule : peinture et effacement
+  function peintFilm(x, z, r) { var W = PL.x1 - PL.x0, H = PL.z1 - PL.z0, dx = W / NX, dz = H / NZ, touche = false;
+    var x0 = Math.max(0, Math.floor((x - r - PL.x0) / dx)), x1 = Math.min(NX - 1, Math.ceil((x + r - PL.x0) / dx));
+    var r0 = Math.max(0, Math.floor((PL.z1 - (z + r)) / dz)), r1 = Math.min(NZ - 1, Math.ceil((PL.z1 - (z - r)) / dz));
+    for (var iz = r0; iz <= r1; iz++) for (var ix = x0; ix <= x1; ix++) { var cx = PL.x0 + (ix + 0.5) * dx, cz = PL.z1 - (iz + 0.5) * dz, d = Math.hypot(cx - x, cz - z); if (d > r) continue;
+      var v = Math.round(255 * (1 - ss(r * 0.45, r, d))), j = (iz * NX + ix) * 4; if (v > filmA[j + 1]) { filmA[j] = filmA[j + 1] = filmA[j + 2] = v; filmA[j + 3] = 255; touche = true; } }
+    if (touche) filmTex.needsUpdate = true; }
+  function remplitFilm(k) { var touche = false; for (var j = 0; j < NX * NZ * 4; j += 4) { var v = Math.min(255, filmA[j + 1] + Math.ceil(k * (255 - filmA[j + 1]))); if (v > filmA[j + 1]) { filmA[j] = filmA[j + 1] = filmA[j + 2] = v; filmA[j + 3] = 255; touche = true; } }
+    if (touche) filmTex.needsUpdate = true; }
+  var frontFait = -1;
+  function effaceFilmJusqua(xF) { var W = PL.x1 - PL.x0, dx = W / NX, ixF = Math.min(NX, Math.floor((xF - PL.x0) / dx)); if (ixF <= frontFait) return; frontFait = ixF;
+    for (var iz = 0; iz < NZ; iz++) for (var ix = 0; ix < ixF; ix++) { var j = (iz * NX + ix) * 4; filmA[j] = filmA[j + 1] = filmA[j + 2] = 0; } filmTex.needsUpdate = true; }
+  function videFilm() { filmA.fill(0); filmTex.needsUpdate = true; frontFait = -1; A.film = 0; }
+
+  // ---------------------------------------------------------------- saleté des planches (inter_salete.js)
+  var saleReset = false, aLave = false;
+  function salete() { return I.salete && typeof I.salete.lave === "function" ? I.salete : null; }
+  function saletePrete() { var S = salete(); if (!S) { A.dirt = "inter_salete absent"; return; } if (!saleReset) { try { S.resalit(); } catch (e) {} saleReset = true; } S.propre = true; A.dirt = "resalie puis lavée (K.lave), message « Plancher nettoyé » coupé"; }
+  function laveIci(x, z, r, k) { var S = salete(); if (!S) return; try { A.lave += S.lave(x, z, r, k) || 0; aLave = true; } catch (e) { err(e, "lave"); } }
+  function rendSalete() { var S = salete(); if (!S || !aLave) return; try { S.resalit(); S.propre = false; } catch (e) {} aLave = false; saleReset = false; }
+
+  // ---------------------------------------------------------------- trajectoire du jet (u = 0 → 1 pendant [T0, T1])
+  function cible(u, out) { var s, z, x;
+    if (u < 0.46) { s = u / 0.46; z = 2.25 - 4.5 * s; x = 2.5 + 1.25 * Math.sin(2 * Math.PI * 2.5 * s); }                       // passe 1 : moitié du fond, de gauche (+z) à droite (-z)
+    else if (u < 0.54) { s = (u - 0.46) / 0.08; var e = s * s * (3 - 2 * s); z = -2.25 + 4.5 * e; x = 3.75 + (6.5 - 3.75) * e; }  // retour rapide vers la gauche, plus près
+    else { s = (u - 0.54) / 0.46; z = 2.25 - 4.5 * s; x = 7.1 + 1.3 * Math.sin(2 * Math.PI * 2.5 * s); }                            // passe 2 : moitié de l'entrée
+    x = cl(x, PL.x0 + 0.15, PL.x1 - 0.2); z = cl(z, PL.z0 + 0.15, PL.z1 - 0.15); out.set(x, hauteurImpact(x, z), z); return out; }
+  var P = new V3(), B = new V3(), D = new V3(), dirJet = new V3(), tmp = new V3(), tmp2 = new V3(), n1 = new V3(), n2 = new V3(), R = new V3(), H = new V3();
+  var qLance = new THREE.Quaternion(), MOINS_Y = new V3(0, -1, 0), BEC = 0.252, ARRIERE = 0.092;
+  function poseOutils(tv) {
+    // main : suit un peu le balayage en z
+    H.copy(MAIN); H.z = MAIN.z + 0.10 * (P.z / 2.25); H.x = MAIN.x - 0.04 * Math.max(0, 1 - (P.x - 1) / 8);
+    // parabole main → impact : d = P − B (bec provisoire à la main), flèche h = 0,045·|d| ; tangente au départ = direction de la lance
+    D.subVectors(P, H); var dist = D.length(), h = 0.045 * dist;
+    dirJet.copy(D).addScaledVector(HAUT, 4 * h).normalize();
+    lance.quaternion.copy(qLance.setFromUnitVectors(MOINS_Y, dirJet)); lance.position.copy(H);
+    B.copy(H).addScaledVector(dirJet, BEC); R.copy(H).addScaledVector(dirJet, -ARRIERE);
+    // jet : B → P, rayon 9 mm → 45 mm
+    D.subVectors(P, B); dist = D.length(); h = 0.045 * dist;
+    var pos = jet.geometry.attributes.position.array, i, k;
+    for (i = 0; i <= N_JET; i++) { var s = i / N_JET; tmp.copy(B).addScaledVector(D, s).addScaledVector(HAUT, 4 * h * s * (1 - s));
+      tmp2.copy(D).addScaledVector(HAUT, 4 * h * (1 - 2 * s)).normalize();                               // tangente
+      n1.crossVectors(tmp2, Math.abs(tmp2.y) > 0.9 ? new V3(1, 0, 0) : HAUT).normalize(); n2.crossVectors(tmp2, n1).normalize();
+      var r = 0.011 + 0.042 * Math.pow(s, 1.3) * (0.9 + 0.1 * Math.sin(tv * 37 + s * 9));
+      for (k = 0; k < R_JET; k++) { var a = k / R_JET * Math.PI * 2, o = (i * R_JET + k) * 3; pos[o] = tmp.x + r * (n1.x * Math.cos(a) + n2.x * Math.sin(a)); pos[o + 1] = tmp.y + r * (n1.y * Math.cos(a) + n2.y * Math.sin(a)); pos[o + 2] = tmp.z + r * (n1.z * Math.cos(a) + n2.z * Math.sin(a)); } }
+    jet.geometry.attributes.position.needsUpdate = true; jet.geometry.computeVertexNormals();
+    // boyau : du sol de la galerie (x 11,6), par les marches (dessus à -0,229 puis 0), le bord du plancher (0,236), jusqu'à l'arrière de la lance
+    var pts = [new V3(11.9, -0.34, 1.05), new V3(11.1, -0.34, 1.0), new V3(10.45, -0.205, 0.97), new V3(10.05, 0.025, 0.96), new V3(9.74, 0.262, 0.96),
+      new V3(9.56, 0.42, H.z + 0.02), tmp.copy(R).addScaledVector(dirJet, -0.12).clone(), R.clone()];
+    var courbe = new THREE.CatmullRomCurve3(pts, false, "centripetal"), geo = new THREE.TubeGeometry(courbe, 56, 0.0175, 8, false);
+    var ancien = boyau.geometry; boyau.geometry = geo; if (ancien && ancien.dispose) ancien.dispose();
+    // éclaboussure et gouttelettes à l'impact
+    disque.position.set(P.x, P.y + 0.003, P.z); var pu = 0.85 + 0.15 * Math.sin(tv * 31); disque.scale.set(pu, 1, pu * 0.9);
+    for (i = 0; i < gouttes.length; i++) { var gm = gouttes[i], u = gm.userData, f = ((tv / u.dur) + u.ph) % 1, tau = f * u.dur;
+      var gy = P.y + u.vy * tau - 4.9 * tau * tau; if (gy < P.y) gy = P.y;
+      gm.position.set(P.x + Math.cos(u.a) * u.v * tau, gy, P.z + Math.sin(u.a) * u.v * tau); var sc = 1 - 0.5 * f; gm.scale.setScalar(sc); }
+    A.impact = [+P.x.toFixed(2), +P.y.toFixed(2), +P.z.toFixed(2)]; }
+  function montreJet(v) { jet.visible = v; disque.visible = v; for (var i = 0; i < gouttes.length; i++) gouttes[i].visible = v; }
+
+  // ---------------------------------------------------------------- chaque image
+  var tPrec = null, cache = true;
+  function cacheTout() { if (G && !cache) { G.visible = false; cache = true; } A.phase = G ? "cache" : "attente"; }
+  I.anime(function (dt) {
+    try {
+      var v = enVideo(), K = I.demontage;
+      if (!v) { cacheTout(); rendSalete(); rendB(); tPrec = null; if (G && (A.film || frontFait >= 0)) videFilm(); return; }
+      if (!K || !K.T) return;
+      if (!K.ouvert) { poseB(); cacheTout(); tPrec = null; return; }
+      var vp = VP(), m = vp && vp.maintenant ? vp.maintenant() : null, n = NV(), b = n && n.BLOCS && n.BLOCS[n.i];
+      var ecranDem = true;   /* variante SITE : l'ecran est ouvert (K.ouvert) */
+      var s = sceneVisite(); if (!s) return;
+      if (!G) construit(s);
+      if (chauffe > 0) { chauffe--; if (chauffe === 0) { finChauffe(); G.visible = false; cache = true; } return; }
+      // temps : voix du bloc 49 (VP) ; aux blocs 50-51, l'équivalent par la minuterie de l'écran (ouverture = carton, 1,2 s avant la voix)
+      var tv = (m && m.id === BLOC) ? m.t : (K.t - 1200) / 1000; A.t = +tv.toFixed(2);
+      var u = (tv - T0) / (T1 - T0); A.progression = +cl(u, 0, 1).toFixed(3);
+      if (tv < T0) { cacheTout(); A.phase = "attente"; tPrec = tv; return; }
+      if (cache) { G.visible = true; cache = false; }
+      if (u <= 1) {
+        A.phase = "lavage"; saletePrete(); opaciteOutils(1); boyau.visible = true; lance.visible = true; montreJet(true);
+        cible(u, P); poseOutils(tv);
+        var pas = tPrec === null ? 0.02 : cl(tv - tPrec, 0, 0.1);
+        peintFilm(P.x, P.z, 1.35); laveIci(P.x, P.z, 1.3, Math.min(1, 4.5 * pas));
+        if (u > 0.85) { var kf = Math.min(1, 2.2 * pas); remplitFilm(kf); var S2 = salete(); if (S2) for (var gx = PL.x0 + 0.7; gx < PL.x1; gx += 1.4) for (var gz = PL.z0 + 0.7; gz < PL.z1; gz += 1.4) laveIci(gx, gz, 1.1, kf); }
+        film.material.opacity = A.reglages.opacite === null ? 0.35 : A.reglages.opacite; A.film = 1;
+      } else {
+        var w = (tv - T1) / T_SORTIE;
+        if (w < 1) { A.phase = "sortie"; montreJet(false); opaciteOutils(1 - w * w); boyau.visible = true; lance.visible = true; if (!A.finiPropre) { A.finiPropre = true; remplitFilm(1); laveIci((PL.x0 + PL.x1) / 2, 0, 20, 1); } }
+        else { A.phase = "mouille"; boyau.visible = false; lance.visible = false; montreJet(false); }
+        film.material.opacity = (A.reglages.opacite === null ? 0.35 : A.reglages.opacite) - 0.25 * cl((tv - T1) / T_SECHE, 0, 1);
+        // les planches partent du fond (x 0) vers la sortie pendant K.T.b : la pellicule s'efface avec elles (un peu en avance)
+        var Tb = K.T.b, front = PL.x0 + (PL.x1 - PL.x0) * cl((K.t - Tb[0]) / (Tb[1] - Tb[0] - (K.DUREE || 600)), 0, 1) + 0.25;
+        if (K.t > Tb[0]) effaceFilmJusqua(front); if (front >= PL.x1) { A.phase = "fini"; film.visible = false; } else film.visible = true;
+      }
+      tPrec = tv;
+    } catch (e) { err(e, "image"); }
+  });
+
+  // ---------------------------------------------------------------- bloc 49 : tout prêt d'avance (objets, nuanceurs), saleté remise
+  try { var VPo = VP(); if (VPo && VPo.au) VPo.au(BLOC, function () { try { var s = sceneVisite(); if (s && !G && enVideo()) construit(s); A.finiPropre = false; saleReset = false; if (G && chauffe === 0) { videFilm(); cacheTout(); } } catch (e) { err(e, "au 49"); } }); } catch (e) { err(e, "VP.au"); }   // bloc (re)joué : pellicule neuve, saleté remise au lavage
+})();
+
 </script>
 </body>
 </html>
