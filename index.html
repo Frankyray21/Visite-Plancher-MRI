@@ -271,7 +271,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 158</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 159</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -316,7 +316,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 158</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 159</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -337,7 +337,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 158</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 159</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -15743,7 +15743,7 @@
     try { if (/video/.test(location.hash || "")) { var essais = 0; (function attend() { var b = document.getElementById("acc-construire"), acc = document.getElementById("accueil"), pret = typeof etape !== "undefined";
         if (b && acc && !acc.hidden && b.offsetParent) { b.click(); setTimeout(attend, 1500); return; } if ((!acc || acc.hidden) && pret && essais > 2) { setTimeout(function () { NV.joue(0); }, 2500); return; } essais++; if (essais < 400) setTimeout(attend, 500); })(); } } catch (e) { err(e, "adresse"); }
   })();
-  // ---- inter_voix_v157.js (v157 + voix, 2026-11-23) : demande de l'utilisateur « le site est deploye version 158, ajoute les voix a l'app ».
+  // ---- inter_voix_v157.js (v157 + voix, 2026-11-23) : demande de l'utilisateur « le site est deploye version 159, ajoute les voix a l'app ».
   // Les 55 blocs du script v25 (inter_narration_v155.js) ont leur fichier voix/bloc_<id>.mp3 : formateur = voix « Steve », apprenti = voix « Adam »
   // (ElevenLabs eleven_v4, niveau egalise, 0,35 s de silence en fin de bloc). Ce module ne change rien au module de narration : il lui donne
   // NV.AUDIO = "voix/" et la duree reelle de chaque bloc (K.DUREES), puis s'occupe de ce qu'un navigateur exige pour faire entendre une voix :
@@ -17698,7 +17698,7 @@
           if (dist > 1e-5) { cur.x += dx / dist * pas; cur.z += dz / dist * pas; if (pas > 0.0005) dirU.set(dx / dist, 0, dz / dist); } if (K.phase === "entree" && dist - pas < 0.004) { chemin.shift(); K.phase = "coupe"; } }
         if (sale) { sale = false; apresCoupe(false); } majCrayon(); K.dansBois = dansBois;
         var enBois = K.phase !== "vol"; poseScie(cur.x, cur.z, enBois ? 0.004 : (survol ? 0.06 : 0.10)); S.position.lerp(vS, enBois ? 1 : Math.min(1, dt * 14)); S.quaternion.slerp(qS, Math.min(1, dt * (enBois ? 10 : 8))); var marche = K.phase === "coupe" && chemin.length > 0; S.userData.lame.position.x = marche ? 0.0065 * Math.sin(temps * 150) : 0; if (marche && dansBois) { S.position.x += 0.0006 * Math.sin(temps * 131); S.position.y += 0.0005 * Math.sin(temps * 173); } });
-      // ---- (version 158) plancher ajuste d office : taille le long du contour, pousse contre la foreuse, une seule fois, sans animation ni message
+      // ---- (version 159) plancher ajuste d office : taille le long du contour, pousse contre la foreuse, une seule fois, sans animation ni message
       function office() { try { if (typeof etape === "undefined" || etape < 18 || !I.vu(g) || !mobiles.foreuse.o.visible || !accoste()) return;
           if (K.releve !== "fait") { releveExact(); K.releve = "fait"; faitTrace(); }
           K.coupeSelonTrace(1); autoEncoches(); var a = avancePossible(); K.office = "fait"; K.officeAvance = +a.toFixed(4); if (a < 0.002) return;
@@ -19815,7 +19815,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "158-a4553036", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "159-5276ab33", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
@@ -20272,6 +20272,86 @@
 
   // ---------------------------------------------------------------- bloc 49 : tout prêt d'avance (objets, nuanceurs), saleté remise
   try { var VPo = VP(); if (VPo && VPo.au) VPo.au(BLOC, function () { try { var s = sceneVisite(); if (s && !G && enVideo()) construit(s); A.finiPropre = false; saleReset = false; if (G && chauffe === 0) { videFilm(); cacheTout(); } } catch (e) { err(e, "au 49"); } }); } catch (e) { err(e, "VP.au"); }   // bloc (re)joué : pellicule neuve, saleté remise au lavage
+})();
+
+</script>
+
+<!-- PARTIES_V159 (2026-11-24) : la visite divisee en 7 parties comme la video ; source C:/IA/banc/visite_web/dr1500/v159/inter_parties_v159.js -->
+<script>
+// inter_parties_v159.js (2026-11-24, utilisateur : « je veux que [tu] divise[s] les étapes comme dans [la] vidéo »).
+// La visite interactive est divisée en 7 parties, les mêmes que la vidéo narrée (window.__sequenceV157.GROUPES) :
+//  - bandeau du haut : parties faites (✓), partie en cours (nommée, soulignée), parties à venir (numéro) ; un clic va au début de la partie ;
+//  - kicker de la fiche : « 2 · SECTION 1 · ÉTAPE 5 SUR 18 » (le numéro et le nom de la partie devant l'en-tête d'origine, par CSS ::before).
+// État lu à chaque image : #etape-num (« Étape N sur 18 » ou l'étiquette de l'écran ouvert) et window.__ecransV19.actif. Rien n'est changé
+// dans la navigation d'origine. Caché en mode vidéo (body.mode-video), sur la première page (window.__accueil.ouvert) et pendant le chargement.
+// PV.ACTIF = false : rien.
+(function () {
+  var PV = window.__partiesV159 = { ACTIF: true, partie: -1, etape: null, visible: false, erreur: null, PARTIES: null };
+  var PARTIES = [
+    { nom: "Avant de construire", etapes: [0], ecrans: ["materiel"] },
+    { nom: "Section 1", etapes: [1, 2, 3, 4, 5, 6, 7, 8], ecrans: [] },
+    { nom: "Section 2", etapes: [9, 10, 11, 12, 13], ecrans: [] },
+    { nom: "Accès et protections", etapes: [14, 15, 16, 17], ecrans: [] },
+    { nom: "Plancher secondaire", etapes: [18], ecrans: ["angle147"] },
+    { nom: "Démantèlement", etapes: [], ecrans: ["demontage"], depuis: 18 },
+    { nom: "À retenir", etapes: [], ecrans: ["retenir"], depuis: 18 }
+  ];
+  PV.PARTIES = PARTIES;
+  function D(id) { return document.getElementById(id); }
+  try {
+    var css = document.createElement("style"); css.id = "css-parties159"; css.textContent =
+      "#parties159{position:fixed;left:0;right:0;top:0;z-index:6;display:none;align-items:stretch;justify-content:center;gap:0;height:calc(44px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 6px 0;box-sizing:border-box;background:rgba(16,19,22,.94);border-bottom:1px solid rgba(255,255,255,.08);overflow:hidden;font-family:var(--f-titre,system-ui),sans-serif}" +
+      "html.parties159 #parties159{display:flex}" +
+      "html.parties159 #haut-gauche,html.parties159 #haut-droit{margin-top:calc(44px + env(safe-area-inset-top,0px))}" +
+      "#parties159 .g{appearance:none;display:flex;align-items:center;gap:8px;height:100%;padding:0 13px;margin:0;min-height:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;font:600 15px/1 var(--f-titre,system-ui),sans-serif;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.45);white-space:nowrap;border-bottom:3px solid transparent;cursor:pointer}" +
+      "#parties159 .g i{font-style:normal;display:inline-flex;align-items:center;justify-content:center;flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);font:700 13px/1 var(--f-titre,system-ui),sans-serif;letter-spacing:0}" +
+      "#parties159 .g.fait{color:rgba(255,255,255,.7)}#parties159 .g.fait i{border-color:#f4c01e;color:#f4c01e}" +
+      "#parties159 .g.ici{color:#fff;border-bottom-color:#f4c01e}#parties159 .g.ici i{background:#f4c01e;border-color:#f4c01e;color:#14171a}" +
+      "#parties159 .g:hover,#parties159 .g:focus-visible{color:#fff;outline:none}" +
+      "html.parties159 #etape-num[data-partie]::before{content:attr(data-partie) ' · '}" +
+      "@media (max-width:1100px){#parties159 .g{padding:0 6px;gap:6px}#parties159 .g span{display:none}#parties159 .g.ici{padding:0 10px}#parties159 .g.ici span{display:inline}}" +
+      "@media (max-width:700px){#parties159{height:calc(40px + env(safe-area-inset-top,0px))}html.parties159 #haut-gauche,html.parties159 #haut-droit{margin-top:calc(40px + env(safe-area-inset-top,0px))}#parties159 .g{font-size:13px;padding:0 4px}#parties159 .g i{width:18px;height:18px;font-size:12px}}" +
+      "@media (prefers-reduced-motion:no-preference){#parties159 .g{transition:color .25s,border-color .25s}}";
+    document.head.appendChild(css);
+    var bar = document.createElement("nav"); bar.id = "parties159"; bar.setAttribute("aria-label", "Parties de la visite");
+    PARTIES.forEach(function (P, i) { var b = document.createElement("button"); b.type = "button"; b.className = "g"; b.title = "Aller à la partie " + (i + 1) + " : " + P.nom;
+      var n = document.createElement("i"); n.textContent = String(i + 1); var s = document.createElement("span"); s.textContent = P.nom; b.appendChild(n); b.appendChild(s);
+      b.addEventListener("click", function () { try { va(i); } catch (e) { PV.erreur = String(e); } }); bar.appendChild(b); P.el = b; P.no = n; });
+    document.body.appendChild(bar);
+  } catch (e) { PV.erreur = String(e); return; }
+
+  function ecransV19() { return window.__ecransV19 || null; }
+  function etapeLue() { var n = D("etape-num"); var m = n && /(\d+)\s*sur\s*\d+/i.exec(n.textContent || ""); if (m) PV.etape = +m[1]; return m ? +m[1] : null; }   // ecran ouvert : l'en-tete est son etiquette, PV.etape garde la derniere etape lue
+  function partieDe() { var E = ecransV19(), a = E && E.actif, i;
+    if (a) { for (i = 0; i < PARTIES.length; i++) if (PARTIES[i].ecrans.indexOf(a) >= 0) return i; }
+    var n = etapeLue(); if (n !== null) { for (i = 0; i < PARTIES.length; i++) if (PARTIES[i].etapes.indexOf(n) >= 0) return i; }
+    return PV.partie; }
+  function cache(el) { if (!el) return true; var s = getComputedStyle(el); return el.hidden || s.display === "none" || s.visibility === "hidden" || +s.opacity === 0; }
+  function doitMontrer() { if (!PV.ACTIF) return false; if (document.body.classList.contains("mode-video")) return false;
+    var A = window.__accueil; if (A && A.ouvert) return false; if (!cache(D("chargement"))) return false; var f = D("fiche"); return !!f; }
+
+  // aller au début d'une partie : Suivante / Précédente un clic toutes les 300 ms jusqu'à l'étape voulue (montre() n'est pas exposée ; un clic
+  // pendant l'animation de la caméra est ignoré par la page, d'où le pas de temps), puis l'écran de la partie s'il y en a un
+  var enRoute = null;
+  function arrete() { if (enRoute) { clearInterval(enRoute); enRoute = null; } }
+  function versEtape(n, puis) { arrete(); var k = 0; enRoute = setInterval(function () { try { var E = ecransV19(), c = etapeLue(), ouvert = !!(E && E.actif); if (c === null) c = PV.etape;
+        if (c === n && !ouvert) { arrete(); if (puis) puis(); return; }
+        if (++k > 120 || c === null) { arrete(); return; }
+        var id = (c > n || (c === n && ouvert)) ? 'btn-prec' : 'btn-suiv', b = D(id); if (b && !b.disabled) b.click(); } catch (e) { PV.erreur = String(e); arrete(); } }, 300); }
+  function va(i) { var P = PARTIES[i]; if (!P) return; var E = ecransV19(), TN = window.__textesNavV19;
+    if (P.etapes.length) { versEtape(P.etapes[0]); return; }
+    if (P.ecrans.length) { var id = P.ecrans[0]; versEtape(P.depuis || 18, function () { setTimeout(function () { try { if (TN && typeof TN.ouvre === 'function') TN.ouvre(id); else if (E) { var s = (E.liste || []).filter(function (x) { return x.id === id; })[0]; if (s) { E.actif = id; s.ouvre(); } } } catch (e) { PV.erreur = String(e); } }, 80); }); } }
+
+  var derniere = null;
+  function tic() { try {
+      var on = doitMontrer(), h = document.documentElement; if (on !== PV.visible) { PV.visible = on; h.classList.toggle("parties159", on); }
+      var p = partieDe(); if (p !== PV.partie) { PV.partie = p;
+        PARTIES.forEach(function (P, i) { P.el.classList.toggle("fait", p >= 0 && i < p); P.el.classList.toggle("ici", i === p); P.no.textContent = (p >= 0 && i < p) ? "✓" : String(i + 1); P.el.setAttribute("aria-current", i === p ? "step" : "false"); }); }
+      var n = D("etape-num"), k = p >= 0 ? (p + 1) + " · " + PARTIES[p].nom : null;
+      if (n && k !== derniere) { derniere = k; if (k) n.setAttribute("data-partie", k); else n.removeAttribute("data-partie"); }
+    } catch (e) { PV.erreur = String(e); }
+    requestAnimationFrame(tic); }
+  requestAnimationFrame(tic);
 })();
 
 </script>
