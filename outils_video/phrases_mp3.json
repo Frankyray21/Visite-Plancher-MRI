@@ -1,0 +1,1324 @@
+{
+ "1": {
+  "duree": 5.54,
+  "silences": [
+   [
+    3.35,
+    3.78
+   ],
+   [
+    5.11,
+    5.51
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Aujourd'hui, on bâtit un plancher de foreuse au diamant sous terre : seize pieds par trente-deux."
+  ]
+ },
+ "2": {
+  "duree": 3.74,
+  "silences": [
+   [
+    3.3,
+    3.68
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Le plancher complet, celui des trous de cinq cents mètres et plus ?"
+  ]
+ },
+ "3": {
+  "duree": 7.37,
+  "silences": [
+   [
+    0.75,
+    1.2
+   ],
+   [
+    5.42,
+    5.81
+   ],
+   [
+    6.92,
+    7.32
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Exactement. On suit la procédure « Fabrication d’un plancher pour foreuse aux diamants sous terre », étape par étape."
+  ]
+ },
+ "4": {
+  "duree": 16.43,
+  "silences": [
+   [
+    0.87,
+    1.46
+   ],
+   [
+    5.52,
+    6.24
+   ],
+   [
+    11.18,
+    11.78
+   ],
+   [
+    16,
+    16.39
+   ]
+  ],
+  "nPhrases": 3,
+  "phrases": [
+   "Avant de commencer : on barricade l'entrée de la place de travail avec le ruban jaune, du côté où on arrive.",
+   "Le bois pis l'équipement restent derrière la barricade, en dehors de la place où on va bâtir le plancher.",
+   "La trousse de premiers soins, les deux lave-yeux pis l'extincteur sont au poste de secours."
+  ]
+ },
+ "5": {
+  "duree": 8.36,
+  "silences": [
+   [
+    0.61,
+    0.93
+   ],
+   [
+    5.68,
+    6.05
+   ],
+   [
+    7.94,
+    8.32
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Pis le bois : du six par six brut, du trois par huit brut, du deux par quatre, des coins pis des tire-fonds de six pouces."
+  ]
+ },
+ "6": {
+  "duree": 4.99,
+  "silences": [
+   [
+    1.26,
+    1.74
+   ],
+   [
+    4.53,
+    4.94
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Une règle qui change pas : les grosses pièces de bois, on les transporte toujours à deux."
+  ]
+ },
+ "7": {
+  "duree": 1.62,
+  "silences": [
+   [
+    0.7,
+    1.08
+   ],
+   [
+    1.19,
+    1.58
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Pis les outils ?"
+  ]
+ },
+ "8": {
+  "duree": 11.78,
+  "silences": [
+   [
+    1.83,
+    2.47
+   ],
+   [
+    3.89,
+    4.45
+   ],
+   [
+    7.39,
+    7.98
+   ],
+   [
+    8.63,
+    9.16
+   ],
+   [
+    11.35,
+    11.75
+   ]
+  ],
+  "nPhrases": 5,
+  "phrases": [
+   "Pied de biche, masse pis marteau.",
+   "La scie à main pis les pinces.",
+   "Le niveau au laser Bosch pis le niveau de quarante-huit pouces.",
+   "Le pingouin.",
+   "Pis la scie va-et-vient, avec ses lames à bois."
+  ]
+ },
+ "9": {
+  "duree": 8.33,
+  "silences": [
+   [
+    3.02,
+    3.55
+   ],
+   [
+    4.65,
+    5.02
+   ],
+   [
+    5.29,
+    5.76
+   ],
+   [
+    7.89,
+    8.28
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Le superviseur inspecte les lieux avant d'amener l'équipement : un sol sans débris, plat, pis les fonds de trous trouvés et marqués au front."
+  ]
+ },
+ "10": {
+  "duree": 11.28,
+  "silences": [
+   [
+    0.62,
+    1.14
+   ],
+   [
+    2.22,
+    2.54
+   ],
+   [
+    5.51,
+    6
+   ],
+   [
+    9.34,
+    9.74
+   ],
+   [
+    10.86,
+    11.25
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape un : plan de forage en main, on place le plancher d'après la position prévue de la foreuse. On trace la ligne à la peinture, bien droite sur toute la longueur : seize par trente-deux."
+  ]
+ },
+ "11": {
+  "duree": 11.26,
+  "silences": [
+   [
+    0.64,
+    1.18
+   ],
+   [
+    4.65,
+    5.12
+   ],
+   [
+    8.31,
+    8.73
+   ],
+   [
+    10.85,
+    11.23
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape deux : avec le niveau au laser Bosch, on trouve le point le plus haut du sol. Le premier madrier va reposer directement là, sur le sol : ça va être le repère de niveau pour tout le reste."
+  ]
+ },
+ "12": {
+  "duree": 8.59,
+  "silences": [
+   [
+    0.69,
+    1.16
+   ],
+   [
+    5.12,
+    5.71
+   ],
+   [
+    8.18,
+    8.56
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape trois : la structure de base en six par six, dans le sens contraire du forage. Les patins de la foreuse vont croiser les madriers."
+  ]
+ },
+ "13": {
+  "duree": 3.6,
+  "silences": [
+   [
+    3.16,
+    3.56
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Pis en partant du point haut, on monte pas plus haut qu'il faut."
+  ]
+ },
+ "14": {
+  "duree": 4.49,
+  "silences": [
+   [
+    0.53,
+    0.84
+   ],
+   [
+    4.08,
+    4.47
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "C'est ça : moins de blocage, moins de bois à forcer, moins de temps perdu."
+  ]
+ },
+ "15": {
+  "duree": 10.19,
+  "silences": [
+   [
+    0.78,
+    1.3
+   ],
+   [
+    3.68,
+    3.99
+   ],
+   [
+    6.25,
+    6.86
+   ],
+   [
+    9.76,
+    10.14
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape quatre : un six par six à seize pieds du premier, pour un cadrage de seize par seize bien droit. Les quatre autres entre les deux, à trente-deux pouces centre."
+  ]
+ },
+ "16": {
+  "duree": 16.17,
+  "silences": [
+   [
+    0.79,
+    1.27
+   ],
+   [
+    2.13,
+    2.8
+   ],
+   [
+    6.4,
+    6.71
+   ],
+   [
+    7.66,
+    8.27
+   ],
+   [
+    9.28,
+    9.63
+   ],
+   [
+    12.83,
+    13.35
+   ],
+   [
+    15.51,
+    16.12
+   ]
+  ],
+  "nPhrases": 2,
+  "phrases": [
+   "Étape cinq : la mise de niveau. Un niveau de quarante-huit pouces sur un trois par huit d'au moins huit pieds, pour avoir de la portée.",
+   "Sous chaque madrier : des blocages dans le sens contraire, pis des coins de bois pour ajuster. Au moins six appuis par six par six."
+  ]
+ },
+ "17": {
+  "duree": 8.2,
+  "silences": [
+   [
+    4.97,
+    5.5
+   ],
+   [
+    7.76,
+    8.15
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Au bout de la première section, on met tout de suite le blocage qui va porter aussi les madriers de la deuxième. Les deux sections vont être parfaitement égales."
+  ]
+ },
+ "18": {
+  "duree": 10.42,
+  "silences": [
+   [
+    0.85,
+    1.36
+   ],
+   [
+    5.45,
+    6.01
+   ],
+   [
+    8.92,
+    9.27
+   ],
+   [
+    10,
+    10.38
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape six : on couvre avec du trois par huit brut, dans le sens contraire des six par six. La première planche est vissée avec des tire-fonds à chaque bout, pis on avance."
+  ]
+ },
+ "19": {
+  "duree": 1.91,
+  "silences": [
+   [
+    0.92,
+    1.86
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "On part de quel bord ?"
+  ]
+ },
+ "20": {
+  "duree": 7.05,
+  "silences": [
+   [
+    2.72,
+    3.24
+   ],
+   [
+    5.14,
+    5.57
+   ],
+   [
+    6.64,
+    7.02
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Du bord où tu peux marcher sur ce qui est déjà couvert. On enjambe jamais les six par six : c'est là qu'on trébuche."
+  ]
+ },
+ "21": {
+  "duree": 12.75,
+  "silences": [
+   [
+    0.76,
+    1.28
+   ],
+   [
+    3.18,
+    3.67
+   ],
+   [
+    7.8,
+    8.17
+   ],
+   [
+    12.32,
+    12.7
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape sept : rendu à la moitié, on resserre. On visse la dernière planche, on enfonce des coins pour mettre les planches en tension, on visse la planche devant les coins, pis on retire les tire-fonds pour libérer les coins."
+  ]
+ },
+ "22": {
+  "duree": 2.74,
+  "silences": [
+   [
+    2.3,
+    2.7
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Sinon, à la longue, ça ouvre."
+  ]
+ },
+ "23": {
+  "duree": 8.72,
+  "silences": [
+   [
+    0.77,
+    1.3
+   ],
+   [
+    3.14,
+    3.66
+   ],
+   [
+    5.85,
+    6.31
+   ],
+   [
+    8.07,
+    8.68
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape huit : on laisse environ deux planches libres au bout. Ça donne la place pour partir la deuxième section ; on les visse à la fin pour joindre les deux."
+  ]
+ },
+ "24": {
+  "duree": 11.05,
+  "silences": [
+   [
+    0.75,
+    1.26
+   ],
+   [
+    2.22,
+    2.91
+   ],
+   [
+    5.97,
+    6.51
+   ],
+   [
+    7.95,
+    8.39
+   ],
+   [
+    9.09,
+    9.41
+   ],
+   [
+    10.63,
+    11.02
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape neuf : la deuxième section. Le laser donne la hauteur à soutenir sous les six par six. Ici, le sol descend : il faut monter, environ quatorze pouces."
+  ]
+ },
+ "25": {
+  "duree": 10.24,
+  "silences": [
+   [
+    0.82,
+    1.31
+   ],
+   [
+    4.44,
+    4.99
+   ],
+   [
+    6.09,
+    6.39
+   ],
+   [
+    9.81,
+    10.21
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape dix : un madrier à seize pieds de la première section sert de guide. Quand la hauteur le permet, des six par six de seize pieds en dessous, dans le sens contraire."
+  ]
+ },
+ "26": {
+  "duree": 3.08,
+  "silences": [
+   [
+    2.64,
+    3.03
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Ça fait une base stable pour poser les madriers dessus."
+  ]
+ },
+ "27": {
+  "duree": 6.03,
+  "silences": [
+   [
+    0.88,
+    1.34
+   ],
+   [
+    3.39,
+    3.71
+   ],
+   [
+    5.6,
+    5.99
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape onze : les madriers à trente-deux pouces centre, à la même hauteur que la première section."
+  ]
+ },
+ "28": {
+  "duree": 2.12,
+  "silences": [
+   [
+    1.68,
+    2.07
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Pis comment on joint les deux sections ?"
+  ]
+ },
+ "29": {
+  "duree": 11.52,
+  "silences": [
+   [
+    4.69,
+    5.28
+   ],
+   [
+    8.52,
+    8.99
+   ],
+   [
+    11.09,
+    11.47
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Avec un bout de bois à l’intérieur, sous les planches, vissé dans les madriers des deux sections. Les madriers de la deuxième reposent sur le même blocage que la première : les deux sections sont parfaitement égales."
+  ]
+ },
+ "30": {
+  "duree": 2.72,
+  "silences": [
+   [
+    2.27,
+    2.68
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Pis si on a juste des six par six de huit pieds ?"
+  ]
+ },
+ "31": {
+  "duree": 21.08,
+  "silences": [
+   [
+    1.42,
+    1.79
+   ],
+   [
+    4.03,
+    4.53
+   ],
+   [
+    7.55,
+    8.15
+   ],
+   [
+    12.62,
+    13.18
+   ],
+   [
+    15.61,
+    16.03
+   ],
+   [
+    17.46,
+    17.96
+   ],
+   [
+    20.64,
+    21.03
+   ]
+  ],
+  "nPhrases": 4,
+  "phrases": [
+   "C’est correct, c’est courant. On en met deux bout à bout pour faire les seize pieds.",
+   "Le joint tombe toujours sur un blocage, jamais dans le vide.",
+   "Pis dans une section, les deux six par six de huit pieds doivent être parfaitement de niveau.",
+   "À la jonction, on double le six par six : un en dessous de chaque section. Comme ça, chaque bout de madrier est appuyé au complet."
+  ]
+ },
+ "32": {
+  "duree": 1.59,
+  "silences": [
+   [
+    1.16,
+    1.55
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Pis dans la deuxième section ?"
+  ]
+ },
+ "33": {
+  "duree": 28.13,
+  "silences": [
+   [
+    1.5,
+    1.8
+   ],
+   [
+    2.78,
+    3.49
+   ],
+   [
+    8.48,
+    9.08
+   ],
+   [
+    14.91,
+    15.33
+   ],
+   [
+    17.76,
+    18.24
+   ],
+   [
+    23.36,
+    23.87
+   ],
+   [
+    24.87,
+    25.17
+   ],
+   [
+    27.72,
+    28.11
+   ]
+  ],
+  "nPhrases": 5,
+  "phrases": [
+   "Le joint tombe sur un soutien, placé juste en dessous.",
+   "Le long des madriers de rive, le bout de trois par six vissé dans les deux sections, comme d'habitude.",
+   "Aux joints des huit pieds, un bout de trois par six de vingt-quatre pouces, à cheval sur le joint, vissé des deux bords : seulement sur les madriers de rive pis celui du milieu.",
+   "Pis au serrage, à l'étape sept, la planche temporaire se visse juste dans ces trois madriers-là.",
+   "Le reste ne change pas : même cadrage, même trente-deux pouces centre."
+  ]
+ },
+ "34": {
+  "duree": 2.48,
+  "silences": [
+   [
+    2.06,
+    2.45
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Parfait. On revient à notre plancher."
+  ]
+ },
+ "35": {
+  "duree": 17.21,
+  "silences": [
+   [
+    3.37,
+    3.96
+   ],
+   [
+    6.32,
+    6.65
+   ],
+   [
+    9.82,
+    10.33
+   ],
+   [
+    10.94,
+    11.31
+   ],
+   [
+    13.84,
+    14.21
+   ],
+   [
+    16.78,
+    17.18
+   ]
+  ],
+  "nPhrases": 3,
+  "phrases": [
+   "Les soutiens, toujours vis-à-vis le croisement des six par six.",
+   "Dans un creux comme celui-là, on monte une cage : des bouts de vingt-quatre à trente-six pouces, empilés croisés.",
+   "Pis attention : on empile jamais des morceaux de bois un par-dessus l'autre. C'est un blocage avec ses coins, ou une cage croisée."
+  ]
+ },
+ "36": {
+  "duree": 9.98,
+  "silences": [
+   [
+    0.82,
+    1.3
+   ],
+   [
+    2.25,
+    2.81
+   ],
+   [
+    6.63,
+    7.17
+   ],
+   [
+    9.55,
+    9.94
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape douze : la deuxième section. On la couvre du bout vers le centre, avec les trois par huit, sans serrer : comme ça, on marche dessus pour placer les planches."
+  ]
+ },
+ "37": {
+  "duree": 1.36,
+  "silences": [
+   [
+    0.91,
+    1.31
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Pis rendu au centre ?"
+  ]
+ },
+ "38": {
+  "duree": 25.36,
+  "silences": [
+   [
+    4.48,
+    5.06
+   ],
+   [
+    7.44,
+    8.1
+   ],
+   [
+    10.41,
+    10.86
+   ],
+   [
+    18.04,
+    18.55
+   ],
+   [
+    20.32,
+    21.01
+   ],
+   [
+    24.94,
+    25.32
+   ]
+  ],
+  "nPhrases": 3,
+  "phrases": [
+   "On replace chaque planche, une par une, en repartant de la section un vers le bout : les deux planches de jonction en premier, bien collées.",
+   "Rendu à la moitié, on refait l'étape sept : on visse la planche suivante le temps du serrage, on enfonce les coins, on visse la planche devant les coins, pis on retire coins pis tire-fonds. Ensuite, on continue jusqu'au bout.",
+   "À la fin, on visse les planches du centre pis la planche du bout, à chaque bout."
+  ]
+ },
+ "39": {
+  "duree": 10.48,
+  "silences": [
+   [
+    0.94,
+    1.4
+   ],
+   [
+    2.37,
+    2.92
+   ],
+   [
+    7.37,
+    7.96
+   ],
+   [
+    10.06,
+    10.44
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape treize : rien ne dépasse. Les bouts de six par six pis de trois par huit sont coupés carrés, égal avec le bord. Un bout qui dépasse, on trébuche dessus."
+  ]
+ },
+ "40": {
+  "duree": 12.93,
+  "silences": [
+   [
+    0.95,
+    1.46
+   ],
+   [
+    3.79,
+    4.22
+   ],
+   [
+    5,
+    5.41
+   ],
+   [
+    11.25,
+    11.67
+   ],
+   [
+    12.49,
+    12.89
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape quatorze : ici, le plancher dépasse douze pouces. Il faut des marches : seize pouces de profondeur, entre trente-six pis soixante pouces de large, douze pouces de haut au maximum. On vise neuf."
+  ]
+ },
+ "41": {
+  "duree": 2.17,
+  "silences": [
+   [
+    1.74,
+    2.13
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Pis les marches, on les monte comment ?"
+  ]
+ },
+ "42": {
+  "duree": 13.37,
+  "silences": [
+   [
+    0.87,
+    1.47
+   ],
+   [
+    4.7,
+    5.2
+   ],
+   [
+    7.67,
+    8
+   ],
+   [
+    9.19,
+    9.7
+   ],
+   [
+    12.66,
+    13.33
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "De bas en haut. En bas, du trois par huit à plat sur le sol, de niveau. Au-dessus, un bout de six par six par appui : jamais de bois empilé. Pis le dessus en trois par huit, deux planches pour la marche."
+  ]
+ },
+ "43": {
+  "duree": 25.1,
+  "silences": [
+   [
+    0.96,
+    1.36
+   ],
+   [
+    6.16,
+    6.79
+   ],
+   [
+    9.33,
+    9.73
+   ],
+   [
+    10.83,
+    11.14
+   ],
+   [
+    13.65,
+    14.41
+   ],
+   [
+    14.9,
+    15.33
+   ],
+   [
+    21.35,
+    21.89
+   ],
+   [
+    24.67,
+    25.07
+   ]
+  ],
+  "nPhrases": 2,
+  "phrases": [
+   "Étape quinze : plus de douze pouces de haut pis un vide, des garde-corps selon l'article douze du RSST. La lisse du haut entre un mètre pis un mètre vingt, une lisse à mi-hauteur, pis un coup de pied en deux par quatre au ras du plancher.",
+   "Un truc : un deux par quatre de huit pieds coupé en deux, ça donne deux montants de quarante-huit pouces, à la bonne hauteur sans mesurer. Avec quatre deux par quatre, on fait une section de huit pieds."
+  ]
+ },
+ "44": {
+  "duree": 4.1,
+  "silences": [
+   [
+    0.86,
+    1.3
+   ],
+   [
+    3.65,
+    4.06
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape seize : plus d'une marche, des mains courantes des deux bords."
+  ]
+ },
+ "45": {
+  "duree": 11.78,
+  "silences": [
+   [
+    1.03,
+    1.51
+   ],
+   [
+    5.02,
+    5.52
+   ],
+   [
+    7.47,
+    8.01
+   ],
+   [
+    10.14,
+    10.45
+   ],
+   [
+    11.37,
+    11.75
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Étape dix-sept : entre le bord du plancher pis le mur, il reste souvent une ouverture. Douze pouces ou moins, on laisse comme ça. Plus que douze pouces, on met un garde-corps, comme au bout du plancher."
+  ]
+ },
+ "46": {
+  "duree": 20.98,
+  "silences": [
+   [
+    3.91,
+    4.43
+   ],
+   [
+    5.03,
+    5.49
+   ],
+   [
+    9.87,
+    10.35
+   ],
+   [
+    11.02,
+    11.57
+   ],
+   [
+    13.6,
+    14.15
+   ],
+   [
+    20.54,
+    20.93
+   ]
+  ],
+  "nPhrases": 2,
+  "phrases": [
+   "Derrière la tête de forage, collé à la tour : le plancher secondaire. Le standard : au moins trente-deux par soixante-douze pouces, neuf pouces de haut, rien en porte-à-faux. Ça fait une marche.",
+   "Chaque planche est vissée à chaque bout. Pis les six par six sont à six pouces du bout des planches : rien dépasse, pis on prend le plancher par le bout sans se coincer les doigts."
+  ]
+ },
+ "47": {
+  "duree": 1.67,
+  "silences": [
+   [
+    1.25,
+    1.64
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Pis s'il faut monter plus haut ?"
+  ]
+ },
+ "48": {
+  "duree": 32.37,
+  "silences": [
+   [
+    0.71,
+    1.23
+   ],
+   [
+    6.47,
+    7.1
+   ],
+   [
+    9.31,
+    9.92
+   ],
+   [
+    12.14,
+    12.46
+   ],
+   [
+    13.31,
+    13.76
+   ],
+   [
+    17.51,
+    18.12
+   ],
+   [
+    19.53,
+    20.03
+   ],
+   [
+    24.14,
+    24.61
+   ],
+   [
+    26.02,
+    26.6
+   ],
+   [
+    29.84,
+    30.38
+   ],
+   [
+    31.95,
+    32.34
+   ]
+  ],
+  "nPhrases": 4,
+  "phrases": [
+   "Deux marches : en dessous, un plancher seize pouces plus long pis seize pouces plus large, le standard par-dessus. Pour une seule marche, on enlève celui du dessous.",
+   "Du côté des poulies, jamais de garde-corps : c'est une marche. Au bout sans marche, un garde-corps avec un coup de pied, fixé solidement.",
+   "La planche collée à la foreuse : une ou deux coupes autour de la tour, juste assez pour s'approcher à trois pouces ou moins. Le pied peut pas glisser en dessous.",
+   "À chaque changement d'angle, on ajuste les planches pis les garde-corps. Pis pas de bois plané sur les planchers."
+  ]
+ },
+ "49": {
+  "duree": 20.9,
+  "silences": [
+   [
+    2.58,
+    2.96
+   ],
+   [
+    4.68,
+    5.33
+   ],
+   [
+    8.2,
+    8.64
+   ],
+   [
+    9.44,
+    10.09
+   ],
+   [
+    12.8,
+    13.12
+   ],
+   [
+    14.79,
+    15.38
+   ],
+   [
+    20.47,
+    20.85
+   ]
+  ],
+  "nPhrases": 3,
+  "phrases": [
+   "Au démantèlement, après le départ de la foreuse : on lave le plancher au boyau d'eau. Le plancher secondaire, on l'enlève en premier, tel quel : il va resservir.",
+   "Le principal, en commençant par les planches du fond, les tire-fonds enlevés à mesure.",
+   "Une fois toutes les planches pis tous les tire-fonds enlevés, on défait la structure en six par six."
+  ]
+ },
+ "50": {
+  "duree": 2.19,
+  "silences": [
+   [
+    1.75,
+    2.14
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Pis s'il y a de la boue de forage en dessous ?"
+  ]
+ },
+ "51": {
+  "duree": 18.1,
+  "silences": [
+   [
+    4.2,
+    4.76
+   ],
+   [
+    9.32,
+    9.99
+   ],
+   [
+    10.52,
+    10.94
+   ],
+   [
+    12.97,
+    13.49
+   ],
+   [
+    15.51,
+    15.83
+   ],
+   [
+    17.67,
+    18.07
+   ]
+  ],
+  "nPhrases": 2,
+  "phrases": [
+   "On se place sur la partie la plus solide, on reste vigilant, les pieds solides. On commence au fond de la baie, pis on fait glisser les pièces de bois les unes sur les autres pour les sortir.",
+   "À la fin : clôture orange pis carte de ruban rouge. Trou non arpenté et non cimenté, la date, le nom du superviseur."
+  ]
+ },
+ "52": {
+  "duree": 13.45,
+  "silences": [
+   [
+    0.7,
+    1.22
+   ],
+   [
+    6.72,
+    7.32
+   ],
+   [
+    8.46,
+    8.8
+   ],
+   [
+    11.04,
+    11.46
+   ],
+   [
+    12.14,
+    12.45
+   ],
+   [
+    13.02,
+    13.42
+   ]
+  ],
+  "nPhrases": 2,
+  "phrases": [
+   "À retenir : le premier madrier au point le plus haut, six appuis minimum par six par six, enlignés aux croisements.",
+   "Plus de douze pouces : marches, garde-corps pis mains courantes. Pis le gros bois, toujours à deux."
+  ]
+ },
+ "53": {
+  "duree": 2.38,
+  "silences": [
+   [
+    1.93,
+    2.33
+   ]
+  ],
+  "nPhrases": 1,
+  "phrases": [
+   "Compris. On est prêts à bâtir."
+  ]
+ },
+ "48a": {
+  "duree": 22.75,
+  "silences": [
+   [
+    2.55,
+    3.04
+   ],
+   [
+    4.67,
+    5.17
+   ],
+   [
+    5.99,
+    6.32
+   ],
+   [
+    7.39,
+    7.96
+   ],
+   [
+    10.51,
+    10.99
+   ],
+   [
+    11.4,
+    11.71
+   ],
+   [
+    15.1,
+    15.63
+   ],
+   [
+    19.14,
+    19.63
+   ],
+   [
+    22.31,
+    22.72
+   ]
+  ],
+  "nPhrases": 2,
+  "phrases": [
+   "Le plancher secondaire suit l'angle de forage. En descendant, neuf pouces. À l'horizontale, pas de plancher secondaire. En montant jusqu'à douze degrés, neuf pouces ; plus haut, deux marches de neuf pouces, avec le garde-corps au bout sans marche.",
+   "Il se place derrière la tête de forage, là où on ajoute les tiges : les tiges restent entre la hanche pis le milieu du tronc."
+  ]
+ }
+}
