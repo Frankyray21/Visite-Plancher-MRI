@@ -25,7 +25,7 @@ node fabrique_pwa.js <dossier de la page construite> <ce dossier>
 
 ## Hors ligne
 
-À la première visite, le service worker télécharge tout le site (environ 113 Mo) et l'application affiche
+À la première visite, le service worker télécharge tout le site (environ 120 Mo) et l'application affiche
 « hors ligne ✓ » à côté de sa version quand chaque fichier est vérifié dans le cache. Une nouvelle version
 s'installe en arrière-plan ; l'application propose alors « Nouvelle version : recharger ».
 
@@ -40,8 +40,24 @@ parcours sans l'interface, pour enregistrer une vidéo : un bouton « Lancer la 
 de jouer du son.
 
 Les voix et leurs modules (`inter_voix_v157.js` et `inter_sequence_v157.js`, dans `index.html`) ont été ajoutés à la version 157 déjà déployée, hors de la chaîne de
-construction : `index.html`, `sw.js` et `version.json` portent une nouvelle empreinte (`157-63fd50dc`). À reporter dans la source de la visite
+construction : `index.html`, `sw.js` et `version.json` ont alors reçu une nouvelle empreinte (`157-63fd50dc`). À reporter dans la source de la visite
 avant la prochaine fabrication, sinon les voix disparaîtront.
+
+## Sol de la galerie
+
+Le sol de la galerie est une boue piétinée scannée (« Brown Mud 03 », Poly Haven, CC0), teintée en gris comme le roc, posée par-dessus le sol
+fabriqué, qui garde ses flaques, ses ornières et ses éboulis. Le relief du scan sert trois fois : parallaxe (empreintes de bottes en creux,
+mode normal, à moins de 7 m), bord des flaques (l'eau remplit d'abord les creux) et dépôts de cuttings, la boue fine grise du forage, autour
+des flaques et dans les creux humides (mouillée et sombre au bord de l'eau, sèche et pâle plus loin).
+
+Quatre fichiers `sol_boue_*.txt` : clarté, rugosité et occlusion (`cro`), normales et relief (`nnr`), en 1K puis en 2K quand le relevé du roc
+passe lui-même en 2K. Deux textures seulement : le nuanceur du sol en lisait déjà 15 et beaucoup d'appareils en acceptent 16 ; avec le scan
+il en lit toujours 15. Si un fichier manque ou si le nuanceur ne compile pas, la page garde le sol fabriqué. Tout se règle et se coupe dans
+`ROC` (`SOL_SCAN`, `CUTTINGS`, `FLAQUES_RELIEF`…), dans `index.html`.
+
+Comme les voix, ce sol a été ajouté à la version 157 déjà déployée, hors de la chaîne de construction (`patch_sol_scan`, 2026-11-24) :
+`index.html`, `sw.js` et `version.json` portent une nouvelle empreinte (`157-99f946da`). À reporter dans la source de la visite avant la
+prochaine fabrication, sinon le sol scanné disparaîtra.
 
 ## Vérifier
 
