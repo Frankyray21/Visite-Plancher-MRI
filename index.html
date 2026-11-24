@@ -271,7 +271,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 159</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 161</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -316,7 +316,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 159</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 161</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -337,7 +337,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 159</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 161</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -11229,16 +11229,42 @@
       angle: { texte: "À chaque changement d'angle : planches et garde-corps ajustés", pos: [1.9, 0.9, -0.4], coin: 0 }   // pos : pivot du support, relu a la construction
     };
     // ---------------------------------------------------------------- fiche de l'ecran (contrat 1)
+    // ---------------------------------------------------------------- v160 : l'exemple sur la vraie foreuse (module angle v147), plus de vignette
+    var R160 = { ouvert: false, angle: 15, erreur: null, etiquettes: [], cam: { tgt: [1.9, 0.62, -0.7], dir: [0.42, 0.42, 0.8], r: 2.4 } }; K.reel = R160;
+    function a147() { var W = window.__inter71; return (W && W.angleStm) || null; }   // I n'est pas visible d'ici : le module angle est expose par window.__inter71
+    function ouvre160() { try { var A = a147(); if (!A || typeof A.ouvre !== "function") { R160.erreur = "module angle absent"; return; }
+        R160.ouvert = true; K.ouvert = true; K.etat = "reel"; R160.ficheReduite = reduitFiche160(true); A.angle = R160.angle; A.ouvre(); if (typeof A.regle === "function") A.regle(R160.angle); cachePanneau160(); } catch (e) { R160.erreur = String(e); } }
+    function ferme160() { try { R160.ouvert = false; K.ouvert = false; K.etat = "ferme"; if (R160.ficheReduite) { R160.ficheReduite = false; reduitFiche160(false); } var A = a147(); if (A && typeof A.ferme === "function") { A.ferme(); A.angle = (typeof A.ANGLE0 === "number") ? A.ANGLE0 : -30; } } catch (e) { R160.erreur = String(e); } }
+    function reduitFiche160(on) { var f = document.getElementById("fiche"), b = document.getElementById("btn-fiche-reduire"); if (!f || !b || f.hidden) return false; var red = f.classList.contains("reduite"); if (red === !!on) return false; b.click(); return f.classList.contains("reduite") === !!on; }
+    function cachePanneau160() { var p = document.getElementById("angle147"); if (p && p.style.display !== "none") p.style.display = "none"; }
+    (function () { var L = window.__etiquettesV19 = window.__etiquettesV19 || [];
+      [["marches", "Forage montant à 15° : plancher de 18 po, donc 2 marches"], ["poulies", "Côté poulies : une marche (16 po), jamais de garde-corps"],
+       ["dessous", "Dessous : plancher 16 po plus long et plus large (88 × 48 po)"], ["garde", "Au bout sans marche : garde-corps (lisse à 1,07 m, intermédiaire) et coup de pied de 4 po"],
+       ["taillee", "Planche collée à la foreuse taillée selon la tour : le pied ne glisse ni dessous, ni entre la tour et le plancher"]].forEach(function (e) {
+        var d = { id: "avoir18_" + e[0], cle: e[0], texte: e[1], pos: [0, -50, 0], genre: "note", etapes: [18], ecran: "avoir18", actif: function () { return R160.ouvert && d.pos[1] > -10; } }; L.push(d); R160.etiquettes.push(d); }); })();
+    // ancres relues a chaque image sur le vrai plancher (planches : pieces de 3 po d'epaisseur et plus de 1,5 m de long) ; la planche taillee = ancre du module angle
+    function ancre160() { var A = a147(), s = scenePage(); if (!R160.ouvert || !A || !s) return; cachePanneau160();
+      var G = s.getObjectByName("Plancher_secondaire_angle_v147"); if (!G || !G.visible) { R160.etiquettes.forEach(function (d) { d.pos[1] = -50; }); return; }
+      var B = null, PO = 0.0254; G.traverse(function (o) { if (!o.isMesh || !o.geometry) return; var b = new THREE.Box3().setFromObject(o); var h = b.max.y - b.min.y, l = Math.max(b.max.x - b.min.x, b.max.z - b.min.z); if (h > 0.06 && h < 0.09 && l > 1.5) B = B ? B.union(b) : b; });
+      if (!B) { R160.etiquettes.forEach(function (d) { d.pos[1] = -50; }); return; }
+      var SOL = typeof A.SOL === "number" ? A.SOL : 0.23, yL = SOL + 9 * PO, yU = yL + 9 * PO, x0 = B.min.x, x1 = B.max.x, z0 = B.min.z, z1 = B.max.z, zc = (z0 + z1) / 2;
+      var T = null; (window.__etiquettesV19 || []).some(function (d) { if (d.id === "angle152_taille_0" && d.pos && d.pos[1] > -10) { T = d.pos; return true; } return false; });
+      R160.etiquettes.forEach(function (d) { var p;
+        if (d.cle === "marches") p = [x0 + 72 * PO - 0.1, yU + 0.01, zc + 0.25]; else if (d.cle === "poulies") p = [x1 - 0.12, yL + 0.01, zc - 0.3];
+        else if (d.cle === "dessous") p = [x0 + 44 * PO, yL - 0.04, z1]; else if (d.cle === "garde") p = [x0 - 0.03, yU + 1.0, zc];
+        else p = T ? [T[0], T[1], T[2]] : [x0 + 0.4, yU + 0.01, z0 + 0.05];
+        d.pos[0] = p[0]; d.pos[1] = p[1]; d.pos[2] = p[2]; }); }
+    (function boucle160() { try { ancre160(); } catch (e) { R160.erreur = String(e); } requestAnimationFrame(boucle160); })();
     var D = { id: "avoir18", apres: 18, ordre: 1, titre: "Deux marches et planche taillée selon la tour", etiquette: "À savoir",
       texte: [
         "Forage montant à 15° : plancher secondaire de 18 po, donc 2 marches.",
-        "Dessous : un plancher 16 po plus long et plus large ; le standard par-dessus. Pour une seule marche, on enlève celui du dessous.",
-        "Côté poulies : une marche, jamais de garde-corps. Au bout sans marche : garde-corps et coup de pied, fixés solidement.",
+        "Dessous : un plancher 16 po plus long et plus large (88 × 48 po) ; le standard (72 × 32 po) par-dessus. Pour une seule marche, on enlève celui du dessous.",
+        "Côté poulies : une marche, jamais de garde-corps. Au bout sans marche : garde-corps (lisse à 1,07 m, lisse intermédiaire) et coup de pied de 4 po, fixés solidement.",
         "Au montage de 18 po, la planche collée à la foreuse est taillée selon la forme de la tour : le pied ne peut glisser ni sous la tour, ni entre la tour et le plancher.",
         "Les 6 × 6 avancent sous la planche taillée pour la porter."
       ],
       detail: "À chaque changement d'angle : planches et garde-corps ajustés. Pas de bois plané.",
-      cam: null, ouvre: ouvre, ferme: ferme };
+      cam: R160.cam, ouvre: ouvre160, ferme: ferme160 };   /* v160 : vraie foreuse, plus de vignette */
     if (!E.liste.some(function (s) { return s && s.id === D.id; })) E.liste.push(D);   // module injecte deux fois : un seul ecran
     // ---------------------------------------------------------------- etat de la vignette
     var SV = null, CV = null, STM = null, SEC = null, TAILLEE = [], DOM = null, t0 = 0, rendu0 = null, monRendu = null, CHG = null;
@@ -12615,7 +12641,7 @@
   // K.ACTIF = false : rien (aucun ecran ni etiquette).
   (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
     var K = { ACTIF: true, ID: "demontage", COUCHE: 27,
-      T: { a: [1e12, 1e12 + 3000] /* v158 : plancher secondaire garde tel quel au demantelement (utilisateur 2026-11-24), jamais demonte */, b: [6000, 14000], c: [14000, 22000], e: [22200, 24400] },
+      T: { a: [3000, 6000] /* v161 : retire en premier, pendant l etiquette 1 (0-6 s), lavage a17 en meme temps, garde tel quel pour etre reutilise (utilisateur 2026-11-24 soir) */, b: [6000, 14000], c: [14000, 22000], e: [22200, 24400] },
       // LEVE 0.30 : le dessus d'une planche levee reste sous 0,62 m, la hauteur ou s'arrete la salete de inter_salete.js (sinon la planche redevient propre)
       DUREE: 600, LEVE: 0.30, SORT: 1.4,
       // cloture d'une paroi a l'autre : parois mesurees a x 0,75 (z -2,51 / +2,58 a 0,3 m ; -2,54 / +2,60 a 0,9 m), piquets de bout a 4-5 cm du roc
@@ -12852,7 +12878,7 @@
       // correction b : les deux panneaux de la video (r65 « Démantèlement : dans l'ordre », r68 « Boue de forage sous le plancher »), en gardant le choix A
       // d'aujourd'hui pour l'ordre des 6 x 6 et « laver les madriers » (question Q7 de transversal_decisions.md, a trancher par l'utilisateur)
       texte: [
-        "Après le départ de la foreuse : on lave le plancher au boyau d'eau ; le plancher secondaire reste tel quel, on le réutilise.",
+        "Après le départ de la foreuse : on lave le plancher au boyau d'eau ; le plancher secondaire est retiré en premier, gardé tel quel : on le réutilise.",
         "Plancher principal : les planches du fond en premier ; clous et tire-fonds enlevés à mesure.",
         "Structure de 6 × 6 : seulement quand toutes les planches et tous les tire-fonds sont enlevés ; de la sortie vers le fond, sans jamais enjamber le bois. Grosses pièces à deux.",
         "Laver les madriers à l'eau.",
@@ -12867,7 +12893,7 @@
     function fen(a, b) { return function () { return K.ouvert && K.t >= a && K.t < b; }; }
     // correction b : fenetres decalees de 2,6 s (etat de depart), consignes de la boue (r67-68) avec la structure, mots des panneaux de la video,
     // au plus 3 etiquettes a la fois ; etiquette « garde-corps et marches en dernier » retiree (hors procedure ; ordre de demonter())
-    [["dem-secondaire", "1. Plancher secondaire : gardé tel quel, on le réutilise", [2.2, 0.95, 0.3], 600, 6000],
+    [["dem-secondaire", "1. Plancher secondaire retiré en premier : gardé tel quel, on le réutilise", [2.2, 0.95, 0.3], 600, 6000],
      ["dem-planches", "2. Plancher principal : les planches du fond en premier ; clous et tire-fonds enlevés à mesure", [4.5, 0.6, -1.2], 6000, 14000],
      ["dem-6x6", "3. Les 6 × 6 de la sortie vers le fond : ne jamais enjamber le bois", [8.5, 0.3, 1.2], 14000, 17000],
      ["dem-boue", "Boue de forage sous le plancher : glissante", [6.4, 0.15, -1.05], 14000, 17000],
@@ -15743,7 +15769,7 @@
     try { if (/video/.test(location.hash || "")) { var essais = 0; (function attend() { var b = document.getElementById("acc-construire"), acc = document.getElementById("accueil"), pret = typeof etape !== "undefined";
         if (b && acc && !acc.hidden && b.offsetParent) { b.click(); setTimeout(attend, 1500); return; } if ((!acc || acc.hidden) && pret && essais > 2) { setTimeout(function () { NV.joue(0); }, 2500); return; } essais++; if (essais < 400) setTimeout(attend, 500); })(); } } catch (e) { err(e, "adresse"); }
   })();
-  // ---- inter_voix_v157.js (v157 + voix, 2026-11-23) : demande de l'utilisateur « le site est deploye version 159, ajoute les voix a l'app ».
+  // ---- inter_voix_v157.js (v157 + voix, 2026-11-23) : demande de l'utilisateur « le site est deploye version 161, ajoute les voix a l'app ».
   // Les 55 blocs du script v25 (inter_narration_v155.js) ont leur fichier voix/bloc_<id>.mp3 : formateur = voix « Steve », apprenti = voix « Adam »
   // (ElevenLabs eleven_v4, niveau egalise, 0,35 s de silence en fin de bloc). Ce module ne change rien au module de narration : il lui donne
   // NV.AUDIO = "voix/" et la duree reelle de chaque bloc (K.DUREES), puis s'occupe de ce qu'un navigateur exige pour faire entendre une voix :
@@ -17698,7 +17724,7 @@
           if (dist > 1e-5) { cur.x += dx / dist * pas; cur.z += dz / dist * pas; if (pas > 0.0005) dirU.set(dx / dist, 0, dz / dist); } if (K.phase === "entree" && dist - pas < 0.004) { chemin.shift(); K.phase = "coupe"; } }
         if (sale) { sale = false; apresCoupe(false); } majCrayon(); K.dansBois = dansBois;
         var enBois = K.phase !== "vol"; poseScie(cur.x, cur.z, enBois ? 0.004 : (survol ? 0.06 : 0.10)); S.position.lerp(vS, enBois ? 1 : Math.min(1, dt * 14)); S.quaternion.slerp(qS, Math.min(1, dt * (enBois ? 10 : 8))); var marche = K.phase === "coupe" && chemin.length > 0; S.userData.lame.position.x = marche ? 0.0065 * Math.sin(temps * 150) : 0; if (marche && dansBois) { S.position.x += 0.0006 * Math.sin(temps * 131); S.position.y += 0.0005 * Math.sin(temps * 173); } });
-      // ---- (version 159) plancher ajuste d office : taille le long du contour, pousse contre la foreuse, une seule fois, sans animation ni message
+      // ---- (version 161) plancher ajuste d office : taille le long du contour, pousse contre la foreuse, une seule fois, sans animation ni message
       function office() { try { if (typeof etape === "undefined" || etape < 18 || !I.vu(g) || !mobiles.foreuse.o.visible || !accoste()) return;
           if (K.releve !== "fait") { releveExact(); K.releve = "fait"; faitTrace(); }
           K.coupeSelonTrace(1); autoEncoches(); var a = avancePossible(); K.office = "fait"; K.officeAvance = +a.toFixed(4); if (a < 0.002) return;
@@ -19815,7 +19841,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "159-5276ab33", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "161-a5b66d1f", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
@@ -19957,7 +19983,7 @@
   "use strict";
   var I = window.__inter71;
   if (!I || typeof I.anime !== "function" || typeof THREE === "undefined" || !THREE.SkeletonUtils) return;
-  var V3 = THREE.Vector3, CACHE = 1 << 30, VU = 1, BLOCS = { "46": 1, "47": 1, "48a": 1 };
+  var V3 = THREE.Vector3, CACHE = 1 << 30, VU = 1, BLOCS = { "46": 1, "47": 1, "48": 1 /* v160 */, "48a": 1 };
   var A = window.__a16 = { place: null, hanche: 0.91, tronc: 1.15, axe: null, erreur: null, erreurs: 0, mode: null, pose: null, sol: null, x: null, z: null, montre: false };
   function err(e, ou) { A.erreurs++; A.erreur = ou + " : " + String(e && e.message || e); }
   function sceneVisite() { var K = window.__laserOutilsV19; if (K && K.groupe && K.groupe.parent && K.groupe.parent.isScene) return K.groupe.parent;
