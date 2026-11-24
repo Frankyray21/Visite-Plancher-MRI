@@ -1,0 +1,1 @@
+{ "name": "filme-visite", "private": true, "version": "1.0.0", "description": "Filme la visite narrée image par image avec la carte graphique", "dependencies": { "playwright-core": "^1.48.0", "ffmpeg-static": "^5.2.0" } }
