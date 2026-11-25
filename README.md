@@ -79,6 +79,24 @@ boîte pleine du milieu de la table (40 boîtes dans le rack, 5 par étage sur 8
 (60 boîtes sur la palette, 5 de large sur 12 de haut, « fait x3 en hauteur ») ; toutes sont fermées par un couvercle (« les boîtes ne doivent pas être ouvertes »). Le rack du dépôt pieces-3d a été recalculé pour 5 de ces boîtes par étage (1,19 m de
 large) ; `rack_core_box.txt` n'a plus que la plate-forme, les arceaux et les couvercles, `palette_boites.txt` la palette de 60 × 40 po et ses 60 couvercles. Version 166 : boîtes fermées (couvercles) et palette trois fois plus haute (12 boîtes de haut). Empreinte `166-60c7b1b3`.
 
+## Boyaux du poste de commande et power pack (version 167)
+
+D'après les photos de l'arrière du poste de commande de la STM-1500 : sur les 9 traversées du panneau arrière (pression, retour et drain du
+groupe, rotation A et B, quatre boyaux du traîneau), un raccord rapide (coupleur femelle six-pans, manchon moleté, nez du mâle), dont deux
+avec une étiquette jaune ; ils sont enfants de la console et la suivent dans le mode Déplacer. Les boyaux posés au sol serpentent de 5,5 cm
+de part et d'autre de leur tracé, en phase d'un boyau à l'autre : le faisceau ondule sans que les boyaux se croisent ; l'ondulation s'efface
+aux bouts et près de la clôture. La DR1500-U n'a aucune connexion hydraulique sur sa console : pas de raccords, ses conduits ondulent comme
+les autres.
+
+Le power pack de la STM-1500 (`groupe_hydraulique.txt`, cotes du manuel : cadre 1,405 m) est réduit à 0,85 : cadre à 1,19 m, sous le dessus du
+caisson de la console (48 po), oreilles de levage à 1,32 m, sous le haut du poste (1,50 m). Il garde son coin au bout du plancher, contre la
+clôture ; les bouts des boyaux qui y arrivent suivent la réduction.
+
+Module `inter_boyaux_console_v167.js` dans `index.html` (tout se coupe par `v167Conf().ACTIF`), deux appels dans la fabrication des conduits et
+le chargement des équipements. Comme le rack, ajouté à la page déjà construite, hors de la chaîne de construction : `index.html`, `sw.js` et
+`version.json` portent l'empreinte `167-60c7b1b3`. À reporter dans la source de la visite avant la prochaine fabrication, sinon les raccords,
+l'ondulation et la réduction du power pack disparaîtront.
+
 ## Vérifier
 
 ```sh
