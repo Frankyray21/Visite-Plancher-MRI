@@ -102,7 +102,8 @@ l'ondulation et la réduction du power pack disparaîtront.
 D'après les photos de François, deux affiches de Machines Roger International sont fixées au grillage du battant de la porte de la cage
 (`porte_1801020.txt`), au milieu de sa largeur, du côté de l'entrée quand la porte est fermée :
 
-- « Production sécuritaire » : panneau blanc usé à bordure rouge (46 × 31 cm, centre à 1,50 m du plancher). La photo est redressée en
+- « Production sécuritaire » : panneau blanc usé à bordure rouge (46 × 31 cm), dans le bas du battant (centre à 0,45 m du plancher,
+  version 171 ; à 1,50 m en version 169). La photo est redressée en
   perspective ; le bord tordu et le grillage visible derrière deviennent transparents (masque).
 - Au-dessus, l'avis « IMPORTANT » (feuille lettre, 21,6 × 29,9 cm, centre à 1,83 m) : interdiction d'utiliser la foreuse si les dispositifs
   d'interverrouillage sont défectueux, inactifs ou mis hors service ; approche à moins de 1,5 m seulement en mode « handling ».
