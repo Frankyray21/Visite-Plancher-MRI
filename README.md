@@ -126,6 +126,21 @@ Fichier `bac_huile.txt` (GLB en base 64 exporté dans un navigateur pour garder 
 facettes allégées de moitié) et une ligne de `PIECES` dans `index.html`. Comme le rack à boîtes, ajouté à la page déjà construite, hors de la
 chaîne de construction : empreinte `170-d324417e`. À reporter dans la source de la visite avant la prochaine fabrication.
 
+## Prise 600 V du power pack (version 172)
+
+Demande de l'utilisateur (2026-11-25) : « j'ai ajouté connecteur prise 600 V dans le dépôt pièces 3D, ajoute-le au 3D place de travail, qu'il se
+connecte au power pack en descendant d'en haut du bac en longeant paroi ». Modèle `coupleur-quik-loc`, P01, du dépôt pieces-3d : coupleur
+Quik-Loc 600 V de Crouse-Hinds, 4/0 AWG 325 A (fiche femelle en haut, fiche mâle en bas, support en inox fabriqué à la mine), exporté tel quel
+(`scripts/export-glb.mjs`) dans `coupleur_600v.txt`. Il pend à la verticale contre le grillage de la paroi de droite, au-dessus du bac (tube à
+l'eau, x 10,45 m, bague à 1,85 m), tiges à crochet côté paroi. Le câble portatif 3 × 4/0 (Ø 57 mm) arrive de la galerie d'accès le long du haut
+de la paroi de droite (3,3 m, attaché au grillage tous les 1,5 m), descend la paroi jusqu'à la fiche femelle ; de la fiche mâle, il descend
+encore, longe la paroi jusqu'au bout du power pack côté bac, longe ce bout et entre dans l'armoire électrique par la face du bout
+(presse-étoupe). La paroi est relevée par rayons : le câble la suit à 5 cm. Visible avec l'équipement (étape 18) ; le bout qui entre au groupe
+est refait si on déplace le groupe.
+
+Module `inter_cable_600v_v172.js` dans `index.html` (tout se coupe par `K.ACTIF`), ajouté à la page déjà construite, hors de la chaîne de
+construction : empreinte `172-eff0cc19`. À reporter dans la source de la visite avant la prochaine fabrication.
+
 ## Vérifier
 
 ```sh
