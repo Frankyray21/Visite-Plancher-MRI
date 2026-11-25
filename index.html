@@ -271,7 +271,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 162</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 163</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -316,7 +316,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 162</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 163</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -337,7 +337,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 162</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 163</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -11084,7 +11084,9 @@
       var im = 0; for (var j = 0; j < n; j++) if (bords[j] > bords[im]) im = j; ETQ_T.forEach(function (d) { d.pos[0] = +(M.x0 + (im + 0.5) * DX).toFixed(3); d.pos[1] = +(M.haut + 0.005).toFixed(3); d.pos[2] = +(bords[im] + G.position.z + 0.006).toFixed(3); }); }
     // v152 : meme consigne sur le plancher secondaire fixe de l'etape 18 (STM, foreuse a -30) : planche cote tour, au bord le plus proche de la foreuse
     (function () { var L = window.__etiquettesV19 = window.__etiquettesV19 || []; L.push({ id: "angle152_taille_e18", texte: "Planche côté tour : une ou deux coupes autour de la tour, pour s’approcher à 3 po ou moins sans que le pied glisse dessous", pos: [1.45, 0.47, -0.42], genre: "note", etapes: [18], ecran: null,
-      actif: function () { return !K.ouvert && !(window.__foreuse && window.__foreuse.type === "dr") && typeof foreuse !== "undefined" && !!foreuse && foreuse.visible; } }); })();
+      // v163 (utilisateur 2026-11-25 : « place de travail prete : les indications du plancher secondaire demeurent affichees ») : en visite libre
+      // (classe acc-mode-pret sur body), la note se tait ; elle revient avec « Angle de forage » (etiquettes angle152_taille_0 / _1).
+      actif: function () { return !K.ouvert && !(document.body && document.body.classList.contains("acc-mode-pret")) && !(window.__foreuse && window.__foreuse.type === "dr") && typeof foreuse !== "undefined" && !!foreuse && foreuse.visible; } }); })();
     var ETQ_T = []; (function () { var L = window.__etiquettesV19 = window.__etiquettesV19 || []; ["angle147", null].forEach(function (ec, i) { var d = { id: "angle152_taille_" + i, texte: "Une ou deux coupes autour de la tour : la planche s'approche à 3 po ou moins, le pied ne glisse pas dessous", pos: [0, -50, 0], genre: "note", etapes: [18], ecran: ec, actif: function () { return K.ouvert && !!K.taille && K.taille.entaille > 0.01; } }; L.push(d); ETQ_T.push(d); }); })();
     var tCale = null; function caleBientot() { if (tCale) clearTimeout(tCale); tCale = setTimeout(function () { tCale = null; try { cale(); majPanneau(); } catch (e) { err(e, "cale"); } }, 140); }
     function anime() { if (!mobiles.length) return; var el = performance.now() - tPose;
@@ -20352,7 +20354,8 @@
     var n = etapeLue(); if (n !== null) { for (i = 0; i < PARTIES.length; i++) if (PARTIES[i].etapes.indexOf(n) >= 0) return i; }
     return PV.partie; }
   function cache(el) { if (!el) return true; var s = getComputedStyle(el); return el.hidden || s.display === "none" || s.visibility === "hidden" || +s.opacity === 0; }
-  function doitMontrer() { if (!PV.ACTIF) return false; if (document.body.classList.contains("mode-video")) return false;
+  // v163 : pas de bandeau en « Place de travail prete » (visite libre, body.acc-mode-pret) : il y affichait « Plancher secondaire » (etape 18)
+  function doitMontrer() { if (!PV.ACTIF) return false; if (document.body.classList.contains("mode-video") || document.body.classList.contains("acc-mode-pret")) return false;
     var A = window.__accueil; if (A && A.ouvert) return false; if (!cache(D("chargement"))) return false; var f = D("fiche"); return !!f; }
 
   // aller au début d'une partie : Suivante / Précédente un clic toutes les 300 ms jusqu'à l'étape voulue (montre() n'est pas exposée ; un clic
