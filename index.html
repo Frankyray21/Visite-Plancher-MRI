@@ -271,7 +271,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 176</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 177</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -316,7 +316,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 176</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 177</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -337,7 +337,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 176</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 177</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -20120,7 +20120,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "176-f7697287", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "177-f7697287", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
@@ -20662,7 +20662,7 @@
 
 </script>
 <script>
-/* ---- patch_prise_en_main_v175.js (2026-11-25, François : « fais un popup qui montre comment se déplacer » ; le tutoriel sert a la prise en main du jeu)
+/* ---- patch_prise_en_main_v176.js (2026-11-25 ; v177 : W A S D en premier, demande de François, François : « fais un popup qui montre comment se déplacer » ; le tutoriel sert a la prise en main du jeu)
    Au premier passage dans la visite (apres le choix de la premiere page), une courte suite de fenetres explique les commandes :
    1 se deplacer, 2 regarder autour, 3 agir sur l'equipement, 4 les boutons de l'ecran. Textes selon l'appareil (clavier et souris, ou toucher).
    « Passer » toujours visible (Echap aussi) ; vue une seule fois par navigateur (localStorage PM.CLE) ; « Revoir la prise en main » dans le Menu.
@@ -20689,9 +20689,9 @@
 
   var CARTES = [
     { titre: "Se déplacer",
-      img: souris ? '<div class="pm-clavier"><div>' + kbd("Z", "pm-a1") + '</div><div>' + kbd("Q", "pm-a4") + kbd("S", "pm-a3") + kbd("D", "pm-a2") + '</div></div><span class="pm-ou">ou</span><div class="pm-clavier"><div>' + kbd("↑", "pm-a1") + '</div><div>' + kbd("←", "pm-a4") + kbd("↓", "pm-a3") + kbd("→", "pm-a2") + "</div></div>"
+      img: souris ? '<div class="pm-clavier"><div>' + kbd("W", "pm-a1") + '</div><div>' + kbd("A", "pm-a4") + kbd("S", "pm-a3") + kbd("D", "pm-a2") + '</div></div><span class="pm-ou">ou</span><div class="pm-clavier"><div>' + kbd("↑", "pm-a1") + '</div><div>' + kbd("←", "pm-a4") + kbd("↓", "pm-a3") + kbd("→", "pm-a2") + "</div></div>"
                   : SVG_TABLETTE(true),
-      texte: souris ? "Marche avec les touches <b>Z Q S D</b> (ou <b>W A S D</b>) ou avec les <b>flèches</b> : avancer, reculer et faire un pas de côté."
+      texte: souris ? "Marche avec les touches <b>W A S D</b> (ou <b>Z Q S D</b> sur un clavier français) ou avec les <b>flèches</b> : avancer, reculer et faire un pas de côté."
                     : "Pose le pouce sur la <b>moitié gauche</b> de l'écran et glisse-le : un petit manche apparaît et te fait marcher dans cette direction.",
       astuce: souris ? "Garde " + kbd("Maj", "pm-large") + " enfoncée pour marcher plus vite." : "Plus tu éloignes le pouce du centre, plus tu marches vite." },
     { titre: "Regarder autour",
