@@ -271,7 +271,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 173</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 174</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -316,7 +316,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 173</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 174</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -337,7 +337,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 173</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 174</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -16370,14 +16370,17 @@
   //    descend encore, longe la paroi jusqu'au bout du groupe cote bac, longe ce bout et entre dans l'armoire electrique (cote allee) par
   //    la face du bout (presse-etoupe). La paroi est relevee par rayons (roc et grillage) : le cable la suit a K.JEU de la surface.
   //  - Visible avec l'equipement (etape ETAPE_EQ, liste chantier). Le bout qui entre au groupe est refait quand on deplace le groupe.
+  //  - v174 (utilisateur : « le cable 600 V est jaune », puis « n'est pas a l'echelle, trop gros ») : gaine jaune ; coupleur reduit a K.ECHELLE
+  //    (fiche de 4/0 AWG, O 163 x 557 mm, ramenee a O 106 x 362 mm, la taille #2 AWG 160 A du meme catalogue : O 4 3/16 x 14 1/16 po) et cable
+  //    de O 37 mm (3 x #2 AWG) au lieu de 57 mm.
   //  Ajoute a la page deja construite (hors de la chaine de fabrication). K.ACTIF = false : version 171.
   (function () {
     var K = { ACTIF: true, FICHIER: "coupleur_600v.txt", N: 1707884, X: 10.45, Y_BAGUE: 1.85, Y_HAUT: 3.3, X_DEBUT: 19.6, PAS: 1.5, FLECHE: 0.05, JEU: 0.05,
-      R: 0.0285, Y_LONGE: 0.95, etat: "attente", bilan: {} };
+      ECHELLE: 0.65, R: 0.0185, Y_LONGE: 0.95, etat: "attente", bilan: {} };
     try { window.__v172 = K; } catch (e) {} if (!K.ACTIF) return;
     var rc = new THREE.Raycaster(), roc = null, g = new THREE.Group(), coupleur = null, cable = null, bout = null, fait = false;
     g.name = "Cable_600V_v172"; g.visible = false;
-    var caoutchouc = new THREE.MeshStandardMaterial({ name: "cable600_caoutchouc", color: 0x1c1d1f, roughness: 0.78, metalness: 0 }),
+    var caoutchouc = new THREE.MeshStandardMaterial({ name: "cable600_caoutchouc", color: 0xd9a90f, roughness: 0.62, metalness: 0 }),   // v174 : « le cable 600 V est jaune »
       nylon = new THREE.MeshStandardMaterial({ name: "cable600_nylon", color: 0xe4e1d4, roughness: 0.45, metalness: 0 }),
       gris = new THREE.MeshStandardMaterial({ name: "cable600_presse", color: 0x7d8286, roughness: 0.5, metalness: 0.3 });
     function surfaces() { if (roc && roc.length) return roc; roc = []; scene.traverse(function (o) { if (o.isMesh && /^(Galerie_(Roc_[123]|Grillage)|Suite_Roc_)/.test(o.name)) roc.push(o); }); return roc; }
@@ -16419,7 +16422,7 @@
     function construit(gltf) { var r = gltf.scene; r.name = "Coupleur_600V";
       r.traverse(function (o) { if (/^ref-11$/.test(o.name)) o.visible = false; if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = true; var m = o.material; if (m && m.metalness > 0.35) { m.metalness = 0.35; m.roughness = Math.max(m.roughness, 0.45); } });
       var zp = -9; for (var y = K.Y_BAGUE - 0.45; y <= K.Y_BAGUE + 0.4; y += 0.1) for (var d = -0.15; d <= 0.151; d += 0.075) zp = Math.max(zp, paroi(K.X + d, y));
-      r.rotation.y = Math.PI; r.position.set(K.X, K.Y_BAGUE, zp + 0.082 + 0.035); g.add(r); r.updateMatrixWorld(true); coupleur = r;
+      r.rotation.y = Math.PI; r.scale.setScalar(K.ECHELLE); r.position.set(K.X, K.Y_BAGUE, zp + K.ECHELLE * (0.082 + 0.035)); g.add(r); r.updateMatrixWorld(true); coupleur = r;
       K.bilan.paroi = +zp.toFixed(3); K.bilan.coupleur = r.position.toArray().map(function (v) { return +v.toFixed(3); });
       cable = haut(r.localToWorld(new THREE.Vector3(0, 0.553, 0))); g.add(cable); fait = true; refaitBas();
       scene.add(g); g.updateMatrixWorld(true); chantier.push(g); g.visible = etape >= ETAPE_EQ; K.etat = "pret"; }
@@ -20075,7 +20078,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "173-eff0cc19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "174-eff0cc19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);

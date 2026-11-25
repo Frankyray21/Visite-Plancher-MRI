@@ -138,6 +138,10 @@ encore, longe la paroi jusqu'au bout du power pack côté bac, longe ce bout et 
 (presse-étoupe). La paroi est relevée par rayons : le câble la suit à 5 cm. Visible avec l'équipement (étape 18) ; le bout qui entre au groupe
 est refait si on déplace le groupe.
 
+Version 174 (utilisateur : « le câble 600 V est jaune », puis « n'est pas à l'échelle, trop gros ») : gaine jaune ; coupleur réduit à 0,65
+(`K.ECHELLE`), soit la taille #2 AWG 160 A du même catalogue (Ø 106 × 362 mm par fiche au lieu de Ø 163 × 557 mm), et câble de Ø 37 mm
+(3 × #2 AWG) au lieu de 57 mm.
+
 Module `inter_cable_600v_v172.js` dans `index.html` (tout se coupe par `K.ACTIF`), ajouté à la page déjà construite, hors de la chaîne de
 construction : empreinte `172-eff0cc19`. À reporter dans la source de la visite avant la prochaine fabrication.
 
