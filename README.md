@@ -75,9 +75,9 @@ ajoutés à la page déjà construite, hors de la chaîne de construction : `ind
 Version 165 (demande de l'utilisateur : « le rack nuit accès marche » et « prend [les boîtes] qu'on utilise sur la table à core ») : le rack est
 tourné le long de la paroi de gauche et avancé vers l'entrée (x 12,4 à 14,0 m, z 0,92 à 2,11 m) ; le pied des marches est dégagé sur 1,8 m.
 Toutes les boîtes sont maintenant celles de la table à carottes (1,50 × 0,197 × 0,060 m, 3 rangées NQ) : la page copie les triangles de la
-boîte pleine du milieu de la table (40 boîtes dans le rack, 5 par étage sur 8, sans couvercle, carottes visibles) et de la boîte vide du fond
-(20 boîtes sur la palette, 5 de large sur 4 de haut). Le rack du dépôt pieces-3d a été recalculé pour 5 de ces boîtes par étage (1,19 m de
-large) ; `rack_core_box.txt` n'a plus que la plate-forme et les arceaux, `palette_boites.txt` la palette de 60 × 40 po. Empreinte `165-0d09583a`.
+boîte pleine du milieu de la table (40 boîtes dans le rack, 5 par étage sur 8) et de la boîte vide du fond
+(60 boîtes sur la palette, 5 de large sur 12 de haut, « fait x3 en hauteur ») ; toutes sont fermées par un couvercle (« les boîtes ne doivent pas être ouvertes »). Le rack du dépôt pieces-3d a été recalculé pour 5 de ces boîtes par étage (1,19 m de
+large) ; `rack_core_box.txt` n'a plus que la plate-forme, les arceaux et les couvercles, `palette_boites.txt` la palette de 60 × 40 po et ses 60 couvercles. Version 166 : boîtes fermées (couvercles) et palette trois fois plus haute (12 boîtes de haut). Empreinte `166-60c7b1b3`.
 
 ## Vérifier
 
