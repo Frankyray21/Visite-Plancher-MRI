@@ -271,7 +271,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 177</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 178</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -316,7 +316,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 177</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 178</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -337,7 +337,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 177</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 178</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -19445,6 +19445,22 @@
       "#hud88.s-halo .invite kbd{background:var(--hud)}#hud88.s-halo .invite kbd svg{stroke:#14171a}#hud88.s-halo .invite:not(.info) kbd:empty::after{background:#14171a}",
       "#hud88.s-halo .invite.info kbd{color:#14171a;border-color:var(--hud)}#hud88.s-halo .invite b{font-size:17px;font-weight:600;letter-spacing:.06em}",
       "#hud88.s-halo .rep{border-radius:50%;rotate:none;width:8px;height:8px;margin:-4px 0 0 -4px;border:0;background:var(--hud);box-shadow:0 0 8px 2px var(--hud)}",
+      // (version 178) L marqueur : utilisateur, sur deux captures de pilules blanches (« Fond de trou (bootleg)… », « Régler l'angle de forage ») :
+      // « je naime pas ce genre de texte blanc ca cache la scene. prppose nouveau viseul inspiré jeux video », puis « Inspiré toi de véritable jeux
+      // montre un icône avant si joueur fixe ajoute texte ». Comme dans les jeux connus : une icone ronde sur la piece ; le texte (nom + action) ne
+      // s'ouvre a cote, sur un fond semi-transparent, qu'apres H.FIXE secondes de visee. Jamais de plaque opaque par-dessus la piece.
+      "#hud88.s-marqueur .invite{background:none;border:0;clip-path:none;border-radius:0;padding:0;gap:10px;overflow:visible;max-width:none;align-items:center}",
+      "#hud88.s-marqueur .invite kbd{width:34px;height:34px;min-width:34px;border:2px solid var(--hud);background:rgba(10,14,16,.6);box-shadow:0 0 0 1px rgba(0,0,0,.45),0 0 10px color-mix(in srgb,var(--hud) 55%,transparent)}",
+      "#hud88.s-marqueur .invite kbd svg{width:18px;height:18px}#hud88.s-marqueur .invite.info kbd{border-color:var(--hud);color:var(--hud);font-size:18px}",
+      "#hud88.s-marqueur .invite span{display:block;max-width:min(300px,62vw);padding:4px 14px 5px 11px;border-left:2px solid var(--hud);background:linear-gradient(90deg,rgba(8,10,12,.62),rgba(8,10,12,.3) 70%,rgba(8,10,12,0));color:#fff;text-shadow:0 1px 2px #000,0 0 6px rgba(0,0,0,.8);opacity:0;translate:-8px 0;visibility:hidden;transition:opacity .18s,translate .18s,visibility 0s .18s}",
+      "#hud88.s-marqueur .invite.ouvert span{opacity:1;translate:0 0;visibility:visible;transition:opacity .18s,translate .18s,visibility 0s}",
+      "#hud88.s-marqueur .invite.gauche{flex-direction:row-reverse;text-align:right}#hud88.s-marqueur .invite.gauche span{border-left:0;border-right:2px solid var(--hud);padding:4px 11px 5px 14px;background:linear-gradient(270deg,rgba(8,10,12,.62),rgba(8,10,12,.3) 70%,rgba(8,10,12,0));translate:8px 0}",
+      "#hud88.s-marqueur .invite.gauche.ouvert span{translate:0 0}",
+      "#hud88.s-marqueur .invite b{font-size:17px;font-weight:600;line-height:1.15;letter-spacing:.02em;text-transform:none}#hud88.s-marqueur .invite small{font-size:12px;letter-spacing:.14em;margin-bottom:1px}",
+      "#hud88.s-marqueur .cadre{display:none}",
+      "#hud88.s-marqueur .rep{rotate:none;border-radius:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border:2px solid var(--hud);background:rgba(10,14,16,.55);box-shadow:0 0 0 1px rgba(0,0,0,.45)}",
+      "#hud88.s-marqueur .rep::after{content:'';position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:var(--hud)}",
+      "#hud88.s-marqueur .rep.pres{background:rgba(10,14,16,.55);box-shadow:0 0 0 1px rgba(0,0,0,.45),0 0 8px var(--hud)}#hud88.s-marqueur .rep.pres::after{width:6px;height:6px;margin:-3px 0 0 -3px}",
       // F bandeau : grande invite claire, toujours au meme endroit en bas de l'ecran
       "#hud88.s-bandeau .invite{background:rgba(244,246,247,.96);color:#14171a;border:0;clip-path:none;border-radius:999px;padding:8px 24px 8px 8px;gap:12px;box-shadow:0 6px 24px rgba(0,0,0,.55)}",
       "#hud88.s-bandeau .invite kbd{width:34px;height:34px;min-width:34px;background:#14171a;border-color:#14171a}#hud88.s-bandeau .invite kbd svg{stroke:#fff;width:18px;height:18px}#hud88.s-bandeau .invite:not(.info) kbd:empty::after{background:#fff}",
@@ -19525,10 +19541,12 @@
       plein: { col: 0xffe45c, px: 0, voile: 0.42, bal: 0.5 },
       detection: { col: 0xffffff, px: 0, voile: 0.04, rim: 0.15, pos: "onglet" },
       fleche: { col: 0x2fe6c8, px: 3, voile: 0.05, rim: 0.3, souffle: 0.2, pos: "haut" },
-      energie: { col: 0xb56bff, px: 4, px2: 10, a2: 0.3, voile: 0.07, rim: 0.65, bal: 0.4, flux: 0.85, souffle: 0.3 } };
-    H.ORDRE = ["chantier", "sobre", "scan", "icone", "halo", "bandeau", "etiquette", "plein", "detection", "fleche", "energie"];
-    H.NOMS = { chantier: "Chantier", sobre: "Sobre", scan: "Scan", icone: "Icône", halo: "Halo", bandeau: "Bandeau", etiquette: "Étiquette", plein: "Plein", detection: "Détection", fleche: "Flèche", energie: "Énergie" };
-    H.STYLE = "bandeau"; H.s = H.STYLES.bandeau;   // (version 91) style retenu par l'utilisateur : F « Bandeau », invite pres de la porte
+      energie: { col: 0xb56bff, px: 4, px2: 10, a2: 0.3, voile: 0.07, rim: 0.65, bal: 0.4, flux: 0.85, souffle: 0.3 },
+      marqueur: { col: 0xf2b705, px: 1.5, voile: 0.02, rim: 0.1, pos: "marque", scinde: true } };
+    H.ORDRE = ["chantier", "sobre", "scan", "icone", "halo", "bandeau", "etiquette", "plein", "detection", "fleche", "energie", "marqueur"];
+    H.NOMS = { chantier: "Chantier", sobre: "Sobre", scan: "Scan", icone: "Icône", halo: "Halo", bandeau: "Bandeau", etiquette: "Étiquette", plein: "Plein", detection: "Détection", fleche: "Flèche", energie: "Énergie", marqueur: "Marqueur" };
+    H.STYLE = "marqueur"; H.s = H.STYLES.marqueur;   // (version 178) style retenu par l'utilisateur : L « Marqueur » (icone d'abord, texte quand on fixe) ; avant : F « Bandeau » (version 91)
+    H.FIXE = 0.4; H.tVise = 0;   // (version 178) secondes de visee avant que le texte s'ouvre a cote de l'icone (style a pos "marque")
     function majBouton() { if (bouton) bouton.innerHTML = "Style " + String.fromCharCode(65 + Math.max(0, H.ORDRE.indexOf(H.STYLE))) + "<b>" + H.NOMS[H.STYLE] + "</b>"; }
     H.style = function (n) { if (!H.STYLES[n]) return false; H.STYLE = n; H.s = H.STYLES[n]; racine.className = "s-" + n; racine.style.setProperty("--hud", "#" + ("000000" + H.s.col.toString(16)).slice(-6));
       texteVu = ""; H.gauche = null; H.pointe = null; invite.classList.remove("gauche", "sansfil", "dessus", "sanspointe"); distEl.textContent = ""; if (H.z) contour(H.z); majBouton(); return true; };
@@ -19577,8 +19595,9 @@
 
     H.vise = function (z, textes, tact) { tactile = !!tact; viseur.classList.toggle("tact", tactile); viseur.classList.toggle("sur", !!z);
       if (!z) { if (H.z) { H.z = null; L = null; cadre.classList.remove("vu"); invite.classList.remove("vu"); contour(null); } return; }
-      var t = textes ? textes[0] : ""; if (z !== H.z) { H.z = z; L = null; A = null; rejoue(cadre, "entre"); contour(z); }
+      var t = textes ? textes[0] : ""; if (z !== H.z) { H.z = z; L = null; A = null; H.tVise = performance.now(); invite.classList.remove("ouvert"); rejoue(cadre, "entre"); contour(z); }
       if (t !== texteVu || !invite.classList.contains("vu")) { texteVu = t; var p = lit(t), sc = !!(H.s.scinde && !p.info && !p.nom && p.objet);
+        var ki = p.info && H.s.pos === "marque" ? p.action.indexOf(" : ") : -1; if (ki > 0) { p.nom = p.action.slice(0, ki); p.action = maj(p.action.slice(ki + 3)); }   // (version 178) info « Nom : consigne » : le nom en petit au-dessus de la consigne
         nomEl.textContent = sc ? p.objet : p.nom; actEl.textContent = sc ? p.verbe : p.action; invite.classList.toggle("info", p.info); if (p.info) touche.textContent = "i"; else touche.innerHTML = picto(p.action); }
       invite.classList.toggle("tact", !invite.classList.contains("info")); cadre.classList.add("vu"); invite.classList.add("vu"); };
 
@@ -19618,6 +19637,11 @@
           else if (pos === "cote") { var xd = L.x1 + 44 + wI / 2, xg = L.x0 - 44 - wI / 2;
             if (xd + wI / 2 <= cv.right - 10) x = xd; else if (xg - wI / 2 >= cv.left + 10) { x = xg; gauche = true; } else fil = false;
             if (fil) y = Math.min(bas - hI, Math.max(haut, (L.y0 + L.y1) / 2 - hI / 2)); else dessous(); }
+          else if (pos === "marque") { var am = z.ancre ? ancreEcran(z, cv) : null, kx = am ? am.x : (L.x0 + L.x1) / 2, ky = am ? am.y : (L.y0 + L.y1) / 2;
+            kx = Math.min(cv.right - 27, Math.max(cv.left + 27, kx)); ky = Math.min(bas - 17, Math.max(haut + 17, ky)); gauche = kx + wI > cv.right - 10 && kx - wI >= cv.left + 10;
+            var gm = gauche ? "g1" : "d1"; if (H.gauche !== gm) { H.gauche = gm; invite.classList.toggle("gauche", gauche); invite.classList.remove("sansfil"); }
+            var ouv = performance.now() - H.tVise >= H.FIXE * 1000; if (invite.classList.contains("ouvert") !== ouv) invite.classList.toggle("ouvert", ouv);
+            var tx = gauche ? kx + 17 - wI : kx - 17; invite.style.transform = "translate(" + tx.toFixed(1) + "px," + (ky - hI / 2).toFixed(1) + "px)"; poseReperes(); return; }
           else if (pos === "onglet") { x = L.x0 + wI / 2; y = L.y0 - hI; if (y < haut) y = L.y0; }
           else if (pos === "haut") { y = L.y0 - hI - 4; if (y < haut) y = Math.min(bas - hI, L.y0 + 8); }
           else dessous();
@@ -20120,7 +20144,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "177-f7697287", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "178-f7697287", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
