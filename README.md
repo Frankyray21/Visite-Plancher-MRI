@@ -97,6 +97,21 @@ le chargement des équipements. Comme le rack, ajouté à la page déjà constru
 `version.json` portent l'empreinte `167-60c7b1b3`. À reporter dans la source de la visite avant la prochaine fabrication, sinon les raccords,
 l'ondulation et la réduction du power pack disparaîtront.
 
+## Affiches sur la porte grillagée (version 169)
+
+D'après les photos de François, deux affiches de Machines Roger International sont fixées au grillage du battant de la porte de la cage
+(`porte_1801020.txt`), au milieu de sa largeur, du côté de l'entrée quand la porte est fermée :
+
+- « Production sécuritaire » : panneau blanc usé à bordure rouge (46 × 31 cm, centre à 1,50 m du plancher). La photo est redressée en
+  perspective ; le bord tordu et le grillage visible derrière deviennent transparents (masque).
+- Au-dessus, l'avis « IMPORTANT » (feuille lettre, 21,6 × 29,9 cm, centre à 1,83 m) : interdiction d'utiliser la foreuse si les dispositifs
+  d'interverrouillage sont défectueux, inactifs ou mis hors service ; approche à moins de 1,5 m seulement en mode « handling ».
+
+Les deux images (JPEG en base 64) sont dans `index.html`, module `AFFICHE_V169` (coupé par `AFFICHE_V169.ACTIF = false`), appelé dans
+`rhabilleCage` quand le battant est en place. Les affiches suivent le battant, ne reçoivent pas d'ombre (à 6 mm du grillage, ses fils y
+dessinaient une grille d'ombre) et ne bloquent ni les rayons ni le passage. Ajouté à la page déjà construite, hors de la chaîne de
+construction : empreinte `169-a00cbb9c`. À reporter dans la source de la visite avant la prochaine fabrication.
+
 ## Vérifier
 
 ```sh
