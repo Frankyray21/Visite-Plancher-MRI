@@ -271,7 +271,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 163</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 164</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -316,7 +316,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 163</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 164</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -337,7 +337,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 163</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 164</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -1002,14 +1002,22 @@
     { nom: "console", parType: true, f: "console.txt", n: 1522440, pos: [5.59, HAUT_EQ, -1.6], lacet: Math.PI / 2 }];   /* 2026-11-12 : « colle un peu plus les controles au grillage » : a 20 cm du treillis de la cloture (32 avant) */          // a droite, apres le groupe ; commandes vers l'operateur
   // ---- patch_pieces.js : pieces nouvelles du depot pieces-3d, a l'echelle (cotes des plans ; ecart < 1 %, voir pieces/echelle.json)
   var PIECES_ACTIVES = true, COFFRE_NEUF = true, SUPPORT_REMPLACE_CADRE = true, PIECES_VERNIS_ALLEGE_COUPE = true, PIECES_APRES_MESURE = true;   // (corrections) pieces demandees apres la mesure de fluidite (ou 30 s)
-  var PIECES_LISTE = { support: true, rackOutils: true, poubelle: true, tubeEau: true, knocker: true };
+  var PIECES_LISTE = { support: true, rackOutils: true, poubelle: true, tubeEau: true, knocker: true, rackCore: true, paletteCore: true };   /* v164 : rack a core box et palette de boites vides (inter_rack_core_v164.js) */
   var LIM_PIECES = [0.1, 17.4, -2.2, 2.2];
   var PIECES = [
     { nom: "support", f: "support_pipewrench.txt", n: 620300, pos: [4.05, HAUT_EQ, 1.30], lacet: Math.PI / 2, titre: "le support à clés à tuyau" },   // pres du front, a gauche de la foreuse, a 0,13 m du rack a tiges
     { nom: "rackOutils", f: "rack_outil.txt", n: 289568, pos: [3.40, 1.28, 2.475], lacet: Math.PI, titre: "le rack à outils", lim: [3.0, 3.8, 2.475, 2.475], sansTour: true, appui: function () { return 1.28; } },   // accroche au grillage de la paroi de gauche : il glisse le long de la paroi (corrections : z 2,50 essaye pour coller au grillage, 2,9 cm d ecart ; le rack ne se prenait plus en mode Deplacer : remis a 2,475)
     { nom: "poubelle", f: "poubelle_dd.txt", n: 268424, pos: [7.33, HAUT_EQ, 2.17] /* patch_place_v131.js : entre le coffre et la table */, lacet: 0, titre: "la poubelle" },   // contre la paroi de gauche, entre le poste de premiers soins et le coffre
     { nom: "tubeEau", f: "tube_eau_pompe.txt" /* patch_pompe_v127.js : avec la pompe Bean 420 */, n: 2231320, pos: [10.482, -0.328, -1.958] /* patch_place_v131.js : contre le bout du plancher */, lacet: 0, titre: "le tube à l'eau" },   // sol de la galerie, paroi de droite, apres l'escalier, hors de la ligne de tir
-    { nom: "knocker", f: "core_knocker.txt", n: 193664, pos: [8.92, 1.048, 1.66], lacet: 0, titre: "le core knocker", appui: appuiKnocker }];   // couche sur le plateau de la table a carottes
+    { nom: "knocker", f: "core_knocker.txt", n: 193664, pos: [8.92, 1.048, 1.66], lacet: 0, titre: "le core knocker", appui: appuiKnocker },
+    /* v164 (utilisateur, 2026-11-25 : « retire les planches et ajoute le rack a core box a l'entree de la place de travail ») : rack de boites a carottes
+       du depot pieces-3d (rack-core-box P01, plein : 5 boites de large, 8 de haut ; 1,70 x 1,60 m, 0,96 m de haut), contre la paroi de gauche a
+       l'entree, a la place de la pile de 3 x 8 rangee (x 10,6 a 13,1) ; bouts des boites (cote des fourches) vers l'allee. Il commence a 0,9 m du pied
+       de l'escalier (x 10,59) : l'escalier (z 0,25 a 1,67) reste libre devant et par l'allee ; il s'arrete avant le boyau qui monte a la paroi (x 13,29). */
+    { nom: "rackCore", f: "rack_core_box.txt", n: 849212, pos: [12.32, -0.345, 1.49], lacet: Math.PI, titre: "le rack à boîtes à carottes" },
+    /* v164 (meme demande : « une vingtaine de boite de core box vide empilees sur une palette ») : 20 boites du meme modele, vides et sans couvercle,
+       4 de large et 5 de haut sur une palette de bois de 60 x 48 po, contre la paroi de droite a l'entree, en face du rack (allee de 1,8 m entre les deux) */
+    { nom: "paletteCore", f: "palette_boites.txt", n: 306972, pos: [12.65, -0.345, -1.69], lacet: Math.PI / 2, titre: "la palette de boîtes à carottes vides" }];   // couche sur le plateau de la table a carottes
   if (PIECES_ACTIVES && COFFRE_NEUF) EQUIPEMENTS.forEach(function (E) { if (E.nom === "coffre") { E.f = "coffre_jeu.txt"; E.n = 1563344; E.pos = [6.215, HAUT_EQ, 1.9] /* patch_place_v131.js : espace entre le coffre et la table */; } });   // dessin 087 : 1,331 x 1,006 m hors tout, 1,918 m de haut
   var chargeEquipementsBase = chargeEquipements; chargeEquipements = function () { chargeEquipementsBase(); chargePieces(); };
   var piecesT0 = performance.now();
@@ -16195,6 +16203,36 @@
     // la planche rangee : remise a sa place de rangement apres chaque majLevage()
     if (typeof majLevage === "function") { var majOrig = majLevage; majLevage = function (dt) { majOrig(dt); if (K.rangee && bases && levage && levage.phase === 0) {   /* phase 0 seulement : au banc v119c, la sonde du geste (pas fixe, lancee a une etape >= 14) lisait la planche finale au rangement, a 7,29 m de la depose */ var b = bases[bases.length - 1], a = planche.im[0]; b.o.position.set(b.p.x + K.DX, b.p.y + K.DY, b.p.z + K.DZ); b.o.quaternion.set(a[3], a[4], a[5], a[6]); b.o.updateMatrixWorld(true); } }; K.enveloppe = true; }
   })();
+  // ---- inter_rack_core_v164.js (version 164, 2026-11-25) : utilisateur, avec une capture de l'entree : « retire les planches et ajoute le rack a core
+  // box a l'entree de la place de travail. je veux aussi que tu ajoute une vingtaine de boite de core box vide empilees sur une palette ».
+  //  - Le rack (mobiles.rackCore) et la palette (mobiles.paletteCore) sont des pieces de PIECES (patch_pieces.js) : visibles avec l'equipement
+  //    (etape ETAPE_EQ), deplacables, comptes dans les collisions comme les autres pieces.
+  //  - La pile de 3 x 8 (autresObstacles et la planche de la demonstration) n'est plus montree a partir de ETAPE_EQ, sauf pendant la demonstration
+  //    « Levage et transport » : le travailleur la prend a sa place d'origine (z 0,96 a 1,16), la ou est le rack ; le rack est alors
+  //    cache (la palette, hors de son chemin, reste) tant que le travailleur est dessine (I.travailleurRepos.cache faux, apres au moins une apparition). L'essai a blanc du geste (t1Obstacles, enveloppee) ne les compte
+  //    pas (rack seulement) : sinon il refusait de lever (« le rack a boites a carottes encombre sa zone de travail ») et la page relancait l'essai a chaque image.
+  //  - Bois des boites et de la palette : la texture de bois de la page (texBois, comme ombres()).
+  //  Chaque changement de visibilite previent les collisions (I.collisions : saisit puis lache). K.ACTIF = false : la pile reste, rack et palette
+  //  restent avec l'equipement.
+  (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
+    var K = { ACTIF: true, pileCachee: false, piecesCachees: false, changements: 0, demonstrations: 0, retires: 0 };
+    I.rackCore = K; I.etat.rackCore = K.ACTIF ? "attente" : "coupe"; if (!K.ACTIF) return;
+    var NOMS = ["rackCore", "paletteCore"];
+    function pile() { var l = []; if (typeof autresObstacles !== "undefined") autresObstacles.forEach(function (o) { l.push(o); }); if (typeof planche !== "undefined" && planche && planche.m) l.push(planche.m); return l; }
+    function montre(o, v) { if (!o || o.visible === v) return; o.visible = v; o.updateMatrixWorld(true); try { I.collisions(o, false); I.collisions(o, true); } catch (e) {} }
+    // coordonnees de texture : celles du modele, calculees piece par piece avant la fusion des mailles (u le long de la piece) ; teinte un peu variee
+    function habille(r) { if (!r || r.userData.boisV164) return; r.userData.boisV164 = true; var n = 0;
+      r.traverse(function (o) { if (!o.isMesh || !o.material || !/^wood/.test(o.material.name || "")) return; var m = o.material = o.material.clone(); m.map = texBois.carte; m.bumpMap = texBois.relief; m.bumpScale = 0.012; m.color.multiplyScalar(1.12 + 0.12 * (n++ % 3)); m.needsUpdate = true; }); }
+    function travailleurMontre() { var R = I.travailleurRepos; return !!(R && R.ACTIF && R.montres > 0 && typeof levage !== "undefined" && levage && levage.modele && !R.cache); }   // montres : jamais avant la 1re demonstration (au chargement, cache reste faux quelques images)
+    function applique() { if (typeof ETAPE_EQ === "undefined") return; var equipe = etape >= ETAPE_EQ, demo = equipe && travailleurMontre(), P = pile();
+      var cache = equipe && !demo; if (P.length && cache !== K.pileCachee) { P.forEach(function (o) { montre(o, !cache); }); K.pileCachee = cache; K.changements++; }
+      NOMS.forEach(function (k) { var m = mobiles[k]; if (!m || !m.o) return; habille(m.o); if (equipe) montre(m.o, !(demo && k === "rackCore")); });
+      if (demo && !K.piecesCachees) K.demonstrations++; K.piecesCachees = demo; I.etat.rackCore = mobiles.rackCore && mobiles.rackCore.o ? "pret" : "attente"; }
+    I.anime(applique);
+    if (typeof t1Obstacles === "function") { var obstaclesOrig = t1Obstacles; t1Obstacles = function () { var O = obstaclesOrig.apply(this, arguments); if (typeof ETAPE_EQ === "undefined" || etape < ETAPE_EQ || !Array.isArray(O)) return O;
+        var rac = mobiles.rackCore && mobiles.rackCore.o ? [mobiles.rackCore.o] : []; if (!rac.length) return O; var n0 = O.length;
+        O = O.filter(function (e) { for (var q = e && e.o; q; q = q.parent) if (rac.indexOf(q) >= 0) return false; return true; }); K.retires = n0 - O.length; return O; }; K.enveloppe = true; }
+  })();
   // ---- inter_plans_etapes_v156.js (v156, 2026-11-23) : demande de l'utilisateur (« pour l'ensemble des etapes de construction, analyse comment tu peux
   // ameliorer le deplacement de la camera et quelle info pertinente tu peux ajouter a meme l'animation », puis « Oui, fais-les »). Plans de camera par
   // etape (3 ou 4 : ensemble, detail du geste, resultat), concus et verifies sur des rendus reels de la visite (C:/IA/banc/visite_web/v148/plans,
@@ -19842,7 +19880,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "162-1bc5e397", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "164-e9e030c0", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);

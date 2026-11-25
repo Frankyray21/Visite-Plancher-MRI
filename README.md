@@ -59,6 +59,19 @@ Comme les voix, ce sol a été ajouté à la version 157 déjà déployée, hors
 `index.html`, `sw.js` et `version.json` portent une nouvelle empreinte (`157-99f946da`). À reporter dans la source de la visite avant la
 prochaine fabrication, sinon le sol scanné disparaîtra.
 
+## Rack à boîtes à carottes et palette (version 164)
+
+À l'entrée de la place de travail, contre la paroi de gauche, la pile de 3 × 8 rangée laisse la place au rack à boîtes à carottes du dépôt
+pieces-3d (modèle `rack-core-box`, P01 : rack plein, 5 boîtes de large et 8 de haut) ; en face, contre la paroi de droite, 20 boîtes vides du
+même modèle, sans couvercle, sur une palette de bois de 60 × 48 po. Les deux arrivent avec l'équipement (étape 18) et se déplacent comme les autres
+pièces. L'escalier reste libre : le rack commence à 0,9 m de son pied et l'allée garde 1,8 m entre le rack et la palette. Pendant la démonstration
+« Levage et transport », la pile revient à la place où le travailleur prend sa planche et le rack s'efface le temps de la démonstration.
+
+Fichiers `rack_core_box.txt` et `palette_boites.txt` (GLB en base 64, mailles fusionnées par matière, coordonnées de texture du bois calculées
+pièce par pièce), module `inter_rack_core_v164.js` et deux lignes de `PIECES` dans `index.html`. Comme les voix et le sol scanné, ils ont été
+ajoutés à la page déjà construite, hors de la chaîne de construction : `index.html`, `sw.js` et `version.json` portent une nouvelle empreinte
+(`164-e9e030c0`). À reporter dans la source de la visite avant la prochaine fabrication, sinon le rack et la palette disparaîtront.
+
 ## Vérifier
 
 ```sh
