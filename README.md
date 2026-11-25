@@ -145,6 +145,19 @@ Version 174 (utilisateur : « le câble 600 V est jaune », puis « n'est pas à
 Module `inter_cable_600v_v172.js` dans `index.html` (tout se coupe par `K.ACTIF`), ajouté à la page déjà construite, hors de la chaîne de
 construction : empreinte `172-eff0cc19`. À reporter dans la source de la visite avant la prochaine fabrication.
 
+## Carte de travail sur le power pack (version 175)
+
+Demande de l'utilisateur (2026-11-25) : « ajoute la carte de travail sur le power pack derrière le siège du foreur fait dans le dépôt pièces 3D ».
+Modèle `carte-forage-dd`, P01, du dépôt pieces-3d : formulaire MA4657078 « Forage au diamant sous-terre » de Machines Roger International,
+feuille lettre pliée en deux (carte fermée de 5 1/2 × 8 1/2 po). Comme sur la photo du poste, la carte est rangée dans une pochette de
+plastique transparent (6 1/4 × 9 1/2 po) fixée sur la face du power pack tournée vers la chaise de l'opérateur, en haut (centre à 0,86 m du
+plancher), près du montant côté paroi ; la couverture se lit depuis le siège. La face est relevée par rayons (pochette à 4 mm de la tôle) et
+la pochette est un enfant du groupe : elle le suit dans le mode Déplacer. Couverture (moitié droite de la page 1 du PDF) dans
+`carte_travail.txt` (JPEG 1024 × 1582 en base 64) ; le dos est contre la tôle, donc absent.
+
+Module `inter_carte_travail_v175.js` dans `index.html` (tout se coupe par `K.ACTIF`), ajouté à la page déjà construite, hors de la chaîne de
+construction : empreinte `175-f7697287`. À reporter dans la source de la visite avant la prochaine fabrication.
+
 ## Vérifier
 
 ```sh

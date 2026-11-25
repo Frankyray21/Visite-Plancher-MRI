@@ -271,7 +271,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 174</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 175</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -316,7 +316,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 174</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 175</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -337,7 +337,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 174</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 175</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -16431,6 +16431,48 @@
     setTimeout(essaie, 1500);
     if (typeof finDeplacement === "function") { var finOrig = finDeplacement; finDeplacement = function (m) { finOrig(m); try { if (m === mobiles.groupe) refaitBas(); } catch (e) {} }; }
   })();
+  // ---- inter_carte_travail_v175.js (version 175, 2026-11-25) : utilisateur : « ajoute la carte de travail sur le power pack derrière le siège du
+  // foreur fait dans le dépôt pièces 3D ». Photo du poste a l'appui : une pochette de plastique transparent, fixee sur la face du power pack rouge
+  // tournee vers la chaise de l'operateur, en haut, juste sous le cadre, contient la carte de travail.
+  //  - Carte : pieces-3d, carte-forage-dd P01 (formulaire MA4657078 « Forage au diamant sous-terre » de Machines Roger International, feuille
+  //    lettre pliee en deux : carte fermee de 5 1/2 x 8 1/2 po). Couverture (moitie droite de la page 1 du PDF) en texture : carte_travail.txt,
+  //    JPEG 1024 x 1582 en base 64 ; le dos (description du travail) est contre la tole, donc cache.
+  //  - Pochette : plastique transparent un peu plus grand que la carte (K.POCHETTE), tenue a plat contre la tole.
+  //  - Placement : la face du groupe tournee vers la chaise (x min du groupe) est relevee par rayons ; la pochette s'y pose a K.JEU, a K.Y du
+  //    plancher et a K.FZ de la largeur du groupe (0 = cote paroi, 1 = cote allee). Enfant du groupe : elle le suit dans le mode Deplacer.
+  //  Ajoute a la page deja construite (hors de la chaine de fabrication). K.ACTIF = false : version 174.
+  (function () {
+    var IN = 0.0254, K = { ACTIF: true, FICHIER: "carte_travail.txt", N: 181672, CARTE: [5.5 * IN, 8.5 * IN], POCHETTE: [6.25 * IN, 9.5 * IN], Y: 0.86, FZ: 0.22, JEU: 0.004,
+      etat: "attente", bilan: {} };
+    try { window.__carteTravail = K; } catch (e) {} if (!K.ACTIF) return;
+    var rc = new THREE.Raycaster(), fait = false;
+    function construit(b64) { var G = mobiles.groupe; if (!G || fait) return; fait = true;
+      var img = new Image(), tex = new THREE.Texture(img); img.onload = function () { tex.needsUpdate = true; }; img.src = "data:image/jpeg;base64," + b64.trim();
+      tex.encoding = THREE.sRGBEncoding; tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      var g = new THREE.Group(); g.name = "Carte_travail_v175";
+      var carte = new THREE.Mesh(new THREE.PlaneGeometry(K.CARTE[0], K.CARTE[1]), new THREE.MeshStandardMaterial({ name: "carte_travail", map: tex, roughness: 0.85, metalness: 0 }));
+      carte.position.set(0, (K.POCHETTE[1] - K.CARTE[1]) / 2 - 0.006, 0.0015); carte.receiveShadow = true; g.add(carte);
+      var dos = new THREE.Mesh(new THREE.PlaneGeometry(K.POCHETTE[0], K.POCHETTE[1]), new THREE.MeshStandardMaterial({ name: "pochette_dos", color: 0xd6d8d4, roughness: 0.4, metalness: 0 }));
+      dos.position.z = 0.0005; dos.receiveShadow = true; g.add(dos);
+      var face = new THREE.Mesh(new THREE.PlaneGeometry(K.POCHETTE[0], K.POCHETTE[1]), new THREE.MeshStandardMaterial({ name: "pochette_plastique", color: 0xf4f6f2, roughness: 0.18, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false }));
+      face.position.z = 0.0028; g.add(face);
+      // bordure soudee de la pochette (bande un peu plus opaque)
+      var bord = new THREE.MeshStandardMaterial({ name: "pochette_bord", color: 0xe9ece6, roughness: 0.3, metalness: 0, transparent: true, opacity: 0.45, depthWrite: false });
+      [[0, -K.POCHETTE[1] / 2 + 0.004, K.POCHETTE[0], 0.008], [-K.POCHETTE[0] / 2 + 0.004, 0, 0.008, K.POCHETTE[1]], [K.POCHETTE[0] / 2 - 0.004, 0, 0.008, K.POCHETTE[1]]].forEach(function (b) {
+        var m = new THREE.Mesh(new THREE.PlaneGeometry(b[2], b[3]), bord); m.position.set(b[0], b[1], 0.003); g.add(m); });
+      // pose : rayons vers +x sur la face du groupe tournee vers la chaise
+      G.o.updateMatrixWorld(true); var bG = new THREE.Box3().setFromObject(G.o), z = bG.min.z + K.FZ * (bG.max.z - bG.min.z), y = bG.min.y + K.Y, xs = [];
+      [[0, 0], [-0.07, -0.1], [0.07, -0.1], [-0.07, 0.1], [0.07, 0.1]].forEach(function (d) { rc.set(new THREE.Vector3(bG.min.x - 0.5, y + d[1], z + d[0]), new THREE.Vector3(1, 0, 0)); rc.far = 1.5;
+        var h = rc.intersectObject(G.o, true).filter(function (h) { return h.object.visible && !(h.object.material && h.object.material.transparent); })[0]; if (h) xs.push(h.point.x); });
+      var x = xs.length ? Math.min.apply(null, xs) : bG.min.x; K.bilan.rayons = xs.map(function (v) { return +v.toFixed(3); });
+      g.position.set(x - K.JEU, y, z); g.rotation.y = -Math.PI / 2; scene.add(g); g.updateMatrixWorld(true); G.o.attach(g);
+      K.bilan.pose = [+(x - K.JEU).toFixed(3), +y.toFixed(3), +z.toFixed(3)]; K.bilan.groupe = [bG.min.toArray(), bG.max.toArray()].map(function (a) { return a.map(function (v) { return +v.toFixed(3); }); });
+      K.pose = true; K.etat = "pret"; }
+    function essaie() { if (fait || K.etat === "charge") return; if (!mobiles.groupe) { setTimeout(essaie, 700); return; } K.etat = "charge";
+      fetch(K.FICHIER).then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.text(); }).then(construit)
+        .catch(function (e) { K.etat = "erreur"; K.erreur = String(e && e.message || e); if (window.console) console.warn("v175", e); }); }
+    setTimeout(essaie, 1500);
+  })();
   // ---- inter_plans_etapes_v156.js (v156, 2026-11-23) : demande de l'utilisateur (« pour l'ensemble des etapes de construction, analyse comment tu peux
   // ameliorer le deplacement de la camera et quelle info pertinente tu peux ajouter a meme l'animation », puis « Oui, fais-les »). Plans de camera par
   // etape (3 ou 4 : ensemble, detail du geste, resultat), concus et verifies sur des rendus reels de la visite (C:/IA/banc/visite_web/v148/plans,
@@ -20078,7 +20120,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "174-eff0cc19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "175-f7697287", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
