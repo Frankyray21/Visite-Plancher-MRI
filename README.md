@@ -112,6 +112,19 @@ Les deux images (JPEG en base 64) sont dans `index.html`, module `AFFICHE_V169` 
 dessinaient une grille d'ombre) et ne bloquent ni les rayons ni le passage. Ajouté à la page déjà construite, hors de la chaîne de
 construction : empreinte `169-a00cbb9c`. À reporter dans la source de la visite avant la prochaine fabrication.
 
+## Bac de rétention et chaudières d'huile (version 170)
+
+Demande de l'utilisateur (2026-11-25) : « ajoute aussi bac de rétention avec max 5 chaudière huile 5 gallons ». Modèle `chaudieres-5-gal`, P02,
+du dépôt pieces-3d : le mini bac de rétention 100 L (modèle `bac-retention-100l`, 990 × 645 mm, caillebotis, affiche « MAX 100 LITRES ») et
+5 chaudières d'huile hydraulique de 5 gallons, fermées (5 × 18,9 L = 94,6 L, sous les 100 L du bac ; d'où le maximum de 5), 3 au fond et 2 devant.
+Sur le sol de la galerie, contre la paroi de droite, entre le tube à l'eau et la palette de boîtes vides (x 11,16 à 11,80 m, z −2,42 à −1,44 m),
+à environ 2 m du power pack ; les étiquettes regardent le plancher. L'allée et le pied de l'escalier restent libres. Il arrive avec l'équipement
+(étape 18) et se déplace comme les autres pièces.
+
+Fichier `bac_huile.txt` (GLB en base 64 exporté dans un navigateur pour garder les étiquettes dessinées, mailles fusionnées par matière,
+facettes allégées de moitié) et une ligne de `PIECES` dans `index.html`. Comme le rack à boîtes, ajouté à la page déjà construite, hors de la
+chaîne de construction : empreinte `170-d324417e`. À reporter dans la source de la visite avant la prochaine fabrication.
+
 ## Vérifier
 
 ```sh
