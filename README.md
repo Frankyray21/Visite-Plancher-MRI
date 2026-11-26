@@ -158,6 +158,25 @@ la pochette est un enfant du groupe : elle le suit dans le mode Déplacer. Couve
 Module `inter_carte_travail_v175.js` dans `index.html` (tout se coupe par `K.ACTIF`), ajouté à la page déjà construite, hors de la chaîne de
 construction : empreinte `175-f7697287`. À reporter dans la source de la visite avant la prochaine fabrication.
 
+## Dix modèles de pieces-3d ajoutés (version 185)
+
+Demande de l'utilisateur (2026-11-26), devant la liste des modèles du dépôt pieces-3d absents de la place de travail : « ajoute 1, 2, 3, 6, 7, 8,
+10, 11, 12, 13 ». Chaque objet est exporté de pieces-3d tel quel (P01, facettes à 0,5, mailles fusionnées par matière, GLB en base 64) :
+
+| Objet (modèle pieces-3d) | Fichier | Place |
+| --- | --- | --- |
+| Trousse de déversement Zenith, baril de 30 gal (`trousse-deversement-zenith`) | `trousse_deversement.txt` | Sol de la galerie, paroi de droite, entre la palette de boîtes vides et la barricade, à 2 m du bac d'huile |
+| Arrêt d'urgence à câble de la STM-1500 (`stm-1500`, P023 et P025) | `arret_urgence_cable.txt` | Flanc −Z du mât, sur la foreuse fixe (pose de rig.js à −30°) et sur l'os `Mat` de la STM articulée (écran Angle de forage) |
+| Pistolet à graisse Lincoln 1142 (`pistolet-graisse-1142`) | `pistolet_graisse.txt` | Sur le dessus du coffre |
+| Niveau à degrés Tajima (`niveau-a-degres`, `outil()` et `niveler()`) | `niveau_degres.txt` | Aimanté au poteau du rack à tiges côté allée ; la fiole est de niveau, l'aiguille lit l'angle du poteau (75,7°) |
+| Clé à tube au carbure N (`cle-a-tube`), pince pour tube intérieur (`pince-tube-interieur`), blocs de bois (`blocs-de-bois`), ruban de cerclage Uline S-5736 (`ruban-cerclage-s5736`) | `cle_a_tube.txt`, `pince_tube.txt`, `blocs_bois.txt`, `ruban_cerclage.txt` | Tablette du bas de la table à carottes |
+| Boîte à lunch de mineur (`boite-lunch-mineur`), boulon d'ancrage TIME 83-52 de 5 pi (`boulon-ancrage-time`) | `boite_lunch.txt`, `boulon_ancrage.txt` | Sol de la galerie, paroi de gauche, avant le rack à boîtes à carottes |
+
+La trousse, le boulon et la boîte à lunch se déplacent comme les autres pièces ; les objets posés sur le coffre, la table et le rack sont leurs enfants
+et les suivent. Visibles avec l'équipement (étape 18). Module `inter_pieces_v185.js` dans `index.html` (tout se coupe par `K.ACTIF`), et deux lignes
+dans `inter_angle_stm_v147.js` (`K.matMonde`, appel de `surArticulee`). Ajouté à la page déjà construite, hors de la chaîne de construction :
+empreinte `185-5a8dd56c`. À reporter dans la source de la visite avant la prochaine fabrication.
+
 ## Vérifier
 
 ```sh
