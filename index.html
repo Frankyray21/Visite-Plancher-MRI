@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 183</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 184</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 183</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 184</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 183</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 184</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -11028,7 +11028,7 @@
       S.position.set(K.POS[0] + (a > 0 ? K.RECUL_HAUT : 0), K.POS[1], K.POS[2]); S.updateMatrixWorld(true);
       if (a > 0 && K.JEU_FACE > 0) { var dF = avanceFace(a); if (dF) { S.position.x -= dF; S.updateMatrixWorld(true); } }
       K.angle = a; K.poses++; eauSuit(); }
-    // v183 (2026-11-26) utilisateur : « lorsqu'on change l'angle de forage la hose a eau de la rod swivel reste en hauteur a sa position d'origine ».
+    // v184 (2026-11-26) utilisateur : « lorsqu'on change l'angle de forage la hose a eau de la rod swivel reste en hauteur a sa position d'origine ».
     // Le boyau d'eau des conduits (trace par inter_foreuse_reel.js jusqu'au swivel de la foreuse FIXE, a -30 degres) restait en l'air a l'ancienne place
     // du swivel quand la STM articulee changeait d'angle. Maintenant, a chaque pose, on retrouve le bout arriere du swivel de la foreuse articulee
     // (sommets ponderes par les os Emerillon / Emerillon_Rotor, avec leurs os) et l'axe des tiges, et on retrace la montee du boyau a partir du sol :
@@ -20224,7 +20224,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "183-f7697287", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "184-f7697287", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
