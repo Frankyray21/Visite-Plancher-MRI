@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 186</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 187</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 186</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 187</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 186</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 187</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -382,6 +382,14 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/meshopt_decoder.js"></script>
+<script>
+  // Version 187 (optimisation) : les gros modeles sont compresses SANS PERTE (EXT_meshopt_compression, sans quantification ni filtre :
+  // memes sommets, memes indices, memes images, verifies octet par octet a la fabrication). Chaque chargeur glTF de la page recoit le decodeur.
+  (function () { if (!window.THREE || !THREE.GLTFLoader || typeof MeshoptDecoder === "undefined") return;
+    var lit = THREE.GLTFLoader.prototype.parse;
+    THREE.GLTFLoader.prototype.parse = function () { if (!this.meshoptDecoder) this.setMeshoptDecoder(MeshoptDecoder); return lit.apply(this, arguments); }; })();
+</script>
 <script>
 (function () {
   "use strict";
@@ -497,7 +505,7 @@
     racine.traverse(function (o) { if (!o.isMesh || !/^Galerie_(Roc_[123]|Sol)$/.test(o.name)) return; var c = new THREE.Mesh(o.geometry, o.material); c.name = "Suite_" + o.name.slice(8);
       c.matrixAutoUpdate = false; c.matrix.multiplyMatrices(miroir, o.matrixWorld); c.userData.suite = true; g.add(c); });
     scene.add(g); g.updateMatrixWorld(true); }
-  charge("galerie.txt", "galerie", 13656844, function (racine) { /* patch_place_v131.js : mur du bout d'origine retire */ (function () { var L4 = racine.getObjectByName("Galerie_Roc_4"); if (L4 && L4.parent) L4.parent.remove(L4); try { window.__roc4Retire = !!L4; } catch (e) {} })(); racine.traverse(function (o) { if (/Grillage|Soutenement/.test(o.name)) grilles.push(o); if (o.isMesh && /Galerie_Sol/.test(o.name + " " + (o.parent ? o.parent.name : ""))) solGalerie.push(o); }); suiteGalerie(racine); });
+  charge("galerie.txt", "galerie", 7525672, function (racine) { /* patch_place_v131.js : mur du bout d'origine retire */ (function () { var L4 = racine.getObjectByName("Galerie_Roc_4"); if (L4 && L4.parent) L4.parent.remove(L4); try { window.__roc4Retire = !!L4; } catch (e) {} })(); racine.traverse(function (o) { if (/Grillage|Soutenement/.test(o.name)) grilles.push(o); if (o.isMesh && /Galerie_Sol/.test(o.name + " " + (o.parent ? o.parent.name : ""))) solGalerie.push(o); }); suiteGalerie(racine); });
   // Le fichier du plancher contient aussi une galerie simplifiee : on la masque, la galerie detaillee la remplace.
   // Titres, explications et cadrages repris de l'outil « Voir en 3D » du site des procedures (etapes.js).
   var ETAPES = [{"titre":"Avant de commencer","texte":["Lieux inspectés par le superviseur : sol plat, sans débris.","Fonds de trous trouvés et marqués.","À l'entrée : barricade avec ruban jaune, premiers soins (2 lave-yeux), extincteur.","Grosses pièces de bois : toujours à deux."],"cam":{"tgt":[13.3,0.7,1.4],"dir":[-0.35,0.38,0.86],"r":1.7}},{"titre":"Marquer la position du plancher","texte":["Plan de forage en main : plancher placé selon la position de la foreuse.","Laser Bosch au sol : il projette la ligne de référence.","Tracer la ligne à la peinture sur la ligne du laser.","Dimensions : 16 × 32 pi."],"cam":{"tgt":[4.9,0,0],"dir":[0.35,0.85,0.4],"r":5.6}},{"titre":"Trouver le point le plus haut","texte":["Laser Bosch : trouve le point le plus haut du sol.","Le premier madrier repose directement sur le sol à cet endroit.","C'est le repère de niveau de tout le plancher."],"cam":{"tgt":[0.9,-0.05,-1.7],"dir":[-0.63,0.34,0.7],"r":2.2}},{"titre":"Structure de base en 6 × 6","texte":["Madriers 6 × 6 dans le sens contraire du forage : les patins de la foreuse les croisent.","Partir du point haut : plancher pas plus haut qu'il faut, moins de blocage."],"cam":{"tgt":[1.5,0.05,-1.3],"dir":[0.8,0.5,0.35],"r":2.4}},{"titre":"Cadrage 16 × 16 pi","texte":["1er madrier sur la ligne de peinture.","2e madrier à 16 pi : cadrage 16 × 16 pi bien droit.","Les autres 6 × 6 entre les deux, environ 32 po centre."],"cam":{"tgt":[2.44,-0.05,0],"dir":[0.38,0.63,0.68],"r":3.2}},{"titre":"Mettre de niveau","texte":["Niveau de 48 po sur un 3 × 8 d'au moins 8 pi.","Sous chaque 6 × 6 : blocage (3 × 8 ou 6 × 6) et coins, en sens contraire du madrier.","Au moins 6 appuis par madrier.","Au bout : le blocage de jonction porte aussi la section 2."],"cam":{"tgt":[2,0.02,0.3],"dir":[0.45,0.3,0.84],"r":1.7}},{"titre":"Couvrir en 3 × 8","texte":["Planches 3 × 8 brut, dans le sens contraire des 6 × 6.","1re planche : un tire-fond à chaque bout.","Marcher sur la partie couverte : jamais enjamber les 6 × 6."],"cam":{"tgt":[2.4,0.1,0.5],"dir":[-0.62,0.55,0.56],"r":2.6}},{"titre":"Resserrer les planches","texte":["Vers la moitié de la section : visser la dernière planche (tire-fond à chaque bout).","Enfoncer des coins : les planches se serrent.","Visser la planche devant les coins, puis retirer les tire-fonds de la dernière.","Sans ça, des écarts s'ouvrent."],"cam":{"tgt":[2.9,0.23,1.15],"dir":[0.3,0.78,0.55],"r":1.25}},{"titre":"Laisser deux planches libres","texte":["Au bout de la section 1 (centre du plancher) : laisser 2 planches libres.","Cet espace sert à partir la section 2.","On les visse à la fin pour joindre les deux sections."],"cam":{"tgt":[4.58,0.1,0.3],"dir":[0.52,0.37,0.77],"r":1.8}},{"titre":"Section 2 : hauteur au laser","texte":["Section 2 : le laser Bosch donne la hauteur sous les 6 × 6.","Ici, le sol descend vers l'entrée : il faut monter la structure."],"cam":{"tgt":[8.15,-0.25,1],"dir":[0.72,0.18,0.67],"r":2.2}},{"titre":"Madrier guide et soutiens","texte":["Madrier guide à 16 pi de la section 1 : il donne la hauteur.","Soutiens en 6 × 6 de 16 pi, dans le sens contraire des madriers.","Blocages et coins dessous pour les mettre de niveau."],"cam":{"tgt":[7.32,-0.25,0],"dir":[0.6,0.32,0.73],"r":3.2}},{"titre":"Madriers, bois de jonction et cage","texte":["Madriers de la section 2 sur les soutiens, dans le prolongement de la section 1, environ 32 po centre.","Au joint, de chaque côté : un 3 × 6 de 24 po vissé dans les deux sections.","Soutiens enlignés vis-à-vis les croisements.","Dans un creux : une cage, bouts de 24 à 36 po croisés."],"cam":{"tgt":[6.2,-0.15,0.9],"dir":[0.5,0.5,0.71],"r":3}},{"titre":"Couvrir la section 2","texte":["Couvrir du bout du plancher vers le centre, sans serrer.","Au centre : poser la planche libre contre la section 1 et la visser le temps du serrage.","Coins enfoncés : la section 2 se resserre vers le bout.","Retirer coins et tire-fonds, poser la 2e planche libre, visser le centre."],"cam":{"tgt":[7.07,0,0],"dir":[0.69,0.42,0.59],"r":3.4}},{"titre":"Couper au ras","texte":["Aucun bout de 6 × 6 ou de 3 × 8 ne dépasse.","Couper carré, égal avec le bord.","Un bout qui dépasse, c'est une chute."],"cam":{"tgt":[8.7,0.1,2.44],"dir":[-0.6,0.35,0.72],"r":1}},{"titre":"Marches","texte":["Plancher de plus de 12 po : des marches.","Giron de 16 po au moins (deux 3 × 8), largeur 36 à 60 po, hauteur 12 po au plus.","Mesurer depuis le dessus du plancher : une marche tous les 9 po.","Chaque module sur 2 appuis (les côtés) : 3 × 8 à plat en bas, bouts de 6 × 6 au-dessus."],"cam":{"tgt":[10,0,0.85],"dir":[0.74,0.36,-0.57],"r":1.15}},{"titre":"Garde-corps et coup de pied","texte":["Plus de 12 po avec un vide : garde-corps (RSST, art. 12).","Lisse du haut entre 1 et 1,2 m, lisse intermédiaire à mi-hauteur.","Un montant aux 4 pi ; lisses en 2 × 4 de 8 pi entiers.","Truc : un 2 × 4 de 8 pi coupé en deux = 2 montants de 48 po ; quatre 2 × 4 = une section de 8 pi.","Coup de pied : 2 × 4 sur chant, au ras du plancher."],"cam":{"tgt":[9.9,0.55,0.2],"dir":[0.74,0.36,-0.57],"r":2}},{"titre":"Mains courantes","texte":["Plus d'une marche : mains courantes des deux côtés.","Un montant en haut (bord du plancher) et un en bas (dernière marche).","Côté escalier : main courante à 36 po au-dessus des nez, lisse intermédiaire à mi-hauteur."],"cam":{"tgt":[10.15,0.35,0.96],"dir":[0.74,0.36,-0.57],"r":1.35}},{"titre":"Écart avec la paroi","texte":["Le plancher se monte près de la paroi, comme sous terre.","Écart de 12 po ou moins : rien à ajouter.","Plus de 12 po : garde-corps, comme au bout du plancher."],"cam":{"tgt":[6.6,0,-2.5],"dir":[-0.12,0.77,0.63],"r":1.3}},{"titre":"Plancher secondaire","texte":["À l'arrière de la tête de forage : là où l'on ajoute les tiges et sort le tube carotier.","Forage à l'horizontale : pas de plancher secondaire.","Forage montant : plancher de 9 po sans marche, puis 18 po avec 2 marches et garde-corps.","Au moins 32 × 72 po, collé à la foreuse (moins de 3 po : le pied ne passe pas), 2 planches vissées.","À chaque changement d'angle : ajuster. Pas de bois plané.","Ici : trou descendant à 30°. Plancher secondaire de 9 po, assez long pour deux, placé là où l'axe des tiges atteint la hanche : debout dessus, les tiges se manipulent à la hauteur de la hanche ou plus haut, jamais plus bas."],"cam":{"tgt":[1.2,1.1,-0.8500000000000001],"dir":[0.86,0.32,0.4],"r":2.1}}];
@@ -536,7 +544,7 @@
       if (anim) anim.t = performance.now() + attente; suite = { t: performance.now() + attente, etape: etape }; joueLevage(); return; }
     cadre(ETAPES[etape].cam); }
   $("btn-prec").addEventListener("click", function () { montre(etape - 1, false); }); $("btn-suiv").addEventListener("click", function () { montre(etape + 1, true); });
-  charge("plancher.txt", "plancher", 2562552, function (racine) { racine.updateMatrixWorld(true); var w = new THREE.Vector3();
+  charge("plancher.txt", "plancher", 1595868, function (racine) { racine.updateMatrixWorld(true); var w = new THREE.Vector3();
     // ---- patch_entree_v119.js : armoire blanche et extincteur de l'entree supprimes (utilisateur : « tu peux supprimer »)
     var ENTREE119 = { SUPPRIME: ['Entree_q1_s00_001', 'Entree_q2_s00_001'], retires: 0 }; try { window.__entree119 = ENTREE119; } catch (e) {}
     ENTREE119.SUPPRIME.forEach(function (n) { var g = racine.getObjectByName(n); if (g && g.parent) { g.parent.remove(g); ENTREE119.retires++; } });
@@ -546,7 +554,7 @@
   // quand on y arrive par les etapes.
   // ---- patch_foreuse_type_v135.js : deux foreuses au choix (STM-1500, DR1500-U), fixees au choix de la premiere page
   var FOREUSE = { TYPES: {
-      stm: { nom: "STM-1500", f: "foreuse.txt", n: 5438120, groupe: ["groupe_hydraulique.txt", 2337004], console: ["console.txt", 1522440], sous: 0, x0: 0.57 },
+      stm: { nom: "STM-1500", f: "foreuse.txt", n: 3658744, groupe: ["groupe_hydraulique.txt", 2337004], console: ["console.txt", 1522440], sous: 0, x0: 0.57 },
       dr: { nom: "DR1500-U", f: "foreuse_dr1500.txt", n: 9426072, groupe: ["groupe_dr1500.txt", 2444488], console: ["console_dr1500.txt", 1063184], sous: 9 * 0.0254, x0: 0.96 } },
     type: null, memo: null, auto: null, attente: [], equipAttente: [], erreur: null };
   try { window.__foreuse = FOREUSE; } catch (e) {}
@@ -573,7 +581,7 @@
   function majBoutonForeuse() { var b = $("btn-foreuse"); if (!foreuse) return; b.disabled = etape >= 18; b.textContent = etape >= 18 ? "Foreuse en place" : "Voir la foreuse (étape 18)"; }
   function chargeForeuse(emmene) { var b = $("btn-foreuse"); if (foreuse) { if (emmene && etape < 18) montre(18, false); return; } if (foreuseDemandee) return; foreuseDemandee = true; b.disabled = true; b.textContent = "Foreuse : 0 %";
     if (!FOREUSE.type) FOREUSE.fixe(FOREUSE.memo || "stm"); var TF = FOREUSE.TYPES[FOREUSE.type], progF = function (p) { b.textContent = "Foreuse : " + p + " %"; };
-    (FOREUSE.type === "stm" ? telecharge("foreuse.txt", 5438120, progF) : telecharge(TF.f, TF.n, progF)).then(function (gltf) { foreuse = gltf.scene; foreuse.position.z = -0.45; foreuse.visible = etape >= 18; ombres(foreuse, true); scene.add(foreuse); foreuse.updateMatrixWorld(true); var bf = { b: new THREE.Box3().setFromObject(foreuse), o: foreuse }; boites.push(bf); try { if (FOREUSE.avantMobile) FOREUSE.avantMobile(bf); } catch (e) { FOREUSE.erreur = String(e && e.stack || e).slice(0, 400); } creeMobileForeuse(bf); majBoutonForeuse(); if (emmene && etape < 18) montre(18, false); })
+    (FOREUSE.type === "stm" ? telecharge("foreuse.txt", 3658744, progF) : telecharge(TF.f, TF.n, progF)).then(function (gltf) { foreuse = gltf.scene; foreuse.position.z = -0.45; foreuse.visible = etape >= 18; ombres(foreuse, true); scene.add(foreuse); foreuse.updateMatrixWorld(true); var bf = { b: new THREE.Box3().setFromObject(foreuse), o: foreuse }; boites.push(bf); try { if (FOREUSE.avantMobile) FOREUSE.avantMobile(bf); } catch (e) { FOREUSE.erreur = String(e && e.stack || e).slice(0, 400); } creeMobileForeuse(bf); majBoutonForeuse(); if (emmene && etape < 18) montre(18, false); })
       .catch(function () { foreuseDemandee = false; b.disabled = false; b.textContent = "Foreuse : réessayer"; }); }
   $("btn-foreuse").addEventListener("click", function () { chargeForeuse(true); });
 
@@ -982,7 +990,7 @@
   var travailleursDemandes = false;
   function chargeTravailleurs() { if (travailleursDemandes) return; travailleursDemandes = true;
     var b = $("btn-travailleurs"); b.disabled = true; b.textContent = "Travailleurs : 0 %";
-    telecharge("t1_web.txt", 11481504, function (p) { b.textContent = "Travailleurs : " + p + " %"; }).then(function (gltf) {
+    telecharge("t1_web.txt", 7967832, function (p) { b.textContent = "Travailleurs : " + p + " %"; }).then(function (gltf) {
       gabaritAvatar = THREE.SkeletonUtils.clone(gltf.scene); (gltf.animations || []).forEach(function (c) { if (c.name === "Marche_portee") clipMarche = c; });
       var modele = gltf.scene, fixe = THREE.SkeletonUtils.clone(modele); prepare(modele); prepare(fixe); lampeCasque(modele); lampeCasque(fixe); pose(fixe); assied(fixe); varianteT2(fixe); t2Distinct(fixe); fluidite.depart = performance.now() + 2500;
       // Pres de la pile : le travailleur anime. Son animation porte sa position, dans les memes coordonnees que la scene Unreal.
@@ -1007,7 +1015,7 @@
   var EQUIPEMENTS = [
     { nom: "table", f: "table_core.txt", n: 241560, pos: [8.6, HAUT_EQ, 1.95], lacet: Math.PI },                   // a gauche en entrant
     { nom: "coffre", f: "coffre.txt", n: 362956, pos: [7.0, HAUT_EQ, 1.9], lacet: Math.PI },                       // a gauche, apres la table
-    { nom: "rack", f: "rack_tiges.txt", n: 1906384, pos: [1.04, HAUT_EQ, 1.872], lacet: Math.PI + 0.0306 },   /* utilisateur 2026-11-11 : « met le rack a tige dans le coin gauche en arriere » = contre la paroi de gauche, au fond pres du front de taille */      // du cote de la foreuse, colle a la paroi de gauche : pattes du haut raccourcies a 16 cm (a 21 cm elles touchent un fil du grillage) (raccourcit_pattes.js), tetes des tiges a environ 5 cm de la paroi, a 78 deg, glisse de 34 cm vers la cloture pour ouvrir le passage vers le plancher secondaire, hors de la ligne de tir
+    { nom: "rack", f: "rack_tiges.txt", n: 1136344, pos: [1.04, HAUT_EQ, 1.872], lacet: Math.PI + 0.0306 },   /* utilisateur 2026-11-11 : « met le rack a tige dans le coin gauche en arriere » = contre la paroi de gauche, au fond pres du front de taille */      // du cote de la foreuse, colle a la paroi de gauche : pattes du haut raccourcies a 16 cm (a 21 cm elles touchent un fil du grillage) (raccourcit_pattes.js), tetes des tiges a environ 5 cm de la paroi, a 78 deg, glisse de 34 cm vers la cloture pour ouvrir le passage vers le plancher secondaire, hors de la ligne de tir
     { nom: "groupe", parType: true, f: "groupe_hydraulique.txt", n: 2337004, pos: [8.49, HAUT_EQ, -1.62], lacet: Math.PI },   /* 2026-11-12, utilisateur : « le power pack doit etre tourne de 180 degres » */             // a droite en entrant, pousse au bout du plancher (fin a 9,75 m) pour liberer la zone de forage
     { nom: "console", parType: true, f: "console.txt", n: 1522440, pos: [5.59, HAUT_EQ, -1.6], lacet: Math.PI / 2 }];   /* 2026-11-12 : « colle un peu plus les controles au grillage » : a 20 cm du treillis de la cloture (32 avant) */          // a droite, apres le groupe ; commandes vers l'operateur
   // ---- patch_pieces.js : pieces nouvelles du depot pieces-3d, a l'echelle (cotes des plans ; ecart < 1 %, voir pieces/echelle.json)
@@ -1017,9 +1025,9 @@
   var PIECES = [
     { nom: "support", f: "support_pipewrench.txt", n: 620300, pos: [4.05, HAUT_EQ, 1.30], lacet: Math.PI / 2, titre: "le support à clés à tuyau" },   // pres du front, a gauche de la foreuse, a 0,13 m du rack a tiges
     { nom: "rackOutils", f: "rack_outil.txt", n: 289568, pos: [3.40, 1.28, 2.475], lacet: Math.PI, titre: "le rack à outils", lim: [3.0, 3.8, 2.475, 2.475], sansTour: true, appui: function () { return 1.28; } },   // accroche au grillage de la paroi de gauche : il glisse le long de la paroi (corrections : z 2,50 essaye pour coller au grillage, 2,9 cm d ecart ; le rack ne se prenait plus en mode Deplacer : remis a 2,475)
-    { nom: "poubelle", f: "poubelle_dd.txt", n: 268424, pos: [7.33, HAUT_EQ, 2.17] /* patch_place_v131.js : entre le coffre et la table */, lacet: 0, titre: "la poubelle" },   // contre la paroi de gauche, entre le poste de premiers soins et le coffre
+    { nom: "poubelle", f: "poubelle_dd.txt", n: 176108, pos: [7.33, HAUT_EQ, 2.17] /* patch_place_v131.js : entre le coffre et la table */, lacet: 0, titre: "la poubelle" },   // contre la paroi de gauche, entre le poste de premiers soins et le coffre
     { nom: "tubeEau", f: "tube_eau_pompe.txt" /* patch_pompe_v127.js : avec la pompe Bean 420 */, n: 2231320, pos: [10.482, -0.328, -1.838] /* patch_place_v131.js : contre le bout du plancher ; v173 : 12 cm vers l'allee, le dos du bac reste a z -2,42 */, lacet: Math.PI / 2 /* v173 (utilisateur, 2026-11-25, capture a l'appui : « la tub doit etre positionner comme sur photo ») : tournee d'un quart de tour, moteur hydraulique cote plancher, raccords du bac vers l'allee ; les boyaux suivent (refaits par inter_pompe) */, titre: "le tube à l'eau" },   // sol de la galerie, paroi de droite, apres l'escalier, hors de la ligne de tir
-    { nom: "knocker", f: "core_knocker.txt", n: 193664, pos: [8.92, 1.048, 1.66], lacet: 0, titre: "le core knocker", appui: appuiKnocker },
+    { nom: "knocker", f: "core_knocker.txt", n: 124408, pos: [8.92, 1.048, 1.66], lacet: 0, titre: "le core knocker", appui: appuiKnocker },
     /* v164 (utilisateur, 2026-11-25 : « retire les planches et ajoute le rack a core box a l'entree de la place de travail ») : rack de boites a carottes
        du depot pieces-3d (rack-core-box P01, plein : 5 boites de large, 8 de haut ; 1,70 x 1,60 m, 0,96 m de haut), contre la paroi de gauche a
        l'entree, a la place de la pile de 3 x 8 rangee (x 10,6 a 13,1) ; bouts des boites (cote des fourches) vers l'allee. Il commence a 0,9 m du pied
@@ -1033,7 +1041,7 @@
        Sur le sol de la galerie, contre la paroi de droite, entre le tube a l'eau (fin a x 11,07) et la palette de boites (debut a x 11,89), a 2 m
        du power pack ; le long cote du bac suit la paroi, les etiquettes regardent le plancher. L'allee reste libre (bac jusqu'a z -1,44, la palette
        va deja a -1,18) ; l'escalier et le pied des marches, de l'autre cote, ne sont pas touches. */
-    { nom: "bacHuile", f: "bac_huile.txt", n: 1241488, pos: [11.48, -0.345, -1.93], lacet: -Math.PI / 2, titre: "le bac de rétention et ses chaudières d'huile" }];   // couche sur le plateau de la table a carottes
+    { nom: "bacHuile", f: "bac_huile.txt", n: 733200, pos: [11.48, -0.345, -1.93], lacet: -Math.PI / 2, titre: "le bac de rétention et ses chaudières d'huile" }];   // couche sur le plateau de la table a carottes
   if (PIECES_ACTIVES && COFFRE_NEUF) EQUIPEMENTS.forEach(function (E) { if (E.nom === "coffre") { E.f = "coffre_jeu.txt"; E.n = 1563344; E.pos = [6.215, HAUT_EQ, 1.9] /* patch_place_v131.js : espace entre le coffre et la table */; } });   // dessin 087 : 1,331 x 1,006 m hors tout, 1,918 m de haut
   var chargeEquipementsBase = chargeEquipements; chargeEquipements = function () { chargeEquipementsBase(); chargePieces(); };
   var piecesT0 = performance.now();
@@ -1099,7 +1107,7 @@
   chargeEquipements = function () { chargeEquipementsAvantCage(); chargeCage(); };
   var cageT0 = performance.now();
   function chargeCage() { if (!CAGE_ACTIVE || !chantier.cloture || CAGE.etat !== "attente") return; if (CAGE_APRES_MESURE && !fluidite.fait && performance.now() - cageT0 < 30000) { setTimeout(chargeCage, 400); return; } CAGE.etat = "charge"; CAGE.t0 = performance.now();
-    Promise.all([["cloture_cage.txt", 597424], ["porte_1801020.txt", 858460], ["poste_secours.txt", 507064]].map(function (f) { return telecharge(f[0], f[1], function () {}); }))
+    Promise.all([["cloture_cage.txt", 326384], ["porte_1801020.txt", 711640], ["poste_secours.txt", 321512]].map(function (f) { return telecharge(f[0], f[1], function () {}); }))
       .then(function (L) { rhabilleCage(L[0].scene, L[1].scene, L[2].scene); CAGE.etat = "pret"; CAGE.ms = Math.round(performance.now() - CAGE.t0); })
       .catch(function (e) { CAGE.essais = (CAGE.essais || 0) + 1; if (CAGE.essais < 3) { CAGE.etat = "attente"; setTimeout(chargeCage, 4000); return; } CAGE.etat = "echec"; try { chantier.cloture.children.forEach(function (o) { o.visible = true; }); } catch (e2) {} console.warn("cage : ancienne cloture gardee", e); }); }
   // fusion des maillages freres de meme apparence (meme parent, meme transformation : les primitives d'un noeud glTF)
@@ -11846,7 +11854,7 @@
     var OU = { "36": "dehors, suspendu dans la boîte à clés (côté gauche du coffre)", "38": "dehors, suspendue au crochet du côté gauche du coffre" };
     var v1 = new THREE.Vector3(), v2 = new THREE.Vector3(), q1 = new THREE.Quaternion(), AXE_Y = new THREE.Vector3(0, 1, 0), AXE_Z = new THREE.Vector3(0, 0, 1);
     var C = null, racine = null, contenu = null, table = null, porteD = null, bouton = null;
-    K.HD = { ACTIF: true, f: "coffre_pieces_hd.txt", n: 3742716, etat: "attente", modeles: {}, ms: 0 };
+    K.HD = { ACTIF: true, f: "coffre_pieces_hd.txt", n: 2269272, etat: "attente", modeles: {}, ms: 0 };
     function metHD(p, oui) { if (!p.leger) return; if (oui && !p.hd && K.HD.modeles[p.rep]) { var h = K.HD.modeles[p.rep].clone(); h.quaternion.copy(p.qC).invert(); h.position.copy(p.cHD); h.visible = false; p.o.add(h); p.hd = h; }
       var v = !!(oui && p.hd); if (p.hd) p.hd.visible = v; p.leger.visible = !v; }
     function chargeHD() { var H = K.HD; if (!H.ACTIF || H.etat !== "attente" || typeof telecharge !== "function") return; H.etat = "charge"; var t0 = performance.now();
@@ -12615,7 +12623,7 @@
   // Avec l'equipement (etape 18). Clic : la poignee vient aux yeux (examen), fiche de sa fonction.
   // K.ACTIF = false : rien.
   (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
-    var K = { ACTIF: true, F: ["dead_man.txt", 1086752], X: 2.45, PIEDS: 4, PLANCHER: 0.23, JEU: 0.012, DISTANCE_MIN: 1.5, etat: "attente", demande: false,
+    var K = { ACTIF: true, F: ["dead_man.txt", 747648], X: 2.45, PIEDS: 4, PLANCHER: 0.23, JEU: 0.012, DISTANCE_MIN: 1.5, etat: "attente", demande: false,
       RALLONGE: true, R_CABLE: 0.0035, Y_CABLE: 1.96, ATTACHE: 0.7, POTEAU_Z: -1.12, PRISE: { dx: 0.11, y: 1.30 }, longueur: 0, rallonges: 0, ms: {} };
     I.deadMan = K; I.etat.deadMan = K.ACTIF ? "attente" : "coupe"; if (!K.ACTIF) return;
     var V3 = THREE.Vector3, M4 = THREE.Matrix4, q = new THREE.Quaternion();
@@ -16097,7 +16105,7 @@
   // Un clic sur la pince a sertir ou la pince-monseigneur : mode examen commun. K.ACTIF = false : rien. Etat : I.etat.outils121, I.outils121.
   (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
     var K = { ACTIF: true, ETUI: true, SERTIR: true, BARRE_ACTIF: true, AZIMUT: 50 /* 38 au premier essai : la main droite passait a 5 mm de la boite de l'etui pendant la marche */, JEU_CEINTURE: 0.004,
-      F: { etui: ["etui_avec_cle.txt", 710136], sertir: ["pince_a_sertir.txt", 352496], barre: ["pince_monseigneur.txt", 82508] },
+      F: { etui: ["etui_avec_cle.txt", 710136], sertir: ["pince_a_sertir.txt", 352496], barre: ["pince_monseigneur.txt", 44600] },
       SERTIR_POSE: { t: [-0.3725, 0.2918, 0.069], q: [0, 0, -0.70711, 0.70711] },                     // repere du rack (pose_sertir_un_tube.js, tube 1)
       BARRE: { x: 4.52, z: 2.28, y: 0.2295, L: 1.524, r: 0.0111, pointe: [-0.762, 0.0143, 0], jeu: 0.003 },   // monde : pointe sur le plancher
       etuis: 0, etat: {} };
@@ -16558,15 +16566,15 @@
   (function () {
     var K = { ACTIF: true, etat: "attente", bilan: {}, erreurs: [],
       // objets seuls (deplacables comme les autres pieces) : [nom, fichier, octets, x, y, z, lacet, titre]
-      SEULS: [["trousseZenith", "trousse_deversement.txt", 1217000, 13.72, -0.345, -1.93, 0, "la trousse de déversement"],
-        ["boulonAncrage", "boulon_ancrage.txt", 164988, 11.62, -0.345, 2.12, 0, "le boulon d'ancrage de 5 pi"],
+      SEULS: [["trousseZenith", "trousse_deversement.txt", 842008, 13.72, -0.345, -1.93, 0, "la trousse de déversement"],
+        ["boulonAncrage", "boulon_ancrage.txt", 103564, 11.62, -0.345, 2.12, 0, "le boulon d'ancrage de 5 pi"],
         ["boiteLunch", "boite_lunch.txt", 281756, 12.56, -0.345, 1.92, Math.PI / 2, "la boîte à lunch"],
         /* v186 (« c'est la cle a tube avec carbide qui est sur le clou de la table a core, l'autre pince va pres foreuse ») : la pince pour tube interieur
            quitte la table, sur le plancher entre la foreuse et la cloture, cote console */
-        ["pinceTube", "pince_tube.txt", 1548960, 4.30, 0.23, -1.95, 0, "la pince pour tube intérieur"]],
+        ["pinceTube", "pince_tube.txt", 993132, 4.30, 0.23, -1.95, 0, "la pince pour tube intérieur"]],
       // objets poses sur un equipement (enfants : ils le suivent) : [fichier, octets, equipement, x, z (monde, centre), lacet, hauteur de depart des rayons]
-      POSES: [["pistolet_graisse.txt", 767984, "coffre", 6.10, 1.98, 0, 3.0],
-        ["ruban_cerclage.txt", 152620, "table", 8.70, 2.14, Math.PI / 2, 0.95],
+      POSES: [["pistolet_graisse.txt", 466520, "coffre", 6.10, 1.98, 0, 3.0],
+        ["ruban_cerclage.txt", 80152, "table", 8.70, 2.14, Math.PI / 2, 0.95],
         ["blocs_bois.txt", 1430432, "table", 9.12, 2.12, 0, 0.95],
         ["niveau_degres.txt", 1156120, "coffre", 6.62, 1.98, 0, 3.0]],   /* v186 : niveau a degres sur le coffre, a cote du pistolet (« ajoute au coffre pas sur le rack ») */
       NIVEAU: null,   // v185 : aimante au poteau du rack a tiges ; v186 : retire du rack
@@ -16612,7 +16620,7 @@
     // v186 (utilisateur : « installe nouveau crochet qui est un clou », puis « c'est la cle a tube avec carbide qui est sur le clou de la table a core ») :
     // un clou plante dans la tole de face de la table a carottes (cote allee), sous le plateau, au bout cote galerie (le panneau du fond, au-dessus de la
     // boite, est trop bas pour ses 63 cm) ; la cle a tube au carbure y pend par le bout de son manche, la tete en bas, a plat contre la tole.
-    K.CLOU = { f: "cle_a_tube.txt", n: 718956, X: 9.28, Y: 1.0, Z0: 1.3, LONG: 0.06, R: 0.0022, TETE: 0.0045 };
+    K.CLOU = { f: "cle_a_tube.txt", n: 490912, X: 9.28, Y: 1.0, Z0: 1.3, LONG: 0.06, R: 0.0022, TETE: 0.0045 };
     var clouFait = false;
     function essaieClou() { if (clouFait) return; var T = mobiles.table; if (!T) { setTimeout(essaieClou, 800); return; } clouFait = true; var C = K.CLOU;
       T.o.updateMatrixWorld(true); rc.set(new V3(C.X, C.Y, C.Z0), new V3(0, 0, 1)); rc.far = 1.5; var h = rc.intersectObject(T.o, true).filter(function (h) { return h.object.visible; })[0];
@@ -20336,7 +20344,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "186-a2cae99f", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "187-2a1f1588", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
