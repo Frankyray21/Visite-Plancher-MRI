@@ -271,7 +271,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 179</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 180</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -316,7 +316,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 179</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 180</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -337,7 +337,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 179</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 180</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -19458,6 +19458,10 @@
       "#hud88.s-marqueur .invite.gauche.ouvert span{translate:0 0}",
       "#hud88.s-marqueur .invite b{font-size:17px;font-weight:600;line-height:1.15;letter-spacing:.02em;text-transform:none}#hud88.s-marqueur .invite small{font-size:12px;letter-spacing:.14em;margin-bottom:1px}",
       "#hud88.s-marqueur .cadre{display:none}",
+      // (version 180) danger : pastille rouge pleine, point d'exclamation et cerne blancs (lisible meme sur une marque peinte en rouge), comme un panneau de securite
+      "#hud88.s-marqueur .invite[data-niveau=danger] kbd{background:#e5322d;color:#fff;border-color:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.6),0 0 12px #e5322d;font-weight:800}",
+      "#hud88.s-marqueur .invite[data-niveau=danger] small{color:#ff6a5f}",
+      "#hud88.s-marqueur .rep.dg{background:#e5322d;border-color:#fff}#hud88.s-marqueur .rep.dg::after{background:#fff}#hud88.s-marqueur .rep.dg.pres{background:#e5322d}",
       "#hud88.s-marqueur .invite.info span{max-width:min(340px,70vw)}#hud88.s-marqueur .invite.info b{font-size:16px;font-weight:500}",
       // (version 179) les autres messages (bulle #inter-aide) prennent le meme habillage : texte blanc sur fond semi-transparent, lisere jaune, plus de pilule blanche
       "body:has(#hud88.s-marqueur) #inter-aide{background:linear-gradient(90deg,rgba(8,10,12,.7),rgba(8,10,12,.45))!important;color:#fff!important;border-radius:0!important;border-left:2px solid #f2b705!important;box-shadow:none!important;text-shadow:0 1px 2px #000;font-weight:500!important;max-width:min(560px,88vw)!important;text-align:left!important}",
@@ -19549,6 +19553,15 @@
     H.ORDRE = ["chantier", "sobre", "scan", "icone", "halo", "bandeau", "etiquette", "plein", "detection", "fleche", "energie", "marqueur"];
     H.NOMS = { chantier: "Chantier", sobre: "Sobre", scan: "Scan", icone: "Icône", halo: "Halo", bandeau: "Bandeau", etiquette: "Étiquette", plein: "Plein", detection: "Détection", fleche: "Flèche", energie: "Énergie", marqueur: "Marqueur" };
     H.STYLE = "marqueur"; H.s = H.STYLES.marqueur;   // (version 178) style retenu par l'utilisateur : L « Marqueur » (icone d'abord, texte quand on fixe) ; avant : F « Bandeau » (version 91)
+    // (version 180) utilisateur : « adapte la couleur au danger », « sera utliser pour de la prvention » : code de couleurs de securite (rouge = danger,
+    // orange = avertissement, vert = secours/premiers soins ; jaune = action ordinaire). zone.niveau l'impose ; sinon il est deduit du texte et de la marque.
+    // La couleur passe a l'icone, a l'etiquette, au contour de la piece et a son repere ; l'etiquette d'un danger commence par « Danger · ».
+    H.NIVEAUX = { danger: { col: 0xe5322d, mot: "Danger" }, avertissement: { col: 0xff8a1f, mot: "Attention" }, secours: { col: 0x2fbf5b, mot: "" } };
+    H.niveau = function (z, t) { if (z && z.niveau) return z.niveau; var x = ((z && z.marque) || "") + " " + (t || "");
+      if (/explosi|non saut|électrocu|600 ?v|haute tension|mortel/i.test(x)) return "danger";
+      if (/\brisques?\b|attention|pincement|écrasement|coincement|chute|glissant|coupant|brûlure/i.test(x)) return "avertissement";
+      if (/premiers soins|poste de secours|trousse de secours|lave-yeux|douche oculaire|extincteur/i.test(x)) return "secours"; return ""; };
+    function hexCss(c) { return "#" + ("000000" + c.toString(16)).slice(-6); }
     H.FIXE = 0.4; H.tVise = 0;   // (version 178) secondes de visee avant que le texte s'ouvre a cote de l'icone (style a pos "marque")
     function majBouton() { if (bouton) bouton.innerHTML = "Style " + String.fromCharCode(65 + Math.max(0, H.ORDRE.indexOf(H.STYLE))) + "<b>" + H.NOMS[H.STYLE] + "</b>"; }
     H.style = function (n) { if (!H.STYLES[n]) return false; H.STYLE = n; H.s = H.STYLES[n]; racine.className = "s-" + n; racine.style.setProperty("--hud", "#" + ("000000" + H.s.col.toString(16)).slice(-6));
@@ -19597,11 +19610,13 @@
     function rejoue(el, c) { el.classList.remove(c); void el.offsetWidth; el.classList.add(c); }
 
     H.vise = function (z, textes, tact) { tactile = !!tact; viseur.classList.toggle("tact", tactile); viseur.classList.toggle("sur", !!z);
-      if (!z) { if (H.z) { H.z = null; L = null; cadre.classList.remove("vu"); invite.classList.remove("vu"); contour(null); } return; }
+      if (!z) { if (H.z) { H.z = null; H.zCol = null; L = null; cadre.classList.remove("vu"); invite.classList.remove("vu"); contour(null); } return; }
       var t = textes ? textes[0] : ""; if (z !== H.z) { H.z = z; L = null; A = null; H.tVise = performance.now(); invite.classList.remove("ouvert"); rejoue(cadre, "entre"); contour(z); }
       if (t !== texteVu || !invite.classList.contains("vu")) { texteVu = t; var p = lit(t), sc = !!(H.s.scinde && !p.info && !p.nom && p.objet);
         var ki = p.info && H.s.pos === "marque" ? p.action.indexOf(" : ") : -1; if (ki > 0) { p.nom = p.action.slice(0, ki); p.action = maj(p.action.slice(ki + 3)); }   // (version 178) info « Nom : consigne » : le nom en petit au-dessus de la consigne
-        nomEl.textContent = sc ? p.objet : p.nom; actEl.textContent = sc ? p.verbe : p.action; invite.classList.toggle("info", p.info); if (p.info) touche.textContent = "i"; else touche.innerHTML = picto(p.action); }
+        var nv = H.niveau(z, t), NV = H.NIVEAUX[nv], nom0 = sc ? p.objet : p.nom; H.zCol = NV ? NV.col : null; if (NV) invite.style.setProperty("--hud", hexCss(NV.col)); else invite.style.removeProperty("--hud");
+        if (NV && NV.mot && H.s.pos === "marque") nom0 = NV.mot + (nom0 ? " · " + nom0 : ""); invite.setAttribute("data-niveau", nv);
+        nomEl.textContent = nom0; actEl.textContent = sc ? p.verbe : p.action; invite.classList.toggle("info", p.info); if (p.info) touche.textContent = nv === "danger" ? "!" : "i"; else touche.innerHTML = picto(p.action); }
       invite.classList.toggle("tact", !invite.classList.contains("info")); cadre.classList.add("vu"); invite.classList.add("vu"); };
 
     // ---- reperes des pieces interactives proches (liste refaite toutes les 10 images, position a chaque image)
@@ -19610,7 +19625,7 @@
       if (H.z && H.s.distance) { H.z.b.getCenter(c3).applyMatrix4(H.z.o.matrixWorld); var t = Math.hypot(c3.x - etat.x, c3.z - etat.z).toFixed(1).replace(".", ",") + " m"; if (distEl.textContent !== t) distEl.textContent = t; }
       if (!H.REPERES || exam || (typeof modeDeplacer !== "undefined" && modeDeplacer)) return; var Z = I.zones || [];
       for (var i = 0; i < Z.length; i++) { var z = Z[i]; if (z === H.z) continue; try { if (!z.actif()) continue; } catch (e) { continue; }
-        z.b.getCenter(c3).applyMatrix4(z.o.matrixWorld); var dd = Math.hypot(c3.x - etat.x, c3.z - etat.z); if (dd > H.REPERES_PORTEE) continue; cand.push({ z: z, d: dd }); }
+        z.b.getCenter(c3).applyMatrix4(z.o.matrixWorld); var dd = Math.hypot(c3.x - etat.x, c3.z - etat.z); if (dd > H.REPERES_PORTEE) continue; var tz = ""; try { tz = z.texte()[0]; } catch (e) {} var nvz = H.NIVEAUX[H.niveau(z, tz)]; cand.push({ z: z, d: dd, col: nvz ? hexCss(nvz.col) : "" }); }
       cand.sort(function (a, b) { return a.d - b.d; });
       // une seule marque par action : la porte de la cage a quatre zones pour le meme geste
       // (version 118) une zone peut porter « marque » : toutes les zones de meme marque partagent un seul repere (les quatorze cles de la trousse)
@@ -19620,7 +19635,7 @@
         if (Math.abs(v.x) > 0.96 || Math.abs(v.y) > 0.96) continue; var sx = r.left + (v.x + 1) / 2 * r.width, sy = r.top + (1 - v.y) / 2 * r.height, trop = false;
         for (var j = 0; j < pris.length; j += 2) if (Math.abs(pris[j] - sx) < 46 && Math.abs(pris[j + 1] - sy) < 46) { trop = true; break; } if (trop) continue;
         if (H.z && sx > R.x0 - 8 && sx < R.x1 + 8 && sy > R.y0 - 8 && sy < R.y1 + 8) continue;   // deja dans le cadre de la piece visee
-        pris.push(sx, sy); var e = reperes[n++]; e.el.style.translate = sx.toFixed(1) + "px " + sy.toFixed(1) + "px"; e.el.style.opacity = c.d <= I.PORTEE ? 1 : Math.max(0.25, 0.75 - (c.d - I.PORTEE) / (H.REPERES_PORTEE - I.PORTEE) * 0.5);
+        pris.push(sx, sy); var e = reperes[n++]; if (e.col !== c.col) { e.col = c.col; if (c.col) e.el.style.setProperty("--hud", c.col); else e.el.style.removeProperty("--hud"); e.el.classList.toggle("dg", c.col === "#e5322d"); } e.el.style.translate = sx.toFixed(1) + "px " + sy.toFixed(1) + "px"; e.el.style.opacity = c.d <= I.PORTEE ? 1 : Math.max(0.25, 0.75 - (c.d - I.PORTEE) / (H.REPERES_PORTEE - I.PORTEE) * 0.5);
         var pres = c.d <= I.PORTEE; if (e.pres !== pres) { e.pres = pres; e.el.classList.toggle("pres", pres); } if (!e.vu) { e.vu = true; e.el.style.display = "block"; } }
       for (; n < reperes.length; n++) if (reperes[n].vu) { reperes[n].vu = false; reperes[n].el.style.display = "none"; } }
 
@@ -19703,10 +19718,10 @@
       H.contour.n = M.length; }
     // H.tFixe (secondes) fige l'horloge de l'animation (prise d'images une a une)
     I.anime(function () { if (!copies.length) return; var r = cv || canvas.getBoundingClientRect(), S = H.s, now = performance.now(), fixe = typeof H.tFixe === "number", w = fixe ? H.tFixe : (now - t0) / 1000, b = 0.5 + 0.5 * Math.sin(w * 4.5),
-        e = fixe ? 1 : Math.min(1, (now - tCible) / 220), pop = 1 + 2.2 * (1 - e) * (1 - e), so = 1 + (S.souffle || 0) * Math.sin(w * 4.5), B = [[matLis, S.px, 1], [matLis2, S.px2, S.a2 || 0.3], [matLis3, S.px3, S.a3 || 0.15]];
-      for (var j = 0; j < 3; j++) { var u = B[j][0].uniforms, px = B[j][1] || 0; u.res.value.set(Math.max(1, r.width), Math.max(1, r.height)); u.px.value = px * pop * so; u.a.value = px ? B[j][2] * (0.75 + 0.25 * b) * e : 0; u.col.value.setHex(S.col); u.t.value = w; u.flux.value = j === 0 ? (S.flux || 0) : 0; }
-      var uv = matVoile.uniforms; uv.col.value.setHex(S.col); uv.a.value = S.voile * (0.7 + 0.5 * b) * e; uv.rim.value = (S.rim || 0) * (0.7 + 0.3 * b) * e; uv.bal.value = (S.bal || 0) * e; uv.t.value = w; uv.res.value.set(Math.max(1, canvas.width), Math.max(1, canvas.height));
-      matVoile0.color.setHex(S.col); matVoile0.opacity = uv.a.value;
+        e = fixe ? 1 : Math.min(1, (now - tCible) / 220), pxD = H.zCol === 0xe5322d ? 1.6 : 1, pop = 1 + 2.2 * (1 - e) * (1 - e), so = 1 + (S.souffle || 0) * Math.sin(w * 4.5), B = [[matLis, S.px, 1], [matLis2, S.px2, S.a2 || 0.3], [matLis3, S.px3, S.a3 || 0.15]];
+      for (var j = 0; j < 3; j++) { var u = B[j][0].uniforms, px = B[j][1] || 0; u.res.value.set(Math.max(1, r.width), Math.max(1, r.height)); u.px.value = px * pxD * pop * so; u.a.value = px ? B[j][2] * (0.75 + 0.25 * b) * e : 0; u.col.value.setHex(H.zCol || S.col); u.t.value = w; u.flux.value = j === 0 ? (S.flux || 0) : 0; }
+      var uv = matVoile.uniforms; uv.col.value.setHex(H.zCol || S.col); uv.a.value = S.voile * (0.7 + 0.5 * b) * e; uv.rim.value = (S.rim || 0) * (0.7 + 0.3 * b) * e; uv.bal.value = (S.bal || 0) * e; uv.t.value = w; uv.res.value.set(Math.max(1, canvas.width), Math.max(1, canvas.height));
+      matVoile0.color.setHex(H.zCol || S.col); matVoile0.opacity = uv.a.value;
       for (var i = 0; i < copies.length; i++) { var c = copies[i]; c.m.visible = I.vu(c.s); c.m.matrix.copy(c.s.matrixWorld); c.m.matrixWorld.copy(c.s.matrixWorld); } });
 
     // ---- actions : bouton de l'invite (souris, telephone, tablette), raccourci muet E, eclat du cadre a chaque action
@@ -20147,7 +20162,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "179-f7697287", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "180-f7697287", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
