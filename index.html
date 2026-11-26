@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 185</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 186</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 185</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 186</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 185</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 186</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -16547,7 +16547,8 @@
   //     cote console) : pose dans le repere de la foreuse (P010), rattache a l'os « Mat » de la STM articulee (ecran Angle de forage, il suit le mat a
   //     tous les angles) et, sur la foreuse fixe a -30 degres, a la meme place (pose de rig.js a -30, celle qui remplace la foreuse fixe) ;
   //  3. pistolet a graisse a levier Lincoln 1142 (pistolet-graisse-1142) : couche sur le dessus du coffre (il le suit) ;
-  //  6. niveau a degres Tajima (niveau-a-degres, outil() et niveler()) : aimante au poteau du rack a tiges cote allee, la regle le long du poteau, comme
+  //  6. niveau a degres Tajima (niveau-a-degres, outil() et niveler()) : v186, debout sur le dessus du coffre, a cote du pistolet a graisse (utilisateur :
+  //     « ajoute au coffre pas sur le rack ») ; en v185 il etait aimante au poteau du rack a tiges cote allee, la regle le long du poteau, comme
   //     a l'etape 5 de l'installation du rack dans pieces-3d ; le tambour est regle pour que la fiole soit de niveau, l'aiguille lit l'angle du poteau ;
   //  7. cle a tube au carbure grosseur N (cle-a-tube), 8. pince pour tube interieur (pince-tube-interieur), 11. blocs de bois pour boites a carottes
   //     (blocs-de-bois) et 12. ruban de cerclage Uline S-5736 (ruban-cerclage-s5736) : sur la tablette du bas de la table a carottes (ils la suivent) ;
@@ -16559,14 +16560,16 @@
       // objets seuls (deplacables comme les autres pieces) : [nom, fichier, octets, x, y, z, lacet, titre]
       SEULS: [["trousseZenith", "trousse_deversement.txt", 1217000, 13.72, -0.345, -1.93, 0, "la trousse de déversement"],
         ["boulonAncrage", "boulon_ancrage.txt", 164988, 11.62, -0.345, 2.12, 0, "le boulon d'ancrage de 5 pi"],
-        ["boiteLunch", "boite_lunch.txt", 281756, 12.56, -0.345, 1.92, Math.PI / 2, "la boîte à lunch"]],
+        ["boiteLunch", "boite_lunch.txt", 281756, 12.56, -0.345, 1.92, Math.PI / 2, "la boîte à lunch"],
+        /* v186 (« c'est la cle a tube avec carbide qui est sur le clou de la table a core, l'autre pince va pres foreuse ») : la pince pour tube interieur
+           quitte la table, sur le plancher entre la foreuse et la cloture, cote console */
+        ["pinceTube", "pince_tube.txt", 1548960, 4.30, 0.23, -1.95, 0, "la pince pour tube intérieur"]],
       // objets poses sur un equipement (enfants : ils le suivent) : [fichier, octets, equipement, x, z (monde, centre), lacet, hauteur de depart des rayons]
       POSES: [["pistolet_graisse.txt", 767984, "coffre", 6.10, 1.98, 0, 3.0],
-        ["cle_a_tube.txt", 718956, "table", 8.22, 1.80, 0, 0.95],
-        ["pince_tube.txt", 1548960, "table", 8.86, 1.82, 0, 0.95],
         ["ruban_cerclage.txt", 152620, "table", 8.70, 2.14, Math.PI / 2, 0.95],
-        ["blocs_bois.txt", 1430432, "table", 9.12, 2.12, 0, 0.95]],
-      NIVEAU: { f: "niveau_degres.txt", n: 1156688, pos: [-0.909, 1.60, -0.375] },   // repere du rack a tiges (face du poteau cote allee a x -0,896)
+        ["blocs_bois.txt", 1430432, "table", 9.12, 2.12, 0, 0.95],
+        ["niveau_degres.txt", 1156120, "coffre", 6.62, 1.98, 0, 3.0]],   /* v186 : niveau a degres sur le coffre, a cote du pistolet (« ajoute au coffre pas sur le rack ») */
+      NIVEAU: null,   // v185 : aimante au poteau du rack a tiges ; v186 : retire du rack
       ESTOP: { f: "arret_urgence_cable.txt", n: 235944, ANGLE_FIXE: -30 } };
     try { window.__pieces185 = K; } catch (e) {} if (!K.ACTIF) return;
     var V3 = THREE.Vector3, M4 = THREE.Matrix4, rc = new THREE.Raycaster();
@@ -16589,7 +16592,7 @@
     function essaiePoses() { aPoser = aPoser.filter(function (p) { return !pose(p); }); if (aPoser.length) setTimeout(essaiePoses, 800); }
     // 6 : niveau a degres sur le poteau du rack a tiges
     var niveauFait = false;
-    function essaieNiveau() { if (niveauFait) return; var R = mobiles.rack; if (!R) { setTimeout(essaieNiveau, 800); return; } niveauFait = true;
+    function essaieNiveau() { if (niveauFait || !K.NIVEAU) return; var R = mobiles.rack; if (!R) { setTimeout(essaieNiveau, 800); return; } niveauFait = true;
       telecharge(K.NIVEAU.f, K.NIVEAU.n, function () {}).then(function (gltf) { var r = prepare(gltf.scene); r.name = "Niveau_degres_v185"; r.position.fromArray(K.NIVEAU.pos); R.o.add(r); r.updateMatrixWorld(true);
         K.bilan.niveau = r.getWorldPosition(new V3()).toArray().map(function (v) { return +v.toFixed(3); }); }).catch(function (e) { erreur("niveau", e); }); }
     // 2 : arret d'urgence a cable, sur la foreuse fixe (STM) et sur la STM articulee
@@ -16606,7 +16609,42 @@
       // au repos (au chargement, avant toute pose) : repere de la foreuse (P010) = S ; dans le repere de l'os : inverse(os au repos) x S
       S.updateMatrixWorld(true); var L = new M4().copy(mat.matrixWorld).invert().multiply(S.matrixWorld);
       estop().then(function () { var c = copie(); L.decompose(c.position, c.quaternion, c.scale); mat.add(c); K.bilan.articulee = true; }).catch(function (e) { erreur("arret articulee", e); }); };
-    setTimeout(function () { essaiePoses(); essaieNiveau(); essaieFixe(); K.etat = "pret"; }, 1500);
+    // v186 (utilisateur : « installe nouveau crochet qui est un clou », puis « c'est la cle a tube avec carbide qui est sur le clou de la table a core ») :
+    // un clou plante dans la tole de face de la table a carottes (cote allee), sous le plateau, au bout cote galerie (le panneau du fond, au-dessus de la
+    // boite, est trop bas pour ses 63 cm) ; la cle a tube au carbure y pend par le bout de son manche, la tete en bas, a plat contre la tole.
+    K.CLOU = { f: "cle_a_tube.txt", n: 718956, X: 9.28, Y: 1.0, Z0: 1.3, LONG: 0.06, R: 0.0022, TETE: 0.0045 };
+    var clouFait = false;
+    function essaieClou() { if (clouFait) return; var T = mobiles.table; if (!T) { setTimeout(essaieClou, 800); return; } clouFait = true; var C = K.CLOU;
+      T.o.updateMatrixWorld(true); rc.set(new V3(C.X, C.Y, C.Z0), new V3(0, 0, 1)); rc.far = 1.5; var h = rc.intersectObject(T.o, true).filter(function (h) { return h.object.visible; })[0];
+      var zp = h ? h.point.z : 2.3; K.bilan.panneau = +zp.toFixed(3);
+      var acier = new THREE.MeshStandardMaterial({ name: "clou", color: 0x8a8d90, metalness: 0.35, roughness: 0.5 }), clou = new THREE.Group(); clou.name = "Clou_pince_v186";
+      var tige = new THREE.Mesh(new THREE.CylinderGeometry(C.R, C.R, C.LONG, 10), acier); tige.rotation.x = Math.PI / 2; tige.position.z = -C.LONG / 2 + 0.01; clou.add(tige);
+      var tete = new THREE.Mesh(new THREE.CylinderGeometry(C.TETE, C.TETE, 0.0015, 14), acier); tete.rotation.x = Math.PI / 2; tete.position.z = -C.LONG + 0.01; clou.add(tete);
+      clou.position.set(C.X, C.Y, zp); prepare(clou); scene.add(clou); clou.updateMatrixWorld(true); T.o.attach(clou);
+      telecharge(C.f, C.n, function () {}).then(function (gltf) { var r = prepare(gltf.scene); r.name = "Cle_tube_au_clou_v186"; r.rotation.z = -Math.PI / 2; r.updateMatrixWorld(true);
+        var bb = new THREE.Box3().setFromObject(r); r.position.set(C.X - (bb.min.x + bb.max.x) / 2, C.Y + 0.012 - bb.max.y, zp - 0.004 - bb.max.z); scene.add(r); r.updateMatrixWorld(true); T.o.attach(r);
+        K.bilan.cleClou = new THREE.Box3().setFromObject(r).min.toArray().map(function (v) { return +v.toFixed(3); }); }).catch(function (e) { erreur("pince au clou", e); }); }
+    // v186 (utilisateur : « inclure l'animation de cette angle a la sequence de construction de ce rack ») : a l'etape 5 de l'installation du rack
+    // (« Verifier l'angle »), le niveau a degres Tajima (niveau_rack.txt, pieces-3d outil() incline comme le poteau) vient se coller au poteau cote allee,
+    // puis on tourne le tambour jusqu'a ce que la bulle soit au centre de la fiole : l'aiguille lit l'angle du poteau (niveler() de pieces-3d, 75,7 degres,
+    // dans la zone verte 75 a 80). Il remplace le niveau de l'ancien export a cette etape. Il n'est plus colle au rack en dehors de l'etape (il est sur le coffre).
+    K.RACK5 = { f: "niveau_rack.txt", n: 1494464, pos: [0.832, 1.55, -0.39], GLISSE: 0.25, T_POSE: 0.9, PAUSE: 0.4, T_NIVEAU: 2.6, ANCIEN_CACHE: true };
+    var R5 = { o: null, ch: null, m: {}, x: {}, t: -1 };
+    function chargeR5() { if (!R5.ch) R5.ch = telecharge(K.RACK5.f, K.RACK5.n, function () {}).then(function (gltf) { var r = gltf.scene.getObjectByName("Niveau_rack") || gltf.scene.children[0];
+      prepare(r); R5.x = r.userData || {}; r.name = "Niveau_rack_v186"; r.traverse(function (o) { if (/^mobile_/.test(o.name)) R5.m[o.name.slice(7)] = o; });
+      if (r.parent) r.parent.remove(r); r.userData = { nom: "niveau_degres_v186", stepOnly: [5], base: new V3().fromArray(K.RACK5.pos) }; r.position.fromArray(K.RACK5.pos); R5.o = r; return r; }); return R5.ch; }
+    function niveleR5(k) { var f = R5.x.fin || {}, m = R5.m, B = R5.x.bulles; ["tambour", "fiole", "molette"].forEach(function (c) { if (m[c]) m[c].rotation.z = (f[c] || 0) * k; });
+      if (m.bulle && B && B.length) m.bulle.position.fromArray(B[Math.min(B.length - 1, Math.round(k * (B.length - 1)))]); }
+    K.rackEtape = function (RK, n) { if (!RK.groupe) return; chargeR5().then(function (r) { if (r.parent !== RK.groupe) RK.groupe.add(r); var cinq = RK.ouvert && RK.etape === 5; r.visible = cinq;
+        if (K.RACK5.ANCIEN_CACHE) RK.groupe.children.forEach(function (c) { if (!c.userData || c.userData.nom !== "guide_5") return; if (c.userData.ancienNiveau === undefined) { var u = false; c.traverse(function (o) { if (o.isMesh && o.material && o.material.name === "umBlue") u = true; }); c.userData.ancienNiveau = u; } if (c.userData.ancienNiveau) c.visible = false; });   // ancien niveau numerique (bleu) de l export
+        if (cinq && R5.vu !== 5) { R5.t = 0; r.position.x = K.RACK5.pos[0] - K.RACK5.GLISSE; niveleR5(0); } else if (cinq && R5.t < 0) { r.position.x = K.RACK5.pos[0]; niveleR5(1); } else if (!cinq) R5.t = -1;
+        R5.vu = RK.ouvert ? RK.etape : -1; }).catch(function (e) { erreur("niveau etape 5", e); }); };
+    (function anime() { var I = window.__inter71; if (!I || !I.anime) { setTimeout(anime, 1000); return; }
+      I.anime(function (dt) { if (!R5.o || R5.t < 0) return; if (!R5.o.visible) { R5.t = -1; return; } R5.t += dt; var P = K.RACK5, ad = I.adouci || function (u) { return u * u * (3 - 2 * u); };
+        R5.o.position.x = P.pos[0] - P.GLISSE * (1 - ad(Math.min(1, R5.t / P.T_POSE)));
+        var b = Math.max(0, Math.min(1, (R5.t - P.T_POSE - P.PAUSE) / P.T_NIVEAU)); niveleR5(ad(b)); if (b >= 1) R5.t = -1; }); })();
+    K._R5 = R5; setTimeout(function () { try { chargeR5(); } catch (e) {} }, 20000);   // niveau de l etape 5 pret avant qu on ouvre l installation du rack
+    setTimeout(function () { essaiePoses(); essaieNiveau(); essaieFixe(); essaieClou(); K.etat = "pret"; }, 1500);
   })();
   // ---- inter_plans_etapes_v156.js (v156, 2026-11-23) : demande de l'utilisateur (« pour l'ensemble des etapes de construction, analyse comment tu peux
   // ameliorer le deplacement de la camera et quelle info pertinente tu peux ajouter a meme l'animation », puis « Oui, fais-les »). Plans de camera par
@@ -17064,6 +17102,7 @@
         if (v && !dejaLa && n === avant + 1) { if (ud.ref === "3") K.anims.push({ o: c, t: 0, d: K.T_PIECE, dz: 0.44 }); else if (ud.cat === "tiges") K.anims.push({ o: c, t: -ud.seq * K.T_RANGEE, d: K.T_PIECE, dz: 0.5 }); } });
       K.anims.forEach(function (a) { a.o.position.z = a.o.userData.base.z + a.dz; });
       sprites.forEach(function (sp) { sp.visible = K.ETIQUETTES && sp.userData.steps.indexOf(n) >= 0; });
+      try { if (window.__pieces185 && window.__pieces185.rackEtape) window.__pieces185.rackEtape(K, n); } catch (e186) {}   /* v186 : niveau a degres anime a l'etape 5 */
       majFiche(); if (K.CAMERA) camera(n); I.collisions(rack, false); I.collisions(rack, true); I.etat.rackInstallation = "etape " + n; return true; }
     function camera(n) { var c = K.etapes[n] && K.etapes[n].cam; if (!c || typeof cadreK !== "function") return; rack.updateMatrixWorld(true);
       var T = new THREE.Vector3().fromArray(c.tgt).applyMatrix4(rack.matrixWorld), P = new THREE.Vector3().fromArray(c.pos).applyMatrix4(rack.matrixWorld), d = P.clone().sub(T), L = d.length();
@@ -20297,7 +20336,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "185-5a8dd56c", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "186-a2cae99f", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);

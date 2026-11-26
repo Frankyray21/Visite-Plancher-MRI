@@ -177,6 +177,14 @@ et les suivent. Visibles avec l'équipement (étape 18). Module `inter_pieces_v1
 dans `inter_angle_stm_v147.js` (`K.matMonde`, appel de `surArticulee`). Ajouté à la page déjà construite, hors de la chaîne de construction :
 empreinte `185-5a8dd56c`. À reporter dans la source de la visite avant la prochaine fabrication.
 
+Version 186 (remarques de l'utilisateur sur les captures) : le niveau à degrés n'est plus collé au rack, il est debout sur le coffre à côté du
+pistolet (« ajoute au coffre pas sur le rack ») ; la clé à tube au carbure pend à un clou planté dans la tôle de face de la table à carottes, au bout
+côté galerie, et la pince pour tube intérieur est sur le plancher près de la foreuse, côté console (« c'est la clé à tube avec carbide qui est sur le
+clou de la table à core, l'autre pince va près foreuse »). Installation du rack, étape 5 « Vérifier l'angle » (« inclure l'animation de cette angle à
+la séquence de construction de ce rack ») : le niveau Tajima (`niveau_rack.txt`, pièces mobiles séparées, mise à niveau calculée par `niveler()` de
+pieces-3d) glisse contre la face intérieure du poteau du fond, puis le tambour tourne jusqu'à ce que la bulle soit au centre ; l'aiguille lit 78°,
+l'angle de la séquence, dans la zone verte de 75° à 80°. Il remplace le niveau numérique de l'ancien export à cette étape. Empreinte `186-a2cae99f`.
+
 ## Vérifier
 
 ```sh
