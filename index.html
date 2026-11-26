@@ -11027,7 +11027,43 @@
       OS.forEach(function (o) { var pw = o.parent && o.parent.isBone ? D[o.parent.name] : o.parent.matrixWorld; t.copy(pw).invert().multiply(D[o.name]); t.decompose(o.position, o.quaternion, o.scale); });
       S.position.set(K.POS[0] + (a > 0 ? K.RECUL_HAUT : 0), K.POS[1], K.POS[2]); S.updateMatrixWorld(true);
       if (a > 0 && K.JEU_FACE > 0) { var dF = avanceFace(a); if (dF) { S.position.x -= dF; S.updateMatrixWorld(true); } }
-      K.angle = a; K.poses++; }
+      K.angle = a; K.poses++; eauSuit(); }
+    // v183 (2026-11-26) utilisateur : « lorsqu'on change l'angle de forage la hose a eau de la rod swivel reste en hauteur a sa position d'origine ».
+    // Le boyau d'eau des conduits (trace par inter_foreuse_reel.js jusqu'au swivel de la foreuse FIXE, a -30 degres) restait en l'air a l'ancienne place
+    // du swivel quand la STM articulee changeait d'angle. Maintenant, a chaque pose, on retrouve le bout arriere du swivel de la foreuse articulee
+    // (sommets ponderes par les os Emerillon / Emerillon_Rotor, avec leurs os) et l'axe des tiges, et on retrace la montee du boyau a partir du sol :
+    // il sort du swivel dans l'axe, retombe derriere (PEND) et pend jusqu'au sol, pour tous les angles (descendant : il monte ; montant : swivel bas,
+    // le boyau ne fait que retomber). Le debut au sol (depuis la console) ne change pas. Fermer l'ecran remet le boyau de la foreuse fixe.
+    var EAU = { PEND: 0.36, etat: null }, vE = new V3();
+    function eauPrepare() { if (EAU.pret !== undefined) return EAU.pret; EAU.pret = false;
+      var D = chantier.boyauxDonnees, g = chantier.boyaux, R = I.foreuseReel; if (!D || !g || !D.B || !S) return false; var ie = -1; D.B.forEach(function (h, i) { if (h.c === "eau") ie = i; }); if (ie < 0) return false;
+      var tube = g.children[ie * 3], bout = g.children[ie * 3 + 2], h = D.B[ie]; if (!tube || tube.material !== D.eau || !bout) return false;
+      var n = (R && R.boyauEau && typeof R.boyauEau === "object") ? R.boyauEau.depuis + 1 : h.p.length / 3, sw = [];
+      S.traverse(function (o) { if (!o.isSkinnedMesh || !o.skeleton) return; var ids = {}; o.skeleton.bones.forEach(function (b, i) { if (/^Emerillon/.test(b.name)) ids[i] = 1; }); var si = o.geometry.attributes.skinIndex, wt = o.geometry.attributes.skinWeight; if (!si || !wt) return;
+        for (var i = 0; i < si.count; i++) { var best = 0, bi = -1; for (var c = 0; c < 4; c++) { var w = wt.array[i * 4 + c]; if (w > best) { best = w; bi = si.array[i * 4 + c]; } } if (ids[bi]) sw.push([o, i]); } });
+      if (!sw.length) return false; var pas = Math.max(1, Math.floor(sw.length / 500)); EAU.sw = sw.filter(function (x, i) { return i % pas === 0; });
+      EAU.ie = ie; EAU.tube = tube; EAU.bout = bout; EAU.r = h.r; EAU.pre = h.p.slice(0, n * 3); EAU.geo0 = tube.geometry; EAU.pos0 = bout.position.clone(); EAU.q0 = bout.quaternion.clone(); EAU.g = g; EAU.pret = true; return true; }
+    function eauSuit() { try { if (!K.ouvert || !eauPrepare()) return; var g = EAU.g, ta = OSN.Tige_Arriere, tv = OSN.Tige_Avant; if (!ta || !tv) return;
+        S.traverse(function (o) { if (o.isSkinnedMesh && o.skeleton) o.skeleton.update(); }); g.updateMatrixWorld(true);
+        var A = ta.getWorldPosition(new V3()), B = tv.getWorldPosition(new V3()), d = A.clone().sub(B).normalize(), pm = -1e9;   // d : axe des tiges, vers l'arriere (le swivel)
+        EAU.sw.forEach(function (x) { vE.fromBufferAttribute(x[0].geometry.attributes.position, x[1]); (x[0].applyBoneTransform || x[0].boneTransform).call(x[0], x[1], vE); vE.applyMatrix4(x[0].matrixWorld); var t = vE.sub(A).dot(d); if (t > pm) pm = t; });
+        var E = g.worldToLocal(A.clone().addScaledVector(d, pm)), dl = d.clone().transformDirection(new M4().copy(g.matrixWorld).invert().setPosition(0, 0, 0)).normalize();
+        var A1 = E.clone().addScaledVector(dl, 0.10), A2 = E.clone().addScaledVector(dl, 0.21), haut = dl.y >= 0; if (haut) A2.y += 0.035;
+        var X = E.x + EAU.PEND, Yh = haut ? E.y - 0.02 : A2.y - 0.08, pre = EAU.pre, np = pre.length / 3, i0 = -1, i;
+        for (i = 0; i < np; i++) if (pre[i * 3 + 1] < 0.12 && pre[i * 3] <= X + 0.09) { i0 = i; break; } if (i0 < 0) i0 = np - 1;
+        var F = new V3(pre[i0 * 3], pre[i0 * 3 + 1], pre[i0 * 3 + 2]), zde = function (y) { var u = Math.max(0, Math.min(1, (y - 0.2) / Math.max(0.5, E.y - 0.5))); u = u * u * (3 - 2 * u); return F.z + (E.z - F.z) * u; }, P = function (x, y) { return new V3(x, y, zde(y)); };
+        // du haut vers le bas : sortie dans l'axe, crosse, chute presque verticale, pied au sol ; un point n'est garde que s'il est plus bas que le precedent
+        var desc = [E.clone(), A1, A2, P(X - 0.03, Yh), P(X - 0.005, Yh - 0.28)], y;
+        for (y = 2.5; y >= 0.9; y -= 0.8) desc.push(P(X, y)); desc.push(P(X + 0.01, 0.26), P(X + 0.035, 0.11));
+        var C = [desc[0], desc[1], desc[2], desc[3]], dern = desc[3].y; for (i = 4; i < desc.length; i++) if (desc[i].y < dern - 0.1) { C.push(desc[i]); dern = desc[i].y; }
+        var pied = C[C.length - 1], lg = Math.hypot(pied.x - F.x, pied.z - F.z), nbS = Math.floor(lg / 0.3); for (i = nbS; i >= 1; i--) { var u = i / (nbS + 1); C.push(new V3(F.x + (pied.x - F.x) * u, F.y, F.z + (pied.z - F.z) * u)); }
+        C.push(F.clone()); C.reverse();
+        var courbe = new THREE.CatmullRomCurve3(C, false, "centripetal"), L = courbe.getLength(), nb = Math.max(8, Math.round(L / 0.04)), pts = [];
+        for (i = 0; i <= i0; i++) pts.push(new V3(pre[i * 3], pre[i * 3 + 1], pre[i * 3 + 2])); for (i = 1; i <= nb; i++) pts.push(courbe.getPointAt(i / nb));
+        var geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length, EAU.r, 8, false); if (EAU.tube.geometry !== EAU.geo0) EAU.tube.geometry.dispose(); EAU.tube.geometry = geo;
+        var dd = new V3().subVectors(pts[pts.length - 2], pts[pts.length - 1]).normalize(); EAU.bout.position.copy(pts[pts.length - 1]).addScaledVector(dd, 0.03); EAU.bout.quaternion.setFromUnitVectors(new V3(0, 1, 0), dd);
+        K.eau = { angle: K.angle, swivel: A.clone().addScaledVector(d, pm).toArray().map(function (v) { return +v.toFixed(3); }), depuis: i0, points: pts.length }; } catch (e) { err(e, "eau"); } }
+    function eauRemet() { try { if (!EAU.pret || EAU.tube.geometry === EAU.geo0) return; EAU.tube.geometry.dispose(); EAU.tube.geometry = EAU.geo0; EAU.bout.position.copy(EAU.pos0); EAU.bout.quaternion.copy(EAU.q0); } catch (e) { err(e, "eau remet"); } }
     // v182 (2026-11-25) utilisateur : « rapproche la foreuse a quelques pouces de la face ». En montant, la foreuse etait reculee de RECUL_HAUT (0,55 m)
     // a tous les angles : 59 a 73 cm entre le haut du mat et le grillage du front. Pour chaque angle (entier), on mesure l'ecart entre la foreuse et
     // le front (rayons vers -x depuis les sommets les plus en avant de la foreuse posee, sommets avec leurs os, contre les mailles « Galerie_ » du front)
@@ -11204,7 +11240,7 @@
         panneau().style.display = ""; majPanneau();
         charge().then(function () { if (!K.ouvert) return; S.visible = true; regle(K.angle); if (G) G.visible = true; });
         if (typeof cadre === "function" && guide) cadre(K.CAM); } catch (e) { err(e, "ouvre"); } }
-    function ferme() { try { if (!K.ouvert) return; K.ouvert = false; caches.forEach(function (o) { o.visible = true; }); caches = []; if (S) S.visible = false; if (G) G.visible = false; if (PN) PN.style.display = "none"; } catch (e) { err(e, "ferme"); } }
+    function ferme() { try { if (!K.ouvert) return; K.ouvert = false; eauRemet(); caches.forEach(function (o) { o.visible = true; }); caches = []; if (S) S.visible = false; if (G) G.visible = false; if (PN) PN.style.display = "none"; } catch (e) { err(e, "ferme"); } }
     // v155 (utilisateur : « une rod est encore visible lors de la sequence construction plancher ») : changer d etape avec l angle ouvert le fermait APRES
     // montre() ; ferme() remettait alors visibles la foreuse fixe, sa tige et le plancher secondaire par-dessus la regle de l etape. L angle se ferme avant.
     var montreAvantAngle = montre; montre = function () { try { if (K.ouvert) { if (K.libre && K.quitteLibre) K.quitteLibre(); else ferme(); } } catch (e) { err(e, "montre"); } return montreAvantAngle.apply(this, arguments); };
