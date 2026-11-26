@@ -265,17 +265,27 @@
     html.t52-barre #bas .fiche.reduite, html.t52-barre .fiche.reduite.deplacee { width: min(320px, 40vw) !important; }
     html.t52-barre #bas .fiche.reduite { margin-left: auto; }
   }
+  /* (version 181) utilisateur : « vient épurer cette partie de l'écran […] c'est rendu un jeu vidéo simulation axé prévention et SST » :
+     HUD de jeu minimal en haut à gauche. Plus de code de procédure, de version, de titre, de révision ni de position en mètres sur la scène
+     (code et version restent au Menu). La plaque d'en-tête reste dans la page, vide et sans hauteur, parce que la mise en page du téléphone s'y ancre.
+     La « Vue guidée » devient une petite invite du même habillage que les messages du jeu : icône caméra, fond semi-transparent, liseré jaune. */
+  #haut-gauche > .plaque:first-child { padding: 0 !important; margin: 0; border: 0 !important; background: none !important; backdrop-filter: none !important; box-shadow: none !important; height: 0; min-height: 0 !important; overflow: hidden; }
+  #haut-gauche > .plaque:first-child > * { visibility: hidden; }
+  #guide { display: flex; align-items: center; gap: 8px; width: max-content; max-width: min(380px, 80vw) !important; box-sizing: border-box; padding: 6px 12px 6px 9px !important; background: linear-gradient(90deg, rgba(8,10,12,.7), rgba(8,10,12,.45)) !important; border: 0 !important; border-left: 2px solid #f2b705 !important; border-radius: 0 !important; box-shadow: none !important; backdrop-filter: none !important; color: #fff !important; text-shadow: 0 1px 2px #000; font-size: 13px !important; font-weight: 500 !important; line-height: 1.3; }
+  #guide[hidden] { display: none !important; }
+  #guide b { color: #f2b705; font-weight: 700; }
+  #guide::before { content: "" !important; flex: none; display: block !important; width: 18px !important; height: 18px !important; margin: 0 !important; border-radius: 0 !important; vertical-align: 0 !important; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2b705' stroke-width='2' stroke-linejoin='round'%3E%3Crect x='2' y='6' width='14' height='12' rx='2'/%3E%3Cpath d='M16 10l6-3.5v11L16 14z'/%3E%3C/svg%3E") center / contain no-repeat !important; }
 </style>
 
 <canvas id="scene" tabindex="0" aria-label="Vue 3D de la galerie et du plancher de foreuse"></canvas>
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 180</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 181</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
-  <p class="plaque" id="guide" hidden>Vue guidée : touche l'écran pour reprendre la main</p>
+  <p class="plaque" id="guide" hidden><span><b>Vue guidée</b> · touche l'écran pour reprendre la main</span></p>
   <p class="plaque" id="alerte-tir" hidden>Rack à tiges dans la ligne de tir de la foreuse : déplace-le.</p>
   <p class="plaque" id="alerte-passage" hidden></p>
   <div class="plaque" id="panneau-deplacer" hidden>
@@ -316,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 180</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 181</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -337,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 180</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 181</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -2784,7 +2794,7 @@
   });
   function fin(e) { if (saisi && e.pointerId === saisi.id) { lache(); return; } if (e.pointerId === manche.id) { manche.id = null; manche.dx = manche.dy = 0; vueManche.hidden = true; } if (e.pointerId === regard.id) regard.id = null; }
   canvas.addEventListener("pointerup", fin); canvas.addEventListener("pointercancel", fin);
-  if (window.matchMedia && window.matchMedia("(pointer: fine)").matches) $("guide").textContent = "Vue guidée : clique ou appuie sur une flèche pour reprendre la main";
+  if (window.matchMedia && window.matchMedia("(pointer: fine)").matches) $("guide").innerHTML = "<span><b>Vue guidée</b> · clique ou appuie sur une flèche pour reprendre la main</span>";
 
   function taille() { var w = canvas.clientWidth || window.innerWidth, h = canvas.clientHeight || window.innerHeight; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
   window.addEventListener("resize", taille); taille();
@@ -20162,7 +20172,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "180-f7697287", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "181-f7697287", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
@@ -20214,7 +20224,7 @@
       remplitAide(); try { if (aide.showModal) aide.showModal(); else aide.setAttribute("open", ""); } catch (e) {} });
     montreBouton();
     // 2. hors ligne : le mot a cote de la version, et la plaque qui montre le telechargement
-    var ref = hg && hg.querySelector(".plaque .ref"), mot = null;
+    var ref = document.querySelector("#accueil .acc-tete .ref") || (hg && hg.querySelector(".plaque .ref")), mot = null;   // v181 : la version (et « hors ligne ✓ ») vit au Menu
     if (ref) { mot = document.createElement("span"); mot.id = "pwa-etat"; mot.className = "version-page"; mot.setAttribute("aria-live", "polite"); ref.appendChild(document.createTextNode(" ")); ref.appendChild(mot); }
     var hl = document.createElement("div"); hl.className = "plaque"; hl.id = "pwa-hl"; hl.hidden = true; hl.setAttribute("role", "status");
     hl.innerHTML = '<b></b><span class="d"></span><span class="barre"><i></i></span><button type="button" class="agit" data-a="reessaie" hidden>Réessayer</button><button type="button" class="ferme" data-a="ferme" aria-label="Fermer" title="Fermer" hidden>×</button>';
