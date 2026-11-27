@@ -1024,7 +1024,7 @@
   var LIM_PIECES = [0.1, 17.4, -2.2, 2.2];
   var PIECES = [
     { nom: "support", f: "support_pipewrench.txt", n: 620300, pos: [4.05, HAUT_EQ, 1.30], lacet: Math.PI / 2, titre: "le support à clés à tuyau" },   // pres du front, a gauche de la foreuse, a 0,13 m du rack a tiges
-    { nom: "rackOutils", f: "rack_outil.txt", n: 289568, pos: [3.40, 1.28, 2.475], lacet: Math.PI, titre: "le rack à outils", lim: [3.0, 3.8, 2.475, 2.475], sansTour: true, appui: function () { return 1.28; } },   // accroche au grillage de la paroi de gauche : il glisse le long de la paroi (corrections : z 2,50 essaye pour coller au grillage, 2,9 cm d ecart ; le rack ne se prenait plus en mode Deplacer : remis a 2,475)
+    { nom: "rackOutils", f: "rack_outil.txt", n: 289568, pos: [3.40, 1.28, 2.475], lacet: Math.PI, titre: "le rack à outils", lim: [3.0, 3.8, 2.475, 2.475], sansTour: true, appui: function () { return 1.28; } },   /* v193 : deplace sur le front, voir RACK_FRONT ci-dessous */   // accroche au grillage de la paroi de gauche : il glisse le long de la paroi (corrections : z 2,50 essaye pour coller au grillage, 2,9 cm d ecart ; le rack ne se prenait plus en mode Deplacer : remis a 2,475)
     { nom: "poubelle", f: "poubelle_dd.txt", n: 176108, pos: [7.33, HAUT_EQ, 2.17] /* patch_place_v131.js : entre le coffre et la table */, lacet: 0, titre: "la poubelle" },   // contre la paroi de gauche, entre le poste de premiers soins et le coffre
     { nom: "tubeEau", f: "tube_eau_pompe.txt" /* patch_pompe_v127.js : avec la pompe Bean 420 */, n: 2231320, pos: [10.482, -0.328, -1.838] /* patch_place_v131.js : contre le bout du plancher ; v173 : 12 cm vers l'allee, le dos du bac reste a z -2,42 */, lacet: Math.PI / 2 /* v173 (utilisateur, 2026-11-25, capture a l'appui : « la tub doit etre positionner comme sur photo ») : tournee d'un quart de tour, moteur hydraulique cote plancher, raccords du bac vers l'allee ; les boyaux suivent (refaits par inter_pompe) */, titre: "le tube à l'eau" },   // sol de la galerie, paroi de droite, apres l'escalier, hors de la ligne de tir
     { nom: "knocker", f: "core_knocker.txt", n: 124408, pos: [8.92, 1.048, 1.66], lacet: 0, titre: "le core knocker", appui: appuiKnocker },
@@ -1042,6 +1042,15 @@
        du power pack ; le long cote du bac suit la paroi, les etiquettes regardent le plancher. L'allee reste libre (bac jusqu'a z -1,44, la palette
        va deja a -1,18) ; l'escalier et le pied des marches, de l'autre cote, ne sont pas touches. */
     { nom: "bacHuile", f: "bac_huile.txt", n: 733200, pos: [11.48, -0.345, -1.93], lacet: -Math.PI / 2, titre: "le bac de rétention et ses chaudières d'huile" }];   // couche sur le plateau de la table a carottes
+  /* v193 (utilisateur, 2026-11-27, captures a l'appui : « deplace ce rack sur la face pres de la foreuse et ajoute la pince a tube et le graisse gun sur le rack ») :
+     le rack a outils 15083000 quitte la paroi de gauche pour le front (la « face »), a cote de la foreuse, accroche au grillage du front par ses 4 crochets
+     comme avant. Il est entre les deux fonds de trous marques (z +0,55 et -0,55, anneaux de 13 cm) et AU-DESSUS d'eux : bas du rack a 1,75 m (le haut
+     de l'anneau de droite est a 1,58 m) ; ce qui pend sous le rack (pince a sertir, cles, poignees de la pince a tube) reste a 5 cm ou plus des anneaux
+     (essai a 1,62 m : la pince a sertir pendait a 2 cm de l'anneau de gauche) ; le haut du rack est a 2,12 m, a portee de main depuis la plateforme
+     de bois devant le front. Dos du rack contre le grillage (x mesure par rayons sur le front, 3 mm de jeu, comme RACK_JEU).
+     Sur le front, il ne glisse plus le long de la paroi en mode Deplacer (lim fixe) : rackZ ne lit que la paroi de gauche. RACK_FRONT = false : version 192. */
+  var RACK_FRONT = { ACTIF: true, X: -0.1724, Y: 1.75, Z: -0.02 };
+  if (RACK_FRONT.ACTIF) PIECES.forEach(function (P) { if (P.nom !== "rackOutils") return; var R = RACK_FRONT; P.pos = [R.X, R.Y, R.Z]; P.lacet = Math.PI / 2; P.lim = [R.X, R.X, R.Z, R.Z]; P.appui = function () { return R.Y; }; });
   if (PIECES_ACTIVES && COFFRE_NEUF) EQUIPEMENTS.forEach(function (E) { if (E.nom === "coffre") { E.f = "coffre_jeu.txt"; E.n = 1563344; E.pos = [6.215, HAUT_EQ, 1.9] /* patch_place_v131.js : espace entre le coffre et la table */; } });   // dessin 087 : 1,331 x 1,006 m hors tout, 1,918 m de haut
   var chargeEquipementsBase = chargeEquipements; chargeEquipements = function () { chargeEquipementsBase(); chargePieces(); };
   var piecesT0 = performance.now();
@@ -16571,12 +16580,10 @@
       // objets seuls (deplacables comme les autres pieces) : [nom, fichier, octets, x, y, z, lacet, titre]
       SEULS: [["trousseZenith", "trousse_deversement.txt", 842008, 13.72, -0.345, -1.93, 0, "la trousse de déversement"],
         ["boulonAncrage", "boulon_ancrage.txt", 103564, 11.62, -0.345, 2.12, 0, "le boulon d'ancrage de 5 pi"],
-        ["boiteLunch", "boite_lunch.txt", 281756, 12.56, -0.345, 1.92, Math.PI / 2, "la boîte à lunch"],
-        /* v186 (« c'est la cle a tube avec carbide qui est sur le clou de la table a core, l'autre pince va pres foreuse ») : la pince pour tube interieur
-           quitte la table, sur le plancher entre la foreuse et la cloture, cote console */
-        ["pinceTube", "pince_tube.txt", 993132, 4.30, 0.23, -1.95, 0, "la pince pour tube intérieur"]],
+        ["boiteLunch", "boite_lunch.txt", 281756, 12.56, -0.345, 1.92, Math.PI / 2, "la boîte à lunch"]]
+        /* v186 : la pince pour tube interieur etait sur le plancher pres de la foreuse ; v193 : accrochee au rack a outils (K.RACK ci-dessous) */,
       // objets poses sur un equipement (enfants : ils le suivent) : [fichier, octets, equipement, x, z (monde, centre), lacet, hauteur de depart des rayons]
-      POSES: [["pistolet_graisse.txt", 466520, "coffre", 6.10, 1.98, 0, 3.0],
+      POSES: [/* v193 : le pistolet a graisse n'est plus couche sur le coffre, il est dans un tube du rack a outils (K.RACK) */
         ["ruban_cerclage.txt", 80152, "table", 8.70, 2.14, Math.PI / 2, 0.95],
         ["blocs_bois.txt", 1430432, "table", 9.12, 2.12, 0, 0.95],
         ["niveau_degres.txt", 1156120, "coffre", 6.62, 1.98, 0, 3.0]],   /* v186 : niveau a degres sur le coffre, a cote du pistolet (« ajoute au coffre pas sur le rack ») */
@@ -16655,7 +16662,27 @@
         R5.o.position.x = P.pos[0] - P.GLISSE * (1 - ad(Math.min(1, R5.t / P.T_POSE)));
         var b = Math.max(0, Math.min(1, (R5.t - P.T_POSE - P.PAUSE) / P.T_NIVEAU)); niveleR5(ad(b)); if (b >= 1) R5.t = -1; }); })();
     K._R5 = R5; setTimeout(function () { try { chargeR5(); } catch (e) {} }, 20000);   // niveau de l etape 5 pret avant qu on ouvre l installation du rack
-    setTimeout(function () { essaiePoses(); essaieNiveau(); essaieFixe(); essaieClou(); K.etat = "pret"; }, 1500);
+    // v193 (utilisateur : « ajoute la pince a tube et le graisse gun sur le rack ») : les deux outils sont des enfants du rack a outils (repere du plan
+    // 15083000 : x le long du rack, y vers le haut depuis le bas de la plaque, z vers l'avant depuis le dos ; plaque en U de 3/16 po, traverse du bas
+    // de 2 1/2 po, montants aux deux bouts). Poses calculees sur les maillages des fichiers (sommets), sans rien inventer au rack :
+    //  - PISTOLET a graisse Lincoln 1142, bec en bas dans le 2e tube rond (Ø 2 7/8 po ext., 2 1/2 po int. ; centre x -0,2524, z 0,0365, haut a
+    //    y 0,0635) : la rallonge et le coupleur passent dans le tube (rayon 2,96 cm au plus, axe du pistolet 3 mm en avant de celui du tube pour que le
+    //    coupleur coude ne touche pas la paroi), les flasques du levier reposent sur le bord du tube (6,2 cm sous l'axe de la tete) ; le levier est vers
+    //    l'avant, le corps monte devant le vide du U (rien derriere que le grillage). Il garde son nom (Piece185_pistolet_graisse) : la prise en main
+    //    de inter_graissage_v189 le trouve par ce nom, le cache quand on le prend et le rend visible quand on le repose, a la meme place.
+    //  - PINCE pour tube interieur, coquilles rondes (rayon int. 28,3 mm, 70 mm de long, centre a x 0,025 et z -0,013 du modele) passees sur le
+    //    tuyau couche de Ø 1,900 po (rayon 24,1 mm, centre x 0,3492, y 0,0318, 4,3 cm de long) : le haut de la coquille repose sur le tuyau
+    //    (4,2 mm plus haut que son axe), le fond de la coquille a 1 cm de la plaque, les poignees pendent vers le bas.
+    //  Les cles a tuyau (crochets 2, 4, 6), la pince a sertir (tube 1) et les crochets en L libres ne changent pas.
+    K.RACK = { ACTIF: true,
+      PISTOLET: { f: "pistolet_graisse.txt", n: 466520, nom: "Piece185_pistolet_graisse", t: [-0.2524, 0.1256, 0.0395], base: [[0, -1, 0], [0, 0, 1], [-1, 0, 0]] },
+      PINCE: { f: "pince_tube.txt", n: 993132, nom: "Piece185_pince_tube", t: [0.3622, 0.061, 0.0854], base: [[0, -1, 0], [0, 0, -1], [1, 0, 0]] } };
+    var rackFait = false;
+    function essaieRack() { if (rackFait || !K.RACK.ACTIF) return; var R = mobiles.rackOutils; if (!R || !R.o) { setTimeout(essaieRack, 800); return; } rackFait = true;
+      ["PISTOLET", "PINCE"].forEach(function (c) { var P = K.RACK[c]; telecharge(P.f, P.n, function () {}).then(function (gltf) { var r = prepare(gltf.scene); r.name = P.nom;
+          var B = P.base, M = new M4().makeBasis(new V3().fromArray(B[0]), new V3().fromArray(B[1]), new V3().fromArray(B[2])); r.quaternion.setFromRotationMatrix(M); r.position.fromArray(P.t);
+          R.o.add(r); r.updateMatrixWorld(true); K.bilan[P.nom] = new THREE.Box3().setFromObject(r).getCenter(new V3()).toArray().map(function (v) { return +v.toFixed(3); }); }).catch(function (e) { erreur(P.nom, e); }); }); }
+    setTimeout(function () { essaiePoses(); essaieNiveau(); essaieFixe(); essaieClou(); essaieRack(); K.etat = "pret"; }, 1500);
   })();
   // ---- inter_graissage_v189.js (version 189, 2026-11-26) : utilisateur : « lorsqu'on prend le graisse gun les points de graissage apparaissent et
   // trouve info nombre de coups a donner et le risque associe si pas respecte ». Le pistolet a graisse Lincoln 1142 (v185, sur le dessus du coffre) se
@@ -16744,7 +16771,7 @@
         K.bilan.articulee = n; } catch (e) { erreur("articulee", e); } };
     // pistolet : prendre sur le coffre, tenir devant soi, reposer
     var pist = null, tenu = null, vP = new V3(), qP = new THREE.Quaternion(), qR = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.12, Math.PI / 2 + 0.18, 0.08, "YXZ"));
-    var PREND = ["Clique pour prendre le pistolet à graisse", "Touche pour prendre le pistolet à graisse"], REPOSE = ["Clique pour reposer le pistolet à graisse sur le coffre", "Touche pour reposer le pistolet à graisse sur le coffre"];
+    var PREND = ["Clique pour prendre le pistolet à graisse", "Touche pour prendre le pistolet à graisse"], REPOSE = ["Clique pour reposer le pistolet à graisse sur le rack", "Touche pour reposer le pistolet à graisse sur le rack"]   /* v193 : il est dans un tube du rack a outils */;
     K.prend = function () { if (K.enMain || !pist) return false; K.enMain = true; K.prises++; pist.visible = false; window.__inter71.message(K.MSG, 6500); return true; };
     K.repose = function () { if (!K.enMain) return false; K.enMain = false; K.DETAIL = false; if (pist) pist.visible = true; if (tenu) tenu.visible = false; return true; };
     function essaiePistolet() { var I = window.__inter71; pist = scene.getObjectByName("Piece185_pistolet_graisse"); if (!pist || !I || !I.zone) { setTimeout(essaiePistolet, 1000); return; }
