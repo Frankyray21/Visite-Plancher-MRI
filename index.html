@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 202</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 203</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 202</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 203</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 202</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 203</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -12775,6 +12775,8 @@
       // gros plan sur la carte de ruban rouge a la fin (fenetre e), seulement si la vue guidee est encore en cours (le visiteur n'a pas repris la main) ;
       // dmin : distance minimale de la vue guidee (CAMK.VG_DIST_MIN, 1,6 m) abaissee pendant le gros plan, remise a la fermeture
       CAM_CARTE: { dir: [1, 0.28, 0.1], r: 0.27, dmin: 0.45 }, T_CAM_CARTE: 23100,
+      // v198 : vue sur les deux piles de section, pile 1 a la place de la section 2, pile 2 juste devant, apres le gros plan de la carte
+      CAM_PILES: { tgt: [9.0, 0.3, -1.3], dir: [0.88, 0.36, 0.31], r: 7.5 }, T_CAM_PILES: 27500,
       // chauffe des nuanceurs : 2 s apres l'arrivee a la derniere etape, une fois l'animation de pose de la page finie
       T_CHAUFFE: 2000,
       ouvert: false, t0: 0, t: 0, ouvertures: 0, fermetures: 0, cachees: 0, etat: "attente", ms: {}, erreur: null, essai: false };
@@ -12841,7 +12843,22 @@
       Ch.forEach(function (e, i) { e.k = e.xs; for (var j = 0; j < i; j++) { var u = Ch[j];
         if (u.yb >= e.yh - 0.04 && u.yb <= e.yh + 0.12 && Math.min(u.xs, e.xs) - Math.max(u.xn, e.xn) > 0.02 && Math.min(u.zx, e.zx) - Math.max(u.zn, e.zn) > 0.02 && u.k - 0.001 < e.k) e.k = u.k - 0.001; } });
       C.sort(function (a, b2) { return b2.k - a.k || b2.yh - a.yh; });
-      [[A, K.T.a], [B, K.T.b], [C, K.T.c]].forEach(function (L) { var l = L[0], a = L[1][0], z = L[1][1], pas = l.length > 1 ? (z - a - K.DUREE) / (l.length - 1) : 0; l.forEach(function (e, k) { e.d = a + k * pas; plan.push(e); }); });
+      // v198 (utilisateur 2026-11-27 : « demonter une section de 16 x 16 a la fois ... 2 piles, une pour chacune des sections ... pour eviter de
+      // marcher environ 30 pieds avec des madriers ») : le plancher principal se defait SECTION PAR SECTION ; v198b (photo de l'utilisateur : pile 1 au bout de la section 1, pile 2 juste devant la section 2) : la section de l'entree d'abord (sa pile 2 est juste devant), puis celle du fond, dont la pile 1 se fait a la place de la section 2 : ses planches
+      // (du fond vers la sortie, tire-fonds a mesure), puis ses 6 x 6 ; ensuite la section de l'entree, de meme. Chaque planche 3 x 8 et chaque 6 x 6
+      // de 16 pi va sur la pile de SA section, sur son rack de transport (pile 1 a la place de la section 2, pile 2 juste devant) (I.materiel.pilesSections) ; garde-corps, marches,
+      // blocages et cales partent comme avant. Les fenetres b (depuis K.T.b[0]) a c (jusqu'a K.T.c[1]) sont partagees en 4 temps egaux.
+      function genre(e) { var d = [e.xs - e.xn, e.yh - e.yb, e.zx - e.zn].sort(function (u, v) { return u - v; });
+        if (d[2] < 3.5) return null; if (Math.abs(d[0] - 3 * 0.0254) < 0.02 && Math.abs(d[1] - 8 * 0.0254) < 0.03) return "38"; if (Math.abs(d[0] - 6 * 0.0254) < 0.025 && Math.abs(d[1] - 6 * 0.0254) < 0.025) return "66"; return null; }
+      // limite des sections : bout des madriers 6 x 6 de 16 pi de la section 1 (le plus au fond), soit 16 pi plus loin que leur debut
+      B.concat(C).forEach(function (e) { e.pile = genre(e); });
+      var x66 = 1e9; C.forEach(function (e) { if (e.pile === "66" && e.xs - e.xn > 3.5 && e.xn < x66) x66 = e.xn; });
+      var XS = K.X_SECTION = x66 < 1e8 ? x66 + 16 * 0.3048 - 0.1 : 4.877;
+      B.concat(C).forEach(function (e) { e.sec = e.c[0] < XS ? 0 : 1; });
+      var T0 = K.T.b[0], T1 = K.T.c[1], Q4 = (T1 - T0) / 4, L4 = [B.filter(function (e) { return e.sec === 1; }), C.filter(function (e) { return e.sec === 1; }), B.filter(function (e) { return e.sec === 0; }), C.filter(function (e) { return e.sec === 0; })];   // section 2 (entree) d'abord : la pile 1 est posee a sa place
+      K.T.sections = [T0, T0 + Q4, T0 + 2 * Q4, T0 + 3 * Q4, T1];
+      [[A, K.T.a]].concat(L4.map(function (l, k) { return [l, [T0 + k * Q4, T0 + (k + 1) * Q4]]; })).forEach(function (L) { var l = L[0], a = L[1][0], z = L[1][1], pas = l.length > 1 ? (z - a - K.DUREE) / (l.length - 1) : 0; l.forEach(function (e, k) { e.d = a + k * pas; plan.push(e); }); });
+      K.compteSections = [0, 1].map(function (s) { var r = { "38": 0, "66": 0, autres: 0 }; B.concat(C).forEach(function (e) { if (e.sec === s) { if (e.pile) r[e.pile]++; else r.autres++; } }); return r; });
       K.nA = A.length; K.nB = B.length; K.nC = C.length; K._C = C; }
     // essais : ordre de la fenetre c (inversions par le bout cote sortie, et pieces parties avant celle qu'elles portent)
     K.ordreMesure = function () { var C = K._C || [], inv = 0, inv50 = 0, ecartMax = 0, porte = 0, i, j;
@@ -12968,6 +12985,16 @@
       K.camCarteFaite = false;
       K.fermetures++; K.etat = "ferme"; I.etat.demontage = "ferme"; K.ms.ferme = +(performance.now() - t0).toFixed(1); }
     K.ouvre = ouvre; K.ferme = ferme;
+    // v198 : piles des deux sections sur leurs racks (rendu de l'ecran Materiel), vides a l'ouverture, remplies a mesure que les pieces partent
+    var PS = null;
+    function pilesPretes() { if (PS || !I.materiel || typeof I.materiel.pilesSections !== "function") return PS; try { PS = I.materiel.pilesSections(); PS.g.traverse(function (q) { if (q.isMesh) { q.userData.grillage17 = true; q.userData.ecranV19 = true; } }); } catch (e) { K.erreur = "piles : " + String(e && e.message || e).slice(0, 200); PS = null; } return PS; }
+    function remplitPiles() { if (!PS) return; var n = [{ "38": 0, "66": 0 }, { "38": 0, "66": 0 }], t = [{ "38": 0, "66": 0 }, { "38": 0, "66": 0 }];
+      for (var i = 0; i < plan.length; i++) { var e = plan[i]; if (!e.pile) continue; t[e.sec][e.pile]++; if (e.ph === 2) n[e.sec][e.pile]++; }
+      PS.piles.forEach(function (p, s) { var a = t[s]["38"] ? Math.round(p.n38 * n[s]["38"] / t[s]["38"]) : 0, b = t[s]["66"] ? Math.round(p.n66 * n[s]["66"] / t[s]["66"]) : 0;
+        var k = a + (a >= p.n38 ? b : 0); if (p.k !== k) { p.k = k; p.m.geometry.setDrawRange(0, k * 36); p.m.visible = k > 0; } });
+      K.piles = PS.piles.map(function (p) { return p.k; }); }
+    var ouvreAvantPiles = ouvre; ouvre = function () { ouvreAvantPiles.apply(this, arguments); try { if (K.ouvert && G && pilesPretes()) { if (PS.g.parent !== G) G.add(PS.g); PS.piles.forEach(function (p) { p.k = -1; }); remplitPiles(); K.camPiles = false; } } catch (e) { K.erreur = "piles : " + String(e).slice(0, 200); } };
+    K.ouvre = ouvre;
 
     var E = window.__ecransV19 = window.__ecransV19 || { liste: [], actif: null };
     I.anime(function () { try {
@@ -12987,11 +13014,15 @@
       // a chaque image : seulement la racine (une couche remise sur une racine entiere est reprise tout de suite)
       for (i = 0; i < racines.length; i++) { var r0 = racines[i]; if (!r0.isLight && (r0.layers.mask & 1)) cacheArbre(r0); }
       for (var j = 0; j < plan.length; j++) posePiece(plan[j], t);
+      remplitPiles();
+      if (PS && K.T.sections) PS.piles[0].g.visible = t >= K.T.sections[2];   // rack 1 seulement une fois la section 2 partie (il est a sa place)
+      // v198 : a la fin, vue sur les deux piles (une par section), si la vue guidee est encore en cours
+      if (PS && !K.camPiles && t >= K.T_CAM_PILES) { K.camPiles = true; try { if (typeof guide !== "undefined" && guide && typeof cadre === "function") { remetDistMin(); cadre(K.CAM_PILES); } } catch (e) { K.erreur = String(e).slice(0, 300); } }
       var k = Math.min(1, Math.max(0, (t - K.T.e[0]) / 900));
       if (k > 0) { if (!pose) { pose = true; cloture.traverse(function (q) { if (masques.has(q)) { q.layers.mask = masques.get(q); masques.delete(q); } }); } cloture.position.y = 0.6 * Math.pow(1 - lisse(k), 3); }
       // gros plan sur la carte par la vue guidee de la page, camera seule ; jamais si le visiteur a repris la main (guide nul). La distance minimale de la
       // vue guidee (1,6 m) est abaissee le temps du gros plan (sinon carte de 65 x 84 px et texte de 6 px), remise par ferme()
-      if (!K.camCarte && t >= K.T_CAM_CARTE) { K.camCarte = true;
+      if (!K.camCarte && t >= K.T_CAM_CARTE && t < K.T_CAM_PILES) { K.camCarte = true;
         try { if (typeof guide !== "undefined" && guide && typeof cadre === "function" && K.carte) {
           try { if (typeof CAMK !== "undefined" && CAMK && typeof CAMK.VG_DIST_MIN === "number") { if (dmSauve === null) dmSauve = CAMK.VG_DIST_MIN; CAMK.VG_DIST_MIN = Math.min(dmSauve, K.CAM_CARTE.dmin); } } catch (e1) {}
           cadre({ tgt: K.carte, dir: K.CAM_CARTE.dir, r: K.CAM_CARTE.r }); K.camCarteFaite = true; } } catch (e) { K.erreur = String(e).slice(0, 300); remetDistMin(); } }
@@ -13003,8 +13034,9 @@
       // d'aujourd'hui pour l'ordre des 6 x 6 et « laver les madriers » (question Q7 de transversal_decisions.md, a trancher par l'utilisateur)
       texte: [
         "Après le départ de la foreuse : on lave le plancher au boyau d'eau ; le plancher secondaire est retiré en premier, gardé tel quel : on le réutilise.",
-        "Plancher principal : les planches du fond en premier ; clous et tire-fonds enlevés à mesure.",
-        "Structure de 6 × 6 : seulement quand toutes les planches et tous les tire-fonds sont enlevés ; de la sortie vers le fond, sans jamais enjamber le bois. Grosses pièces à deux.",
+        "Plancher principal : une section de 16 × 16 à la fois ; ses planches (celles du fond en premier, clous et tire-fonds enlevés à mesure), puis ses 6 × 6. D'abord la section 2 (entrée), sur la pile 2 juste devant ; puis la section 1 (fond), sur la pile 1, à la place de la section 2.",
+        "Une pile par section de 16 × 16, les 6 × 6 dessus : pile 1 (section 1) : 24 planches 3 × 8 + 7 madriers 6 × 6 = 31 pièces ; pile 2 (section 2) : 24 planches 3 × 8 + 14 pièces 6 × 6 = 38 pièces ; total : 69 pièces de 16 pi, chacune sur son propre rack de transport (moins de distance à bras avec les madriers).",
+        "Structure de 6 × 6 d'une section : seulement quand toutes ses planches et tous ses tire-fonds sont enlevés ; sans jamais enjamber le bois. Grosses pièces à deux.",
         "Laver les madriers à l'eau.",
         "Boue de forage sous le plancher : se placer dans la partie la plus solide et stable ; rester vigilant, les pieds solides au sol ; commencer au fond de la baie de forage ; faire glisser les pièces de bois les unes sur les autres pour les sortir.",
       ],
@@ -13018,8 +13050,11 @@
     // correction b : fenetres decalees de 2,6 s (etat de depart), consignes de la boue (r67-68) avec la structure, mots des panneaux de la video,
     // au plus 3 etiquettes a la fois ; etiquette « garde-corps et marches en dernier » retiree (hors procedure ; ordre de demonter())
     [["dem-secondaire", "1. Plancher secondaire retiré en premier : gardé tel quel, on le réutilise", [2.2, 0.95, 0.3], 600, 6000],
-     ["dem-planches", "2. Plancher principal : les planches du fond en premier ; clous et tire-fonds enlevés à mesure", [4.5, 0.6, -1.2], 6000, 14000],
-     ["dem-6x6", "3. Les 6 × 6 de la sortie vers le fond : ne jamais enjamber le bois", [8.5, 0.3, 1.2], 14000, 17000],
+     ["dem-planches", "2. Une section de 16 × 16 à la fois : d'abord la section 2 (entrée), ses planches (tire-fonds enlevés à mesure), puis ses 6 × 6, sur la pile 2 juste devant", [7.3, 0.6, -1.2], 6000, 16300],
+     ["dem-6x6", "3. Puis la section 1 (fond) : ses planches, puis ses 6 × 6, sur la pile 1, à la place de la section 2 ; ne jamais enjamber le bois", [2.4, 0.6, -1.2], 16300, 22000],
+     ["dem-piles", "Une pile par section de 16 × 16 · Total : 48 planches 3 × 8 + 21 pièces 6 × 6 = 69 pièces de 16 pi", [9.8, 1.25, -1.3], 24500, 1e9],
+     ["dem-pile1", "Pile 1 · section 1 (fond) : 24 planches 3 × 8 + 7 madriers 6 × 6 = 31 pièces", [7.32, 0.95, -1.3], 24500, 1e9],
+     ["dem-pile2", "Pile 2 · section 2 (entrée) : 24 planches 3 × 8 + 14 pièces 6 × 6 = 38 pièces", [12.30, 1.1, -1.3], 24500, 1e9],
      ["dem-boue", "Boue de forage sous le plancher : glissante", [6.4, 0.15, -1.05], 14000, 17000],
      ["dem-stable", "Se placer dans la partie la plus solide et stable ; rester vigilant, les pieds solides au sol", [8.4, 0.75, 1.3], 14000, 18000],
      ["dem-glisser", "Commencer au fond de la baie de forage : faire glisser les pièces de bois les unes sur les autres pour les sortir", [3.0, 0.75, 1.4], 17000, 22000],
@@ -15524,6 +15559,19 @@
     // materiel est decale de K.DX vers la sortie, DERRIERE la barricade de l'entree (x 14,05), hors de la zone de travail et du plancher (x 0 a 9,8).
     // Les piles de 16 pi vont de x 14,35 a 19,2 ; la camera de l'ecran regarde depuis la sortie vers la barricade et le chantier.
     K.DX = 9.5; (function (d) { K.X0 += d; [K.BLOCS66, K.BLOCS38, K.COINS, K.SEAU, K.TREPIED, K.BICHE, K.CAM.tgt].forEach(function (p) { p[0] += d; }); Object.keys(K.OUTILS).forEach(function (n) { K.OUTILS[n][0] += d; }); })(K.DX);
+    // v198 (2026-11-27, demandes de l'utilisateur : « montrer au debut le bois livre en 2 piles bien pilees selon les futurs racks ... une pile par
+    // section de 16 x 16 », puis « la premiere pile est pres de la premiere section et la deuxieme pile se trouve juste en avant de la ou sera construit
+    // le 2e plancher ; on retrouve les 6 x 6 sur le dessus car ca respecte l'ordre de montage et demontage ; montre clairement combien de bois par pile
+    // et total ») : les 6 x 6 et 3 x 8 de 16 pi arrivent en DEUX piles, chacune sur un rack de transport du bois 156072000 de Machines Roger (plan du
+    // 2026-08-06, modele pieces-3d rack-transport-bois ; poteaux de 24 po au-dessus du plateau, 51 po libres entre les parois). Bois couche dans le sens
+    // de la galerie, cote droit (z -1,3) : pile 1 (section 1, le fond) juste au bout de la section 1, sur l'emplacement de la section 2 (utilisee en
+    // premier) ; pile 2 (section 2, l'entree) juste devant la section 2, cote sortie. Par pile (liste des pieces du plancher, comptee dans la page) :
+    // 24 planches 3 x 8 (4 rangs de 6, a plat) dessous, les 6 x 6 de 16 pi dessus (section 1 : 7 madriers ; section 2 : 7 madriers, la jonction et
+    // 6 soutiens = 14). Pile 2 : 4 x 3 po + 2 x 6 po = 24 po, le haut des poteaux. Le meme rendu sert a la fin du demantelement (K.pilesSections).
+    K.RACKS = { x: [7.32, 12.30], z: [-1.30, -1.30], PLATEAU: (3.75 + 4) * 0.0254, LX: 54.5 * 0.0254, LZ: 56.5 * 0.0254, F: ["rack_bois.txt", 500332] };
+    K.SECTIONS = [{ n38: 24, n66: 7, nom: "Pile 1 · section 1 (fond)", detail: "24 planches 3 × 8 + 7 madriers 6 × 6 = 31 pièces" },
+      { n38: 24, n66: 14, nom: "Pile 2 · section 2 (entrée)", detail: "24 planches 3 × 8 + 14 pièces 6 × 6 (7 madriers, jonction, 6 soutiens) = 38 pièces" }];
+    K.TOTAL = "Total : 48 planches 3 × 8 + 21 pièces 6 × 6 = 69 pièces de 16 pi";
     I.materiel = K; I.etat.materiel = K.ACTIF ? "attente" : "coupe"; if (!K.ACTIF) return;
     window.__ecransV19 = window.__ecransV19 || { liste: [], actif: null }; window.__etiquettesV19 = window.__etiquettesV19 || [];
     var IN = 0.0254, FT = 0.3048, L16 = 16 * FT, B66 = 6 * IN, P3 = 3 * IN, P8 = 8 * IN, V3 = THREE.Vector3, M4 = THREE.Matrix4, Q = THREE.Quaternion;
@@ -15598,7 +15646,10 @@
     etiquette("b38", "3 × 8 brut", "note", [1]); etiquette("c38a", "8 po", "cote", [1]); etiquette("c38b", "3 po", "cote", [1]); etiquette("s24", "2 × 4", "note", [1]);
     etiquette("c24a", "3 ½ po", "cote", [1]); etiquette("c24b", "1 ½ po", "cote", [1]); etiquette("coins", "Coins de bois", "note", [1, 2]); etiquette("tirefonds", "Tire-fonds de 6 po", "note", [1, 2], "tirefonds");
     // r6
-    etiquette("b66u", "6 × 6 × 16 pi : madriers, jonction, soutiens", "note", [2]); etiquette("b38u", "3 × 8 × 16 pi : planches", "note", [2]); etiquette("blocs", "Blocages 6 × 6 et 3 × 8", "note", [2]);
+    etiquette("b66u", "6 × 6 × 16 pi : madriers, jonction, soutiens", "note", [2]);
+    // v198 : une pile par section de 16 x 16, chacune sur son rack de transport
+    etiquette("sec1", K.SECTIONS[0].nom + " : " + K.SECTIONS[0].detail, "note", [0, 1, 2]); etiquette("sec2", K.SECTIONS[1].nom + " : " + K.SECTIONS[1].detail, "note", [0, 1, 2]);
+    etiquette("piles16", "Une pile par section de 16 × 16 · " + K.TOTAL, "note", [0, 1, 2]); etiquette("b38u", "3 × 8 × 16 pi : planches", "note", [2]); etiquette("blocs", "Blocages 6 × 6 et 3 × 8", "note", [2]);
     // r7-r8 : outils, par groupe
     etiquette("biche", "Pied de biche", "note", [3], "biche"); etiquette("masse", "Masse", "note", [3], "masse"); etiquette("marteau", "Marteau", "note", [3], "marteau");
     etiquette("sciotte", "Sciotte (scie à main)", "note", [3], "sciotte"); etiquette("pinces", "Pinces à billots", "note", [3], "pinces");
@@ -15638,18 +15689,40 @@
       for (var i = 0; i < c.gl.length; i++) { if (c.fait[i]) continue; if (!c.proto.getProgramParameter.call(c.ctx, c.gl[i], c.ext.COMPLETION_STATUS_KHR)) return false; c.fait[i] = true; }
       c.ok = true; c.ms = Math.round(performance.now() - c.t); return true; }
     function libere(c) { if (!c || c.libre) return; c.libre = true; c.gl.forEach(function (g) { try { c.proto.deleteProgram.call(c.ctx, g); } catch (e) {} }); }
+    // v198 : une pile de section sur son rack. Ordre des pieces dans la maille = ordre de remplissage (une piece = 36 sommets) : les planches d'abord
+    // (4 rangs de 6, a plat, 8 po de large), puis les 6 x 6 (rangs de 8, centres) ; le demantelement remplit la pile dans cet ordre (drawRange).
+    function remplitPile(F, S, xm, zc, y) { var w38 = P8 + 0.004, w66 = B66 + 0.004, k, j, i, n;
+      for (k = 0; k < S.n38; k++) { j = Math.floor(k / 6); i = k % 6; F.boite(L16, P3, P8, xm + (alea() - 0.5) * 0.04, y + P3 / 2 + j * P3, zc + (i - 2.5) * w38, (alea() - 0.5) * 0.004, brut()); }
+      var y66 = y + Math.ceil(S.n38 / 6) * P3;
+      for (k = 0; k < S.n66; k++) { j = Math.floor(k / 8); i = k % 8; n = Math.min(8, S.n66 - j * 8); F.boite(L16, B66, B66, xm + (alea() - 0.5) * 0.03, y66 + B66 / 2 + j * B66, zc + (i - (n - 1) / 2) * w66, (alea() - 0.5) * 0.004, brut()); } }
+    // rack de transport du bois (GLB exporte de pieces-3d, rack seul, sans la charge dessinee au plan) : charge une fois, clone par pile
+    K.rack = null; K.rackEtat = "attente"; var rackAttente = [];
+    function chargeRack(puis) { if (K.rack) { puis(K.rack); return; } rackAttente.push(puis); if (K.rackEtat === "charge") return; K.rackEtat = "charge";
+      telecharge(K.RACKS.F[0], K.RACKS.F[1], function () {}).then(function (gltf) { var R = gltf.scene, vus = new Set();
+        R.traverse(function (m) { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true; var mt = m.material; if (mt && !vus.has(mt)) { vus.add(mt); mt.name = "materiel_rack_" + vus.size; if (mt.envMap) mt.userData.lumVu = true; else reflet(mt, false); } });
+        K.rack = R; K.rackEtat = "pret"; var l = rackAttente; rackAttente = []; l.forEach(function (f) { try { f(R); } catch (e) { K.erreurs.push("rack : " + String(e && e.message || e).slice(0, 200)); } }); })
+        .catch(function (e) { K.rackEtat = "echec"; K.erreurs.push("rack : " + String(e && e.message || e).slice(0, 200)); }); }
+    // un rack sous chaque pile : bois dans le sens de la galerie (x), poteaux de part et d'autre (z) ; pose au sol de la pile (meme y)
+    function rackSous(R, xm, zc, y) { var r = R.clone(); r.name = "Rack_transport_bois"; r.rotation.set(0, Math.PI / 2, 0); r.position.set(xm, y, zc); r.updateMatrixWorld(true); return r; }
+    function poseRacks() { if (!K.rack || !K.G) return; if (K.racksG && K.racksG.parent) K.racksG.parent.remove(K.racksG); var g = new THREE.Group(); g.name = "Materiel_racks";
+      PILES.forEach(function (p) { var m = /^Materiel_section(\d)$/.exec(p.o.name); if (!m) return; var s = +m[1] - 1; g.add(rackSous(K.rack, K.RACKS.x[s], K.RACKS.z[s], p.y)); });
+      K.racksG = g; K.G.add(g); }
+    // pour la fin du demantelement : les deux piles (vides au depart) sur leurs racks, au meme endroit ; n[s] = nombre de pieces de chaque pile
+    K.pilesSections = function () { matieres(); var mB = matiereBois(), g = new THREE.Group(), P = [];
+      g.name = "Piles_sections_v198";
+      K.SECTIONS.forEach(function (S, s) { var xm = K.RACKS.x[s], zc = K.RACKS.z[s], F = new Fusion(); remplitPile(F, S, xm, zc, K.RACKS.PLATEAU); var m = F.maille(mB, "Pile_section" + (s + 1));
+        var y = solMax(xm - K.RACKS.LX / 2, xm + K.RACKS.LX / 2, zc - K.RACKS.LZ / 2, zc + K.RACKS.LZ / 2), gs = new THREE.Group(); gs.name = "Pile_rack_" + (s + 1); m.position.set(0, y, 0); m.geometry.setDrawRange(0, 0); gs.add(m); g.add(gs);
+        P.push({ g: gs, m: m, n38: S.n38, n66: S.n66, y: y, x: xm, z: zc, haut: y + K.RACKS.PLATEAU + Math.ceil(S.n38 / 6) * P3 + Math.ceil(S.n66 / 8) * B66 }); });
+      chargeRack(function (R) { P.forEach(function (p) { p.g.add(rackSous(R, p.x, p.z, p.y)); }); });
+      return { g: g, piles: P }; };
     function construit() { var t0 = performance.now(); matieres(); K.G = new THREE.Group(); K.G.name = "Materiel_v19";
       var mBrut = matiereBois(); K.mVieux = mBrut; K.mBois = mBrut; K.mats = [mBrut];
       var X0 = K.X0, X1 = X0 + L16, H = 3.5 * IN + 0.05, xs = [X0 + 0.35, (X0 + X1) / 2, X1 - 0.35];
       // 6 x 6 x 16 pi : 14 madriers, 1 jonction, 6 soutiens = 21 pieces (4 de large, 5 rangs, 1 dessus), sur trois traverses
-      var z66 = K.Z66, w66 = B66 + 0.004;
-      pile("Materiel_6x6", mBrut, function (F) { traverses(F, xs, z66, z66 + 4 * w66, H); var y = H - 0.05;
-        for (var j = 0; j < 5; j++) for (var i = 0; i < 4; i++) F.boite(L16, B66, B66, (X0 + X1) / 2 + (alea() - 0.5) * 0.03, y + B66 / 2 + j * B66, z66 + w66 / 2 + i * w66, (alea() - 0.5) * 0.004, brut());
-        F.boite(L16, B66, B66, (X0 + X1) / 2, y + B66 * 5.5, z66 + w66 * 1.5, 0.003, brut()); }, X0, X1, z66, z66 + 4 * w66, xs);
-      // 3 x 8 x 16 pi : 48 planches (4 de large, 12 rangs)
-      var z38 = K.Z38, w38 = P8 + 0.004;
-      pile("Materiel_3x8", mBrut, function (F) { traverses(F, xs, z38, z38 + K.NZ38 * w38, H); var y = H - 0.05;
-        for (var j = 0; j < K.NY38; j++) for (var i = 0; i < K.NZ38; i++) F.boite(L16, P3, P8, (X0 + X1) / 2 + (alea() - 0.5) * 0.04, y + P3 / 2 + j * P3, z38 + w38 / 2 + i * w38, (alea() - 0.5) * 0.004, brut()); }, X0, X1, z38, z38 + K.NZ38 * w38, xs);
+      var w66 = B66 + 0.004;
+      // v198 : 6 x 6 et 3 x 8 de 16 pi en deux piles, une par section, sur les racks de transport (voir K.RACKS)
+      K.SECTIONS.forEach(function (S, s) { var zc = K.RACKS.z[s], xm = K.RACKS.x[s];
+        pile("Materiel_section" + (s + 1), mBrut, function (F) { remplitPile(F, S, xm, zc, K.RACKS.PLATEAU); }, xm - K.RACKS.LX / 2, xm + K.RACKS.LX / 2, zc - K.RACKS.LZ / 2, zc + K.RACKS.LZ / 2); });
       // 2 x 4 planes (garde-corps, mains courantes, coup de pied) : 15 pieces de 8 pi, 5 de large, 3 rangs, sur deux traverses
       var L8 = 8 * FT, xa = X0 + 0.15, s24w = 3.5 * IN + 0.004, s24t = 1.5 * IN, z24 = K.Z24 - 2.5 * s24w;
       pile("Materiel_2x4", mBrut, function (F) {   // (essai v19 : la matiere a part des 2 x 4 ne se dessinait pas ; meme matiere que les 6 x 6, qui se dessine)
@@ -15709,12 +15782,18 @@
         if (p.outil) { o.position.set(p.px, y + p.dy, p.pz); p.y = y; return; }
         o.position.set(0, y, 0); p.y = y; });
       var X0 = K.X0, X1 = X0 + L16, H = 3.5 * IN, P = function (n) { for (var i = 0; i < PILES.length; i++) if (PILES[i].o.name === n) return PILES[i]; return null; };
-      var p66 = P("Materiel_6x6"), p38 = P("Materiel_3x8"), p24 = P("Materiel_2x4"), pb = P("Materiel_blocs66"), pw = P("Materiel_coins"), w66 = B66 + 0.004, w38 = P8 + 0.004;
+      var p66 = P("Materiel_section1"), p38 = P("Materiel_section2"), p24 = P("Materiel_2x4"), pb = P("Materiel_blocs66"), pw = P("Materiel_coins"), w66 = B66 + 0.004, w38 = P8 + 0.004;
       // ancres SUR les objets (correction v19b : le rendu commun dessine un point a l'ancre ; 10 a 40 cm en l'air, il montrait l'objet voisin)
-      if (p66) { var top66 = yA(p66, X0 + 1.2) + H + 6 * B66; place("b66", X0 + 1.2, top66 + 0.005, K.Z66 + 1.5 * w66); place("b66u", X0 + 2.6, yA(p66, X0 + 2.6) + H + 6 * B66 + 0.005, K.Z66 + 1.5 * w66);
-        place("c66", X0 - 0.01, yA(p66, X0) + H + 5 * B66 - 0.005, K.Z66 + 3.5 * w66); }
-      if (p38) { var top38 = yA(p38, X0 + 2.4) + H + K.NY38 * P3, b38 = yA(p38, X0) + H + K.NY38 * P3; place("b38", X0 + 2.4, top38 + 0.005, K.Z38 + 2 * w38); place("b38u", X0 + 1.2, yA(p38, X0 + 1.2) + H + K.NY38 * P3 + 0.005, K.Z38 + 2 * w38);
-        place("c38a", X0 - 0.01, b38 + 0.005, K.Z38 + 0.5 * w38); place("c38b", X0 - 0.01, b38 - P3 / 2, K.Z38 + K.NZ38 * w38 + 0.01); }
+      // v198 : 6 x 6 dessus de la pile de la section 1, 3 x 8 sur le flanc des planches, cotes au bout cote barricade ; rack et consigne
+      // v198 : sur la pile 1, 6 x 6 dessus et 3 x 8 sur le flanc, cotes au bout cote fond ; sur chaque pile, son contenu ; total entre les deux
+      if (p66) { var x1 = K.RACKS.x[0], xb1 = x1 - L16 / 2, yb = p66.y + K.RACKS.PLATEAU, z1 = K.RACKS.z[0], top66 = yb + 4 * P3 + B66, zf = z1 + 3 * w38 + 0.003;
+        place("b66", x1 - 1.2, top66 + 0.005, z1); place("b66u", x1 - 0.6, top66 + 0.005, z1 + 2 * w66); place("c66", xb1 - 0.01, top66 - 0.005, z1 + 3 * w66);
+        place("b38", x1 - 1.0, yb + 2 * P3, zf); place("b38u", x1 + 0.4, yb + 3 * P3, zf);
+        place("c38a", xb1 - 0.01, yb + 4 * P3 + 0.003, z1 + 2.5 * w38); place("c38b", xb1 - 0.01, yb + 3.5 * P3, z1 + 3 * w38 + 0.01);
+        place("sec1", x1 + 0.5, top66 + 0.005, z1); }
+      if (p38) { var x2 = K.RACKS.x[1], top2 = p38.y + K.RACKS.PLATEAU + 4 * P3 + 2 * B66;
+        place("sec2", x2, top2 + 0.005, K.RACKS.z[1]); place("piles16", (K.RACKS.x[0] + x2) / 2 + 0.2, top2 + 0.05, K.RACKS.z[1]); }
+      poseRacks();
       if (p24) { var top24 = yA(p24, X0 + 1.35) + H + 3 * 1.5 * IN, b24 = yA(p24, X0 + 0.14) + H + 3 * 1.5 * IN, zz = K.Z24 - 2.5 * (3.5 * IN + 0.004); place("s24", X0 + 0.15 + 1.2, top24 + 0.005, K.Z24);
         place("c24a", X0 + 0.14, b24 + 0.005, zz + 4.5 * (3.5 * IN + 0.004)); place("c24b", X0 + 0.14, b24 - 0.019, zz - 0.012); }
       if (pb) place("blocs", K.BLOCS66[0], pb.y + 5 * B66 + 0.005, K.BLOCS66[1]);   // sur la cage de 6 x 6
@@ -15790,11 +15869,11 @@
       try { if (!K.G) { construit(); poseTout(); } else if (K.recaler) poseTout(); if (K.G.parent !== scene) { K.G.userData.lumContact = true; scene.add(K.G); } K.G.visible = true; if (!K.fileBois || !K.fileBois.length) { K.pret = true; K.t.vu = performance.now(); } }
       catch (e) { K.erreurs.push(String(e && e.stack || e).slice(0, 300));   // construction ratee : tout est refait a la prochaine ouverture
         try { if (K.G && K.G.parent) K.G.parent.remove(K.G); } catch (x) {} K.G = null; PILES.length = 0; K.col = null; K.fileBois = []; K.objOutils = {}; K.pret = false; }
-      collisions(true); K.ms.ouvre = +(performance.now() - t0).toFixed(1); if (carteOK()) chargeOutils(); }
+      collisions(true); K.ms.ouvre = +(performance.now() - t0).toFixed(1); if (carteOK()) chargeOutils(); if (!K.rack) chargeRack(function () { poseRacks(); }); }
     // collisions (correction) : les grosses piles entrent dans la liste des boites d'equipement de la page (boites : collisions du visiteur, recul de
     // la camera guidee) pendant que l'ecran est ouvert, et en sortent a ferme() ; la page ne compte une boite que si son objet est dans la scene
     function collisions(oui) { try { if (typeof boites === "undefined" || !Array.isArray(boites)) return;
-        if (!K.col || !K.col.length) { var l = PILES.filter(function (p) { return /^Materiel_(6x6|3x8|2x4|blocs66|blocs38)$/.test(p.o.name); }).map(function (p) { return { o: p.o, b: new THREE.Box3() }; });
+        if (!K.col || !K.col.length) { var l = PILES.filter(function (p) { return /^Materiel_(section1|section2|2x4|blocs66|blocs38)$/.test(p.o.name); }).map(function (p) { return { o: p.o, b: new THREE.Box3() }; });
           if (!l.length) return; K.col = l; }   // (correction v19b : une fermeture avant la 1re ouverture figeait une liste vide)
         K.col.forEach(function (e) { var i = boites.indexOf(e); if (oui) { e.o.updateMatrixWorld(true); e.b.setFromObject(e.o); if (i < 0) boites.push(e); } else if (i >= 0) boites.splice(i, 1); }); K.collisions = oui ? K.col.length : 0;
       } catch (e) { K.erreurs.push("collisions : " + String(e && e.message || e)); } }
@@ -15820,11 +15899,13 @@
       function p(t, x, z, dir, r, yy) { L.push({ t: t, cam: { tgt: [x, yy !== undefined ? yy : y(x, z), z], dir: dir, r: r } }); }
       var V = [-0.5, 0.62, 0.6];
       p(0, 19.45, -0.1, [0.93, 0.22, -0.2], 2.0, 1.25);                    // barricade, ruban et affiches (cote arrivee)
-      p(PH[0] + 4.5, X0 + 0.9, K.Z66 + 0.35, V, 1.5);                       // 6 x 6 brut
-      p(PH[1], X0 + 0.6, K.Z38 + 0.35, V, 1.3);                             // 3 x 8 brut
+      var R1 = K.RACKS.x[0], RZ = K.RACKS.z[0], R2 = K.RACKS.x[1];             // v198 : les deux piles de section
+      p(PH[0] + 1.5, (R1 + R2) / 2, RZ, [-0.15, 0.62, 0.77], 4.2, 0.4);       // les deux piles, une par section
+      p(PH[0] + 4.5, R1 - 1.5, RZ, [-0.5, 0.62, 0.6], 1.6, 0.6);            // 6 x 6 brut (dessus de la pile 1)
+      p(PH[1], R1 - 2.3, RZ + 0.3, [-0.6, 0.45, 0.66], 1.4, 0.4);           // 3 x 8 brut (bout de la pile 1)
       p(PH[1] + 3.5, X0 + 1.3, K.Z24, [-0.5, 0.62, -0.6], 1.3);              // 2 x 4 planes
       p(PH[1] + 7, (K.COINS[0] + K.SEAU[0]) / 2, (K.COINS[1] + K.SEAU[1]) / 2, V, 1.0);   // coins et seau de tire-fonds
-      p(PH[2], X0 + 2.4, (K.Z66 + K.Z38) / 2 + 0.2, [-0.25, 0.75, 0.6], 2.6);  // usages des 16 pi
+      p(PH[2], (R1 + R2) / 2, RZ, [-0.15, 0.62, 0.77], 4.2, 0.4);            // usages des 16 pi : les deux piles
       p(PH[2] + 4, (K.BLOCS66[0] + K.BLOCS38[0]) / 2, K.BLOCS66[1], [-0.5, 0.62, -0.6], 1.3);   // blocages
       var G = [["biche", "masse", "marteau"], ["sciotte", "pinces"], ["laser", "niveau"], ["pingouin"], ["scie", "lames"]];
       G.forEach(function (g, k) { var xs = 0, zs = 0, n = 0; g.forEach(function (nm) { var q = nm === "laser" ? K.TREPIED : (nm === "biche" ? [K.BICHE[0] + 0.06, K.BICHE[1] + 0.4] : o[nm]); if (q) { xs += q[0]; zs += q[1]; n++; } });
@@ -15843,7 +15924,7 @@
     window.__ecransV19.liste.push({ id: "materiel", apres: 0, ordre: 1, titre: "Matériel nécessaire", etiquette: "Matériel",
       // (correction v19b : securite d'abord comme la replique r4 ; armoire et extincteur supprimes de l'entree le 19 novembre : sur place, au poste de secours)
       texte: ["Sécurité : barricade avec ruban jaune à l'entrée ; premiers soins (2 lave-yeux) et extincteur sur place, au poste de secours.",
-        "Bois : 6 × 6 et 3 × 8 bruts de 16 pi, blocages 6 × 6 et 3 × 8, 2 × 4.", "Coins de bois, tire-fonds de 6 po, lames à bois pour la scie.",
+        "Bois de 16 pi livré en 2 piles sur racks de transport, une par section de 16 × 16, les 6 × 6 dessus (ordre de montage) : pile 1, au bout de la section 1 : 24 planches 3 × 8 + 7 madriers 6 × 6 = 31 pièces ; pile 2, juste devant la section 2 : 24 planches 3 × 8 + 14 pièces 6 × 6 = 38 pièces. Total : 48 planches 3 × 8 + 21 pièces 6 × 6 = 69 pièces.", "Aussi : blocages 6 × 6 et 3 × 8, 2 × 4.", "Coins de bois, tire-fonds de 6 po, lames à bois pour la scie.",
         "Outils : pied de biche, masse, marteau, sciotte, pinces à billots, niveau au laser Bosch, niveau de 48 po.", "Pingouin, scie va-et-vient."],
       detail: "Pourquoi : toujours transporter les grosses pièces de bois à deux.",
       cam: K.CAM, ouvre: ouvre, ferme: ferme });
@@ -21129,7 +21210,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "202-82da0d12", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "203-eef12a19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
