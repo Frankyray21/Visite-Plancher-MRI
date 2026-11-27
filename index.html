@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 197</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 197</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 197</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -15056,6 +15056,12 @@
     I.groupe = K; I.etat.groupe = "attente"; if (!K.ACTIF) { I.etat.groupe = "coupe"; return; }
     I.partage.groupeMarche = !K.DEPART_ARRETE;
     function bloque() { var C = I.carteRemplir; return !!(C && C.ACTIF && C.bloque && C.bloque()); }
+    // v199 (fiche d'inspection MA4657056, inter_fiche_inspection_v199.js) : aussi refuse tant que les verifications AVANT DEMARRAGE ne sont pas
+    // toutes cochees, ou si un item rouge est non conforme (« arret des travaux et appel au superviseur »).
+    function raison() { if (bloque()) return "carte"; var F = I.ficheInspection; return F && F.ACTIF && F.bloque ? F.bloque() : ""; }
+    var REFUS = { carte: ["Carte de travail : remplis-la et signe-la avant de démarrer le groupe", "Démarrage refusé : remplis d'abord la carte de travail, dans la pochette sur le power pack (question 16 : carte complétée avant utilisation)."],
+      avant: ["Fiche d'inspection : fais les vérifications avant démarrage", "Démarrage refusé : fais d'abord les vérifications avant démarrage de la fiche d'inspection, dans la 2e pochette sur le power pack."],
+      rouge: ["Item rouge non conforme : arrêt des travaux", "Démarrage refusé : un item rouge de la fiche d'inspection est non conforme. Arrêt des travaux et appel au superviseur."] };
     var R = null;
     function rond(k, cx, cy, c0, c1, c2) { var g = k.createRadialGradient(cx - 6, cy - 7, 1, cx, cy, 30); g.addColorStop(0, c0); g.addColorStop(0.45, c1); g.addColorStop(1, c2); k.fillStyle = g; k.fillRect(cx - 28, cy - 28, 56, 56); }
     function applique() { if (!R) return; var on = I.partage.groupeMarche, m = R.mE.material;
@@ -15070,9 +15076,10 @@
       var y = {}; G.COMMANDES.forEach(function (q) { y[q.n] = q.y; });
       function zone(n, on, txt) { var z = I.zone({ o: mE, prio: 1, b: new THREE.Box3(new THREE.Vector3(K.X - 0.035, y[n] - 0.048, K.Z0), new THREE.Vector3(K.X + 0.035, y[n] + 0.048, K.Z1)),
         actif: function () { return I.vu(R.racine) && I.partage.groupeMarche !== on; },
-        texte: function () { return on && bloque() ? ["Carte de travail : remplis-la et signe-la avant de démarrer le groupe", "Carte de travail : remplis-la et signe-la avant de démarrer le groupe"] : txt; },
-        agit: function () { if (on && bloque()) { K.bilan.refus = (K.bilan.refus || 0) + 1; I.message("Démarrage refusé : remplis d'abord la carte de travail, dans la pochette sur le power pack (question 16 : carte complétée avant utilisation).", 6000); return; } regle(on); } });
-        if (on) Object.defineProperty(z, "niveau", { get: function () { return bloque() ? "avertissement" : ""; } }); }   // v193 : orange tant que la carte n'est pas signee
+        texte: function () { var r = on && raison(); return r ? [REFUS[r][0], REFUS[r][0]] : txt; },
+        agit: function () { var r = on && raison(); if (r) { K.bilan.refus = (K.bilan.refus || 0) + 1; I.message(REFUS[r][1], 6000); return; } regle(on);
+          var F = I.ficheInspection; if (on && F && F.ACTIF && !F.signee) I.message("Groupe démarré : fais maintenant les vérifications après démarrage de la fiche d'inspection.", 5000); } });
+        if (on) Object.defineProperty(z, "niveau", { get: function () { var r = raison(); return r === "rouge" ? "danger" : r ? "avertissement" : ""; } }); }   // v193 : orange tant que la carte n'est pas signee ; v199 : rouge si arret des travaux
       zone("vert", true, ["Clique sur le bouton vert pour démarrer le groupe", "Touche le bouton vert pour démarrer le groupe"]);
       zone("rouge", false, ["Clique sur le bouton rouge pour arrêter le groupe", "Touche le bouton rouge pour arrêter le groupe"]);
       if (!I.partage.groupeMarche) applique();
@@ -16533,7 +16540,7 @@
   //    plancher et a K.FZ de la largeur du groupe (0 = cote paroi, 1 = cote allee). Enfant du groupe : elle le suit dans le mode Deplacer.
   //  Ajoute a la page deja construite (hors de la chaine de fabrication). K.ACTIF = false : version 174.
   (function () {
-    var IN = 0.0254, K = { ACTIF: true, FICHIER: "carte_travail.txt", N: 181672, CARTE: [5.5 * IN, 8.5 * IN], POCHETTE: [6.25 * IN, 9.5 * IN], Y: 0.86, FZ: 0.22, JEU: 0.004,
+    var IN = 0.0254, K = { ACTIF: true, FICHIER: "carte_travail.txt", N: 237580, CARTE: [5.5 * IN, 8.5 * IN], POCHETTE: [6.25 * IN, 9.5 * IN], Y: 0.86, FZ: 0.22, JEU: 0.004,
       etat: "attente", bilan: {} };
     try { window.__carteTravail = K; } catch (e) {} if (!K.ACTIF) return;
     var rc = new THREE.Raycaster(), fait = false;
@@ -16564,7 +16571,7 @@
         .catch(function (e) { K.etat = "erreur"; K.erreur = String(e && e.message || e); if (window.console) console.warn("v175", e); }); }
     setTimeout(essaie, 1500);
   })();
-  // ---- inter_carte_remplir_v193.js (version 193, 2026-11-27) : utilisateur (livret du jeu, idee « ouvrir la carte de travail sur le power pack et
+  // ---- inter_carte_remplir_v193.js (version 193, 2026-11-27 ; mise en page du formulaire : version 198) : utilisateur (livret du jeu, idee « ouvrir la carte de travail sur le power pack et
   // cocher l'inspection avant de pouvoir demarrer le groupe ») : « je veux tester ».
   // Source unique : le formulaire MA4657078 « Forage au diamant sous-terre » de Machines Roger International (pieces-3d, carte-forage-dd,
   // pages/P02.webp, volet INSPECTION et PLANIFICATION ; P01.webp pour les signatures). Rien d'autre n'est ajoute :
@@ -16576,9 +16583,14 @@
   //  - SIGNATURES : Travailleur + Heure (l'heure de l'appareil).
   // Demarrage du groupe : question 16 du formulaire (« ... complete la carte d'inspection avant utilisation ? »). Le groupe est ARRETE au depart
   // (inter_groupe.js, K.DEPART_ARRETE) et son bouton vert refuse de demarrer tant que la carte n'est pas signee (I.carteRemplir.bloque()).
+  // v198 (utilisateur : « garde exactement meme mise en page pour la carte de travail », puis « utilise plutot cette version » avec le PDF du
+  // formulaire MA4657078 date du 2023-01-06) : la carte s'affiche telle qu'imprimee. La page 2 de ce PDF (rendue a 220 ppp, webp en base 64 :
+  // carte_p02.txt ; la couverture carte_travail.txt vient de sa page 1 ; questions 19 et 21 selon ce PDF) sert de fond, ses deux moities cote a cote comme la carte ouverte (INSPECTION a
+  // gauche, PLANIFICATION / DECISION / EXECUTION a droite) ; les cases et les lignes a remplir sont posees exactement sur la grille de l'image
+  // (coordonnees en pixels de l'image de 2420 x 1870, relevees sur ses traits). Croix et ecriture a l'encre bleue ; colonnes Superviseur non cochables.
   // Ouverture : clic sur la pochette du power pack (inter_carte_travail_v175.js, groupe « Carte_travail_v175 »). K.ACTIF = false : version 192.
   (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
-    var K = { ACTIF: true, ouvert: false, remplie: false, heure: "", rep: {}, txt: {}, plan: {}, nom: "", tache: "", bilan: {} };
+    var K = { ACTIF: true, ouvert: false, remplie: false, heure: "", rep: {}, txt: {}, plan: {}, nom: "", tache: "", endroit: "", initiales: "", heureP: "", img: null, bilan: {} };
     I.carteRemplir = K; I.etat.carteRemplir = K.ACTIF ? "attente" : "coupe"; if (!K.ACTIF) { K.bloque = function () { return false; }; return; }
     // a = reponse dans la case ombree du formulaire (o = Oui, n = Non) ; t = question a reponse ecrite
     var Q = [
@@ -16600,112 +16612,114 @@
       { n: 16, q: "Est-ce que j’ai fait l’inspection de mon équipement mobile et de la foreuse et complété la carte d’inspection avant utilisation?", a: "n" },
       { n: 17, q: "Suis-je formé pour la tâche et je connais bien la ou les procédures?", a: "n" },
       { n: 18, q: "Quel est l’endroit du refuge le plus près?", t: true },
-      { n: 19, q: "Quel est l’endroit de l’extincteur le plus près?", t: true },
+      { n: 19, q: "Quel est l’endrois de l’extincteur le plus près?", t: true },
       { n: 20, q: "Est-ce qu’il y a d’autres risques?", a: "o" },
-      { n: 21, q: "Est-ce que j’ai validé les plans et devis?", a: "n" }];
+      { n: 21, q: "Est-ce que j’ai les plans et devis de forage en main?", a: "n" }];
     K.QUESTIONS = Q;
+    // grille de l'image (pixels d'une demi-page de 1210 x 1870) : lignes des questions 1 a 21, colonnes Oui / Non du travailleur, reponse ecrite (18, 19)
+    var L = 1210, H = 1870, Y = [307, 357, 408, 459, 509, 560, 629, 697, 766, 817, 867, 918, 968, 1019, 1088, 1157, 1225, 1276, 1326, 1377, 1428, 1478],
+      CO = [827, 909], CN = [909, 991], CT = [827, 1156], YP = [337, 378, 419, 460, 502, 543, 584, 625, 667, 708];
     function signalees() { return Q.filter(function (x) { return !x.t && K.rep[x.n] && K.rep[x.n] === x.a; }); }
     function manque() { var m = [];
       Q.forEach(function (x) { if (x.t ? !(K.txt[x.n] || "").trim() : !K.rep[x.n]) m.push({ id: "q" + x.n, mot: "question " + x.n }); });
-      signalees().forEach(function (x) { var p = K.plan[x.n] || {}; if (!(p.type || "").trim() || !(p.ctrl || "").trim()) m.push({ id: "p" + x.n, mot: "planification #R " + x.n }); });
+      signalees().slice(0, 9).forEach(function (x) { var p = K.plan[x.n] || {}; if (!(p.type || "").trim() || !(p.ctrl || "").trim()) m.push({ id: "p" + x.n, mot: "planification #R " + x.n }); });
       if (!K.nom.trim()) m.push({ id: "sig", mot: "signature" }); return m; }
     K.manque = manque; K.bloque = function () { return !K.remplie; };
     try { K.nom = localStorage.getItem("visite-carte-nom") || ""; } catch (e) {}   // nom du travailleur retenu sur cet appareil (commodite)
 
-    // ---- habillage : la carte telle qu'imprimee (papier, titres rouge / bleu, cases ombrees roses), reponses a l'encre bleue
+    // ---- habillage : la page du formulaire en fond, rien d'autre ; reponses a l'encre bleue
     var st = document.createElement("style"); st.textContent = [
-      "#carte192{position:fixed;inset:0;z-index:65;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:rgba(8,10,12,.62)}",
+      "#carte192{position:fixed;inset:0;z-index:65;display:flex;align-items:center;justify-content:center;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));background:rgba(8,10,12,.7)}",
       "#carte192[hidden]{display:none}",
-      "#carte192 .c-feuille{position:relative;width:min(620px,100%);max-height:100%;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fbfaf5;color:#1d1d1b;border-radius:6px;box-shadow:0 18px 50px rgba(0,0,0,.55);padding:16px 16px 0;font:400 14px/1.3 var(--f-texte);text-transform:none;letter-spacing:0}",
+      "#carte192 .c-feuille{position:relative;width:min(1240px,100%);max-height:100%;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#2b2d2f;border-radius:6px;box-shadow:0 18px 50px rgba(0,0,0,.55);padding:10px 10px 0;font:400 14px/1.3 var(--f-texte);text-transform:none;letter-spacing:0;color:#1d1d1b}",
       "#carte192 button{font:inherit;text-transform:none;letter-spacing:0;min-height:0;min-width:0;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none}",
-      "#carte192 .c-x{position:absolute;top:8px;right:8px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(29,29,27,.08);color:#1d1d1b;font-size:24px;line-height:1;padding:0;cursor:pointer;z-index:2}",
-      "#carte192 .c-ref{margin:0;padding-right:48px;font-size:11px;letter-spacing:.06em;color:#6b6a64;text-transform:uppercase}",
-      "#carte192 h2{margin:6px 0 10px;text-align:center;font:700 20px/1.1 var(--f-titre);letter-spacing:.02em;text-transform:uppercase}",
-      "#carte192 h2.r{color:#d4202a}#carte192 h2.b{color:#0a8fd0}#carte192 h2.n{color:#1d1d1b;text-align:left;font-size:17px}",
-      "#carte192 .c-cadre{border:2px solid #d4202a}#carte192 .c-cadre.b{border-color:#0a8fd0}",
-      "#carte192 .c-tache{display:flex;flex-direction:column;gap:2px;padding:6px 8px;border-bottom:1px solid #1d1d1b}",
-      "#carte192 label small,#carte192 .c-tache small{font-size:12px;color:#3a3a36}",
-      "#carte192 input[type=text]{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid #9a988f;background:transparent;color:#1c3d8f;font:500 16px/1.25 var(--f-texte);padding:4px 2px;border-radius:0;outline:none}",
-      "#carte192 input[type=text]:focus{border-bottom-color:#0a8fd0;background:rgba(10,143,208,.06)}",
-      "#carte192 .c-ent{display:grid;grid-template-columns:30px 1fr 54px 54px;background:#e8e8e6;border-bottom:1px solid #1d1d1b;font-weight:700;align-items:center}",
-      "#carte192 .c-ent span{padding:5px 4px;text-align:center;font-weight:400}#carte192 .c-ent .r2{grid-row:span 2;align-self:stretch;display:flex;align-items:center;font-weight:700;border-right:1px solid #1d1d1b}",
-      "#carte192 .c-ent .r2.q{font-size:15px;padding-left:8px}#carte192 .c-ent .tr{grid-column:span 2;border-bottom:1px solid #1d1d1b}#carte192 .c-ent .o{border-right:1px solid #1d1d1b}",
-      "#carte192 .c-l{display:grid;grid-template-columns:30px 1fr 54px 54px;border-bottom:1px solid #1d1d1b;align-items:stretch}",
-      "#carte192 .c-l:last-child{border-bottom:0}",
-      "#carte192 .c-l > span{display:flex;align-items:center;justify-content:center;border-right:1px solid #1d1d1b;font-size:13px}",
-      "#carte192 .c-l p{margin:0;padding:6px 8px;border-right:1px solid #1d1d1b}#carte192 .c-l p small{display:block;font-size:12px;color:#3a3a36}",
-      "#carte192 .c-l .c-on{border:0;border-right:1px solid #1d1d1b;background:transparent;color:#1c3d8f;cursor:pointer;padding:0;font-size:12px;position:relative;touch-action:manipulation}",
-      "#carte192 .c-l .c-on:last-child{border-right:0}",
-      "#carte192 .c-l .c-on.ombre{background:#f3cbbd}",
-      "#carte192 .c-l .c-on i{font-style:normal;color:#6b6a64}",
-      "#carte192 .c-l .c-on[aria-pressed=true] i{color:transparent}",
-      "#carte192 .c-l .c-on[aria-pressed=true]::after{content:'✕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 24px/1 var(--f-texte);color:#1c3d8f}",
-      "#carte192 .c-l.t{grid-template-columns:30px 1fr}#carte192 .c-l.t p{border-right:0}",
-      "#carte192 .c-l.t input{margin-top:4px}",
-      "#carte192 .c-plan{display:grid;grid-template-columns:44px 1fr 1fr;border-bottom:1px solid #1d1d1b}",
-      "#carte192 .c-plan > span{display:flex;align-items:center;justify-content:center;border-right:1px solid #1d1d1b;font-weight:700}",
-      "#carte192 .c-plan > label{padding:4px 8px;border-right:1px solid #1d1d1b}#carte192 .c-plan > label:last-child{border-right:0}",
-      "#carte192 .c-plan.ent{font-weight:700;color:#fff;border-bottom:1px solid #1d1d1b}#carte192 .c-plan.ent span{color:#1d1d1b;background:#fbfaf5}",
-      "#carte192 .c-plan.ent b{padding:6px 8px;text-align:center}#carte192 .c-plan.ent b.r{background:#d4202a}#carte192 .c-plan.ent b.v{background:#0fa94f}",
-      "#carte192 .c-note{margin:6px 0 0;font-size:12px;color:#3a3a36}",
-      "#carte192 .c-vide{padding:8px;margin:0;font-size:13px;color:#6b6a64}",
-      "#carte192 .c-sig{display:grid;grid-template-columns:1fr 110px;gap:12px;align-items:end}",
-      "#carte192 .c-sig .h{color:#1c3d8f;font-weight:500;font-size:16px;border-bottom:1px solid #9a988f;padding:4px 2px;min-height:21px}",
-      "#carte192 .c-pied{position:sticky;bottom:0;margin:14px -16px 0;padding:10px 16px 12px;background:linear-gradient(rgba(251,250,245,.85),#fbfaf5 30%);display:flex;gap:10px;align-items:center;flex-wrap:wrap}",
-      "#carte192 .c-reste{flex:1 1 180px;margin:0;font-size:13px;color:#3a3a36}",
-      "#carte192 .c-signe{flex:none;border:0;border-radius:999px;background:#1d1d1b;color:#fff;font-weight:700;font-size:15px;padding:12px 20px;cursor:pointer}",
-      "#carte192 .c-signe.ok{background:#0fa94f}#carte192 .c-tard{flex:none;border:0;background:transparent;color:#3a3a36;font-weight:600;font-size:15px;padding:12px 8px;cursor:pointer;text-decoration:underline}",
-      "#carte192 .c-sceau{margin:0;padding:8px 10px;border:2px solid #0fa94f;color:#0b7a39;font-weight:700;border-radius:4px;text-align:center}",
-      "#carte192 .flash{animation:c192f 1.2s ease-out}@keyframes c192f{0%,40%{background:rgba(242,183,5,.55)}100%{background:transparent}}",
-      "#carte192 .c-l.manque > span{color:#d4202a;font-weight:700}",
-      "@media (max-width:480px){#carte192 .c-feuille{padding:12px 10px 0}#carte192 .c-l,#carte192 .c-ent{grid-template-columns:26px 1fr 46px 46px}#carte192 .c-plan{grid-template-columns:36px 1fr 1fr}#carte192 .c-pied{margin:12px -10px 0;padding:8px 10px 10px}#carte192 .c-reste{flex-basis:100%}#carte192 .c-signe{flex:1 1 auto}}",
+      "#carte192 .c-pages{display:flex;gap:4px;min-width:min-content}",
+      "#carte192 .c-page{position:relative;flex:1 1 0;min-width:520px;aspect-ratio:1210/1870;container-type:inline-size;background-color:#fff;background-repeat:no-repeat;background-size:200% 100%;box-shadow:0 2px 8px rgba(0,0,0,.4)}",
+      "#carte192 .c-page.g{background-position:0 0}#carte192 .c-page.d{background-position:100% 0}",
+      "#carte192 .c-attente{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#6b6a64;font-size:15px}",
+      "#carte192 .z{position:absolute;box-sizing:border-box;margin:0}",
+      "#carte192 .c-on{border:0;border-radius:0;background:transparent;padding:0;cursor:pointer;touch-action:manipulation}",
+      "#carte192 .c-on:hover,#carte192 .c-on:focus-visible{background:rgba(10,143,208,.16);outline:none}",
+      "#carte192 .c-on[aria-pressed=true]::after{content:'✕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 4.2cqw/1 var(--f-texte);color:#1c3d8f}",
+      "#carte192 input.z{border:0;border-radius:0;background:transparent;color:#1c3d8f;font:500 2.5cqw/1 var(--f-texte);padding:0 .6cqw;outline:none;min-width:0}",
+      "#carte192 input.z:hover{background:rgba(10,143,208,.06)}#carte192 input.z:focus{background:rgba(10,143,208,.1)}",
+      "#carte192 .c-ecrit{display:flex;align-items:center;justify-content:center;color:#1c3d8f;font:500 2.6cqw/1 var(--f-texte);pointer-events:none}",
+      "#carte192 .c-rang{pointer-events:none}",
+      "#carte192 .flash{animation:c192f 1.4s ease-out}@keyframes c192f{0%,45%{background:rgba(242,183,5,.5)}100%{background:transparent}}",
+      "#carte192 .c-x{position:absolute;top:14px;right:14px;z-index:3;width:40px;height:40px;border-radius:50%;border:0;background:rgba(20,23,26,.75);color:#fff;font-size:24px;line-height:1;padding:0;cursor:pointer}",
+      "#carte192 .c-pied{position:sticky;left:0;bottom:0;margin:10px -10px 0;padding:10px 14px 12px;background:#1f2225;color:#e9edf0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}",
+      "#carte192 .c-reste{flex:1 1 220px;margin:0;font-size:14px}",
+      "#carte192 .c-signe{flex:none;border:0;border-radius:999px;background:#e9edf0;color:#14171a;font-weight:700;font-size:15px;padding:12px 20px;cursor:pointer}",
+      "#carte192 .c-signe.ok{background:#0fa94f;color:#fff}",
+      "#carte192 .c-tard{flex:none;border:0;background:transparent;color:#c9d0d6;font-weight:600;font-size:15px;padding:12px 8px;cursor:pointer;text-decoration:underline}",
+      "#carte192 .c-sceau{color:#5fd98d;font-weight:700}",
+      "@media (max-width:560px){#carte192 .c-pages{flex-direction:column}#carte192 .c-page{flex:none;width:100%;min-width:0}#carte192 .c-reste{flex-basis:100%}#carte192 .c-signe{flex:1 1 auto}}",
       "html.carte192 #hud88{visibility:hidden}"].join("\n"); document.head.appendChild(st);
 
-    var el = document.createElement("div"); el.id = "carte192"; el.hidden = true; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Carte de travail MA4657078 : inspection");
+    var el = document.createElement("div"); el.id = "carte192"; el.hidden = true; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Carte de travail MA4657078 : inspection et planification");
     function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-    function lignes() { return Q.map(function (x) {
-      if (x.t) return '<div class="c-l t" id="c192-q' + x.n + '"><span>' + x.n + '</span><p>' + esc(x.q) + '<input type="text" data-t="' + x.n + '" maxlength="60" aria-label="Question ' + x.n + '" value="' + esc(K.txt[x.n] || "") + '"></p></div>';
-      function b(v) { var on = K.rep[x.n] === v; return '<button type="button" class="c-on' + (x.a === v ? " ombre" : "") + '" data-q="' + x.n + '" data-v="' + v + '" aria-pressed="' + on + '" aria-label="Question ' + x.n + ' : ' + (v === "o" ? "oui" : "non") + '"><i>' + (v === "o" ? "Oui" : "Non") + '</i></button>'; }
-      return '<div class="c-l" id="c192-q' + x.n + '"><span>' + x.n + '</span><p>' + esc(x.q) + (x.s ? "<small>" + esc(x.s) + "</small>" : "") + "</p>" + b("o") + b("n") + "</div>"; }).join(""); }
-    function planif() { var S = signalees(); if (!S.length) return '<p class="c-vide">Aucune réponse dans une case ombrée : rien à planifier.</p>';
-      return S.map(function (x) { var p = K.plan[x.n] || {};
-        return '<div class="c-plan" id="c192-p' + x.n + '"><span>' + x.n + '</span><label><small>Type de risques</small><input type="text" data-p="' + x.n + '" data-k="type" maxlength="70" value="' + esc(p.type || "") + '"></label>' +
-          '<label><small>Moyen de contrôle</small><input type="text" data-p="' + x.n + '" data-k="ctrl" maxlength="70" value="' + esc(p.ctrl || "") + '"></label></div>'; }).join(""); }
+    function pc(v, t) { return (v / t * 100).toFixed(3) + "%"; }
+    function boite(x0, y0, x1, y1) { return "left:" + pc(x0, L) + ";top:" + pc(y0, H) + ";width:" + pc(x1 - x0, L) + ";height:" + pc(y1 - y0, H); }
+    function champ(x0, y0, x1, y1, attr, val, aria, max) { return '<input type="text" class="z" style="' + boite(x0, y0, x1, y1) + '" ' + attr + ' maxlength="' + (max || 60) + '" aria-label="' + esc(aria) + '" value="' + esc(val || "") + '">'; }
+    function inspection() { var h = "";
+      h += champ(60, 152, 604, 204, 'data-c="tache"', K.tache, "Tâche analysée par le travailleur", 60);
+      Q.forEach(function (x, i) { var y0 = Y[i], y1 = Y[i + 1];
+        h += '<div class="z c-rang" id="c192-q' + x.n + '" style="' + boite(57, y0, 1156, y1) + '"></div>';
+        if (x.t) { h += champ(CT[0] + 2, y0 + 2, CT[1] - 2, y1 - 2, 'data-t="' + x.n + '"', K.txt[x.n], "Question " + x.n + " : " + x.q, 40); return; }
+        ["o", "n"].forEach(function (v) { var c = v === "o" ? CO : CN;
+          h += '<button type="button" class="z c-on" style="' + boite(c[0] + 2, y0 + 2, c[1] - 2, y1 - 2) + '" data-q="' + x.n + '" data-v="' + v + '" aria-pressed="' + (K.rep[x.n] === v) + '" aria-label="Question ' + x.n + ', travailleur : ' + (v === "o" ? "oui" : "non") + '"></button>'; }); });
+      // « J'ai verifie chacune des places de travail » : ligne 1 (endroit, initiales, heure), facultative
+      h += champ(99, 1586, 369, 1632, 'data-c="endroit"', K.endroit, "Place de travail vérifiée : endroit", 30) + champ(373, 1586, 495, 1632, 'data-c="initiales"', K.initiales, "Initiales", 5) + champ(499, 1586, 615, 1632, 'data-c="heureP"', K.heureP, "Heure", 6);
+      return h; }
+    function planif() { var h = "", S = signalees().slice(0, 9);
+      S.forEach(function (x, i) { var p = K.plan[x.n] || {}, y0 = YP[i], y1 = YP[i + 1];
+        h += '<div class="z c-rang" id="c192-p' + x.n + '" style="' + boite(57, y0, 1153, y1) + '"></div>';
+        h += '<span class="z c-ecrit" style="' + boite(124, y0, 193, y1) + '">' + x.n + "</span>";
+        h += champ(195, y0 + 2, 671, y1 - 2, 'data-p="' + x.n + '" data-k="type"', p.type, "Risque " + x.n + " : type de risques", 40);
+        h += champ(675, y0 + 2, 1151, y1 - 2, 'data-p="' + x.n + '" data-k="ctrl"', p.ctrl, "Risque " + x.n + " : moyen de contrôle", 40); });
+      return h; }
+    function droite() { return '<div data-r="plan">' + planif() + "</div>" + '<div class="z c-rang" id="c192-sig" style="' + boite(55, 1052, 1156, 1106) + '"></div>' +
+      champ(205, 1056, 800, 1100, 'data-c="nom" autocomplete="name"', K.nom, "Signature du travailleur", 30) + '<span class="z c-ecrit" data-r="heure" style="' + boite(915, 1056, 1155, 1100) + '">' + esc(K.heure) + "</span>"; }
+    function fond() { return K.img ? ' style="background-image:url(' + K.img + ')"' : ""; }
     function dessine() {
-      el.innerHTML = '<div class="c-feuille" tabindex="-1"><button type="button" class="c-x" data-a="ferme" aria-label="Fermer la carte">×</button>' +
-        '<p class="c-ref">Forage au diamant sous-terre · formulaire MA4657078</p>' +
-        '<h2 class="r">Inspection</h2><div class="c-cadre"><div class="c-tache"><small>Tâche analysée par le travailleur :</small><input type="text" data-c="tache" maxlength="70" value="' + esc(K.tache) + '"></div>' +
-        '<div class="c-ent"><span class="r2">#R</span><span class="r2 q">Analyse de risque sur le terrain</span><span class="tr">Travailleur</span><span class="o">Oui</span><span>Non</span></div>' + lignes() + "</div>" +
-        '<p class="c-note">Les colonnes Superviseur restent à ton superviseur. Une croix dans une case ombrée demande un moyen de contrôle en planification.</p>' +
-        '<h2 class="b">Planification</h2><div class="c-cadre b"><div class="c-plan ent"><span>#R</span><b class="r">Type de risques</b><b class="v">Moyen de contrôle</b></div><div data-r="plan">' + planif() + "</div></div>" +
-        '<h2 class="n">Signatures</h2><div class="c-sig" id="c192-sig"><label><small>Travailleur :</small><input type="text" data-c="nom" maxlength="40" autocomplete="name" value="' + esc(K.nom) + '"></label><label><small>Heure :</small><div class="h" data-r="heure">' + esc(K.heure) + "</div></label></div>" +
+      el.innerHTML = '<div class="c-feuille" tabindex="-1"><button type="button" class="c-x" data-a="ferme" aria-label="Fermer la carte">×</button><div class="c-pages">' +
+        '<div class="c-page g"' + fond() + '>' + (K.img ? inspection() : '<p class="c-attente">Chargement de la carte…</p>') + "</div>" +
+        '<div class="c-page d"' + fond() + '>' + (K.img ? droite() : "") + "</div></div>" +
         '<div class="c-pied"><p class="c-reste" data-r="reste" aria-live="polite"></p><button type="button" class="c-tard" data-a="ferme">Plus tard</button><button type="button" class="c-signe" data-a="signe">Signer la carte</button></div></div>';
       majPied(); }
-    function majPied() { var r = el.querySelector('[data-r="reste"]'), b = el.querySelector('[data-a="signe"]'); if (!r || !b) return; var m = manque();
-      if (K.remplie) { r.innerHTML = '<span class="c-sceau">Carte signée à ' + esc(K.heure) + " : tu peux démarrer le groupe.</span>"; b.textContent = "Fermer"; b.classList.add("ok"); var t = el.querySelector(".c-tard"); if (t) t.hidden = true; return; }
-      r.textContent = m.length ? "Il reste " + m.length + (m.length > 1 ? " cases à remplir" : " case à remplir") + " (" + m[0].mot + (m.length > 1 ? ", …" : "") + ")." : "Tout est rempli : signe la carte.";
-      b.textContent = "Signer la carte"; b.classList.toggle("ok", !m.length); var t2 = el.querySelector(".c-tard"); if (t2) t2.hidden = false; }
+    // l'image de la page (base 64) n'est chargee qu'a la premiere ouverture
+    function chargeImage() { if (K.img || K.chargement) return; K.chargement = true;
+      fetch(K.FICHIER).then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.text(); })
+        .then(function (b) { K.img = "data:image/webp;base64," + b.trim(); if (K.ouvert) { var f = el.querySelector(".c-feuille"), s = f ? f.scrollTop : 0; dessine(); var f2 = el.querySelector(".c-feuille"); if (f2) f2.scrollTop = s; } })
+        .catch(function (e) { K.chargement = false; K.erreur = String(e && e.message || e); var a = el.querySelector(".c-attente"); if (a) a.textContent = "Carte introuvable (" + K.erreur + ")."; }); }
+    K.FICHIER = "carte_p02.txt";
+    function majPied() { var r = el.querySelector('[data-r="reste"]'), b = el.querySelector('[data-a="signe"]'); if (!r || !b) return; var m = manque(), t = el.querySelector(".c-tard");
+      if (K.remplie) { r.innerHTML = '<span class="c-sceau">Carte signée à ' + esc(K.heure) + " : tu peux démarrer le groupe.</span>"; b.textContent = "Fermer"; b.classList.add("ok"); if (t) t.hidden = true; return; }
+      r.textContent = m.length ? "Il reste " + m.length + (m.length > 1 ? " cases à remplir" : " case à remplir") + " (" + m[0].mot + (m.length > 1 ? ", …" : "") + "). Une croix dans une case ombrée se planifie à droite." : "Tout est rempli : signe la carte.";
+      b.textContent = "Signer la carte"; b.classList.toggle("ok", !m.length); if (t) t.hidden = false; }
     function hhmm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + " h " + ("0" + d.getMinutes()).slice(-2); }
+    function resigner() { if (!K.remplie) return; K.remplie = false; K.heure = ""; var h = el.querySelector('[data-r="heure"]'); if (h) h.textContent = ""; }   // carte modifiee : a resigner
     function signe() { if (K.remplie) { ferme(); return; } var m = manque();
-      if (m.length) { var c = document.getElementById("c192-" + m[0].id); if (c) { try { c.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) { c.scrollIntoView(); } c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); var i = c.querySelector("input"); if (i) try { i.focus({ preventScroll: true }); } catch (e) {} } return; }
+      if (m.length) { var c = document.getElementById("c192-" + m[0].id); if (c) { try { c.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" }); } catch (e) { c.scrollIntoView(); } c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash");
+          var i = c.nextElementSibling; while (i && !(i.tagName === "INPUT")) { if (i.classList && i.classList.contains("c-rang")) { i = null; break; } i = i.nextElementSibling; } if (i) try { i.focus({ preventScroll: true }); } catch (e) {} } return; }
       K.heure = hhmm(); K.remplie = true; K.bilan.signee = K.heure; try { localStorage.setItem("visite-carte-nom", K.nom.trim()); } catch (e) {}
       var h = el.querySelector('[data-r="heure"]'); if (h) h.textContent = K.heure; majPied();
-      setTimeout(function () { ferme(); I.message("Carte de travail signée à " + K.heure + ". Tu peux démarrer le groupe hydraulique (bouton vert).", 5000); }, 700); }
+      setTimeout(function () { ferme(); I.message("Carte de travail signée à " + K.heure + ". Tu peux démarrer le groupe hydraulique (bouton vert).", 5000); }, 900); }
     // le clavier, la souris et le toucher restent dans la carte (le visiteur ne marche pas pendant qu'il ecrit)
     ["pointerdown", "pointerup", "pointermove", "touchstart", "touchmove", "touchend", "wheel", "keydown", "click", "dblclick", "contextmenu"].forEach(function (t) { el.addEventListener(t, function (e) { e.stopPropagation(); }, { passive: t !== "keydown" && t !== "click" && t !== "contextmenu" }); });
     el.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); ferme(); } else if (e.key === "Enter" && e.target && e.target.tagName === "INPUT") { e.preventDefault(); e.target.blur(); } });
     el.addEventListener("click", function (e) { var t = e.target.closest ? e.target.closest("[data-a],[data-q]") : null; if (!t) { if (e.target === el) ferme(); return; }
       if (t.getAttribute("data-a") === "ferme") { ferme(); return; } if (t.getAttribute("data-a") === "signe") { signe(); return; }
-      var n = +t.getAttribute("data-q"), v = t.getAttribute("data-v"); if (!n) return; if (K.remplie) { K.remplie = false; K.heure = ""; var h0 = el.querySelector('[data-r="heure"]'); if (h0) h0.textContent = ""; }   // carte modifiee : a resigner
+      var n = +t.getAttribute("data-q"), v = t.getAttribute("data-v"); if (!n) return; resigner();
       K.rep[n] = v; var bs = el.querySelectorAll('[data-q="' + n + '"]'); for (var i = 0; i < bs.length; i++) bs[i].setAttribute("aria-pressed", bs[i].getAttribute("data-v") === v ? "true" : "false");
       var P = el.querySelector('[data-r="plan"]'); if (P) P.innerHTML = planif(); majPied(); });
-    el.addEventListener("input", function (e) { var t = e.target; if (!t || t.tagName !== "INPUT") return; var v = t.value;
+    el.addEventListener("input", function (e) { var t = e.target; if (!t || t.tagName !== "INPUT") return; var v = t.value, c = t.getAttribute("data-c");
       if (t.hasAttribute("data-t")) K.txt[+t.getAttribute("data-t")] = v; else if (t.hasAttribute("data-p")) { var n = +t.getAttribute("data-p"); K.plan[n] = K.plan[n] || {}; K.plan[n][t.getAttribute("data-k")] = v; }
-      else if (t.getAttribute("data-c") === "nom") K.nom = v; else if (t.getAttribute("data-c") === "tache") K.tache = v;
-      if (K.remplie && !manque().length) { majPied(); return; } if (K.remplie) { K.remplie = false; K.heure = ""; var h = el.querySelector('[data-r="heure"]'); if (h) h.textContent = ""; } majPied(); });
+      else if (c) K[c] = v;
+      if (K.remplie && manque().length) resigner(); majPied(); });
     document.body.appendChild(el);
-    function ouvre() { if (K.ouvert) return; K.ouvert = true; dessine(); el.hidden = false; document.documentElement.classList.add("carte192"); K.bilan.ouvertures = (K.bilan.ouvertures || 0) + 1;
-      try { var f = el.querySelector(".c-feuille"); f.scrollTop = 0; f.focus({ preventScroll: true }); } catch (e) {} }
+    function ouvre() { if (K.ouvert) return; K.ouvert = true; chargeImage(); dessine(); el.hidden = false; document.documentElement.classList.add("carte192"); K.bilan.ouvertures = (K.bilan.ouvertures || 0) + 1;
+      try { var f = el.querySelector(".c-feuille"); f.scrollTop = 0; f.scrollLeft = 0; f.focus({ preventScroll: true }); } catch (e) {} }
     function ferme() { if (!K.ouvert) return; K.ouvert = false; el.hidden = true; document.documentElement.classList.remove("carte192"); try { document.activeElement && document.activeElement.blur && document.activeElement.blur(); } catch (e) {} }
     K.ouvre = ouvre; K.ferme = ferme;
     // essai (rendu de test) : remplit la carte comme un travailleur ; reponses = { 1: "n", ... } (par defaut la case non ombree partout)
@@ -16719,6 +16733,212 @@
         texte: function () { return K.remplie ? ["Clique pour relire la carte de travail", "Touche la carte de travail pour la relire"] : ["Clique pour remplir la carte de travail", "Touche la carte de travail pour la remplir"]; },
         agit: ouvre });
       I.etat.carteRemplir = "pret"; return true; });
+  })();
+  // ---- inter_fiche_inspection_v199.js (version 199, 2026-11-27) : utilisateur : « je veux ajouter la fiche d'inspection pour qu'on soit capable de
+  // la consulter en 3d et ensuite l'inclure dans le jeu de manière interactive » ; placement choisi : « 2e pochette sur le power pack ».
+  // Source unique : le formulaire MA4657056 « Fiche d'inspection, foreuse au diamant sous-terre » de Machines Roger International (août 2026 ;
+  // pieces-3d, fiche-inspection-dd, pages/P01.webp et P02.webp). Rien d'autre n'est ajoute :
+  //  - en-tete : Nom, Date, No foreuse, Quart de travail (JOUR / NUIT), Heures Debut / Fin ; legende Conforme = ✔, Non-conforme = X ;
+  //  - VERIFICATIONS AVANT DEMARRAGE (1 a 25), APRES DEMARRAGE (1 a 10), SUPPLEMENTAIRES (SI APPLICABLE) (1 a 7), mot pour mot, colonnes T et S ;
+  //    le joueur coche la colonne T (Travailleur) ; la colonne S (Superviseur) reste au superviseur (T et S confirmes par l'utilisateur, v200) ;
+  //  - items en rouge sur le formulaire (rouges ici aussi) : « SI UN ITEM ROUGE EST NON-CONFORME, ARRET DES TRAVAUX ET APPEL AU SUPERVISEUR » ;
+  //  - Signature de l'inspecteur + Heure (l'heure de l'appareil) ; Signature du superviseur laissee au superviseur ; Inspection conjointe
+  //    (1 fois par cedule) OUI / NON ; COMMENTAIRES.
+  // Regles du jeu tirees du formulaire : les verifications AVANT DEMARRAGE se font groupe arrete ; le bouton vert du groupe (inter_groupe.js) refuse
+  // de demarrer tant qu'elles ne sont pas toutes cochees, ou si un item rouge est non conforme (arret des travaux). Les verifications APRES
+  // DEMARRAGE s'ouvrent quand le groupe est en marche ; un item rouge non conforme y arrete le groupe. La signature demande avant + apres.
+  // Lien avec la carte de travail MA4657078 (question 16 : « ... complete la carte d'inspection avant utilisation ? »).
+  // 3D : 2e pochette transparente sur la face du power pack tournee vers la chaise, a cote de celle de la carte (inter_carte_travail_v175.js),
+  // recto de la fiche (page 1 du PDF) en texture : fiche_inspection.txt, JPEG 1024 x 1582 en base 64. K.ACTIF = false : version 198.
+  (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
+    var IN = 0.0254, K = { ACTIF: true, FICHIER: "fiche_inspection.txt", N: 304668, CARTE: [5.5 * IN, 8.5 * IN], POCHETTE: [6.25 * IN, 9.5 * IN], Y: 0.86, FZ: 0.41, JEU: 0.004,
+      etat: "attente", ouvert: false, signee: false, heure: "", t: {}, conj: "", quart: "", nom: "", foreuse: "", debut: "", fin: "", com: "", bilan: {} };
+    I.ficheInspection = K; try { window.__ficheInspection = K; } catch (e) {} I.etat.ficheInspection = K.ACTIF ? "attente" : "coupe";
+    if (!K.ACTIF) { K.bloque = function () { return ""; }; return; }
+    // r = item en rouge sur le formulaire
+    var SEC = [
+      { id: "av", titre: "Vérifications avant démarrage", L: [
+        "État général de l’équipement", "Éliminer toutes sources d’incendie (surplus d’huile, guenilles, carton)", "Garde sur powerpack en place",
+        { q: "État du panneau et du câble électrique 600 V", r: 1 }, "Niveau d'huile hydraulique", "Gaines sur boyaux hydrauliques en place et en bon état",
+        "Vérifier présence de fuites", "Niveau d'huile de la pompe à eau", "État du régulateur de pression (pop valve)", "Fonctionnement de la flotte du réservoir d'eau",
+        { q: "Vérifier extincteur (2) (goupille, scellé, indicateur, fiche d'inspection) 1 en bon état", r: 1 }, "Trousse de déversement et bac de rétention (100 litres max)",
+        "Trousse de premiers soins et bouteille lave-yeux", "État des clôtures et de la porte (aucune ouverture dans la clôture)",
+        "Condition du mât et serrage des boulons de feed extension", "Graisser tous les points de graissage", "Vérifier ajustement des téflons et serrer au besoin",
+        "Support de la tour en place et serré correctement", "État du câble carottier et garde en place", "Vérifier et graisser la swivel",
+        { q: "État des jaws sur le foot clamp et la tête", r: 1 }, { q: "Serrage des boulons du foot clamp et de la tête", r: 1 }, "Vérifier niveau d'huile de la tête",
+        "Vérifier support à tige (ancrage, chaîne, angle 75-80 degrés, disposition)", "Boîte de cadenassage"] },
+      { id: "ap", titre: "Vérifications après démarrage", L: [
+        "Inspection visuelle des fuites", { q: "Bruits anormaux du moteur électrique", r: 1 }, { q: "Bruits anormaux des pompes hydrauliques", r: 1 },
+        "Identification et fonctionnement des contrôles", { q: "Essai de la pull cord et du bouton de réarmement", r: 1 }, { q: "Vérifier fonctionnement des arrêts d'urgence", r: 1 },
+        { q: "Fonctionnement de l'interlock de la porte et du deadman", r: 1 }, "Bruits anormaux de la pompe à eau", "Vérifier fonctionnement des cadrans de pression",
+        "Vérifier fonctionnement du refroidisseur (ou fan si à l'air)"] },
+      { id: "su", titre: "Vérifications supplémentaires (si applicable)", L: [
+        "État général du bras manipulateur", { q: "Vérifier Système ANSUL (si applicable)", r: 1 }, "Vérifier l'état du fil et du couvert du cylindre du TEMPOSONIC",
+        "Graisser tous les points de graissage", "Vérifier fonctionnement bras manipulateur", "Vérifier le bon fonctionnement du TEMPOSONIC",
+        "Vérifier le bon fonctionnement du compte-tour câble carottier"] }];
+    SEC.forEach(function (s) { s.L = s.L.map(function (x, i) { return typeof x === "string" ? { n: i + 1, q: x } : { n: i + 1, q: x.q, r: !!x.r }; }); });
+    K.SECTIONS = SEC; var parId = {}; SEC.forEach(function (s) { parId[s.id] = s; });
+    var REGLE = "SI UN ITEM ROUGE EST NON-CONFORME, ARRÊT DES TRAVAUX ET APPEL AU SUPERVISEUR";
+    function cle(s, n) { return s + n; }
+    function rougesX(sid) { var out = []; SEC.forEach(function (s) { if (sid && s.id !== sid) return; s.L.forEach(function (x) { if (x.r && K.t[cle(s.id, x.n)] === "x") out.push(x.q); }); }); return out; }
+    function restants(sid) { return parId[sid].L.filter(function (x) { return !K.t[cle(sid, x.n)]; }); }
+    function marche() { return !!I.partage.groupeMarche; }
+    // pourquoi le groupe ne peut pas demarrer : "" (il peut), "avant" (verifications avant demarrage incompletes) ou "rouge" (item rouge non conforme)
+    K.bloque = function () { if (rougesX().length) return "rouge"; if (restants("av").length) return "avant"; return ""; };
+    function manque() { var m = [];
+      if (!K.nom.trim()) m.push({ id: "nom", mot: "nom" }); if (!K.foreuse.trim()) m.push({ id: "foreuse", mot: "no de la foreuse" }); if (!K.quart) m.push({ id: "quart", mot: "quart de travail" });
+      ["av", "ap"].forEach(function (sid) { restants(sid).forEach(function (x) { m.push({ id: sid + x.n, mot: parId[sid].titre.toLowerCase().replace("vérifications ", "") + " " + x.n }); }); });
+      return m; }
+    K.manque = manque;
+    try { K.nom = localStorage.getItem("visite-carte-nom") || ""; } catch (e) {}
+    function hhmm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + " h " + ("0" + d.getMinutes()).slice(-2); }
+    function jour() { var d = new Date(); return d.getDate() + " " + ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juill.", "août", "sept.", "oct.", "nov.", "déc."][d.getMonth()] + " " + d.getFullYear(); }
+
+    // ---- habillage : la fiche telle qu'imprimee (papier, items rouges, colonnes T et S), reponses a l'encre bleue (meme style que #carte192)
+    var st = document.createElement("style"); st.textContent = [
+      "#fiche199{position:fixed;inset:0;z-index:65;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:rgba(8,10,12,.62)}",
+      "#fiche199[hidden]{display:none}",
+      "#fiche199 .f-feuille{position:relative;width:min(620px,100%);max-height:100%;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fbfaf5;color:#1d1d1b;border-radius:6px;box-shadow:0 18px 50px rgba(0,0,0,.55);padding:16px 16px 0;font:400 14px/1.3 var(--f-texte);text-transform:none;letter-spacing:0}",
+      "#fiche199 button{font:inherit;text-transform:none;letter-spacing:0;min-height:0;min-width:0;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none}",
+      "#fiche199 .f-x{position:absolute;top:8px;right:8px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(29,29,27,.08);color:#1d1d1b;font-size:24px;line-height:1;padding:0;cursor:pointer;z-index:2}",
+      "#fiche199 .f-ref{margin:0;padding-right:48px;font-size:11px;letter-spacing:.06em;color:#6b6a64;text-transform:uppercase}",
+      "#fiche199 h2{margin:6px 0 2px;text-align:center;font:700 20px/1.1 var(--f-titre);letter-spacing:.02em;text-transform:uppercase}",
+      "#fiche199 .f-sous{margin:0 0 10px;text-align:center;font-size:15px;text-transform:uppercase;letter-spacing:.02em}",
+      "#fiche199 .f-ent{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin-bottom:8px}",
+      "#fiche199 label small{font-size:12px;color:#3a3a36}",
+      "#fiche199 input[type=text],#fiche199 textarea{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid #9a988f;background:transparent;color:#1c3d8f;font:500 16px/1.25 var(--f-texte);padding:4px 2px;border-radius:0;outline:none}",
+      "#fiche199 textarea{border:1px solid #9a988f;min-height:64px;resize:vertical}",
+      "#fiche199 input[type=text]:focus,#fiche199 textarea:focus{border-color:#0a8fd0;background:rgba(10,143,208,.06)}",
+      "#fiche199 .f-val{color:#1c3d8f;font-weight:500;font-size:16px;border-bottom:1px solid #9a988f;padding:4px 2px;min-height:21px}",
+      "#fiche199 .f-choix{display:flex;gap:8px;align-items:center;flex-wrap:wrap}",
+      "#fiche199 .f-choix button{border:1px solid #1d1d1b;background:transparent;color:#1d1d1b;border-radius:3px;padding:5px 10px;cursor:pointer;font-weight:600}",
+      "#fiche199 .f-choix button[aria-pressed=true]{background:#1c3d8f;border-color:#1c3d8f;color:#fff}",
+      "#fiche199 .f-leg{margin:6px 0 8px;font-weight:700;font-size:13px}#fiche199 .f-leg b{color:#d4202a;margin-left:14px}",
+      "#fiche199 .f-tab{border:1px solid #1d1d1b;margin-bottom:10px}",
+      "#fiche199 .f-tete,#fiche199 .f-l{display:grid;grid-template-columns:30px 1fr 50px 40px;border-bottom:1px solid #1d1d1b;align-items:stretch}",
+      "#fiche199 .f-l:last-child{border-bottom:0}",
+      "#fiche199 .f-tete{background:#e8e8e6;font-weight:700}#fiche199 .f-tete span{padding:6px 8px;text-transform:uppercase;font-size:13px}",
+      "#fiche199 .f-tete i{font-style:normal;display:flex;align-items:center;justify-content:center;border-left:1px solid #1d1d1b}",
+      "#fiche199 .f-l > span{display:flex;align-items:center;justify-content:center;border-right:1px solid #1d1d1b;font-size:13px}",
+      "#fiche199 .f-l p{margin:0;padding:6px 8px;border-right:1px solid #1d1d1b}#fiche199 .f-l.r p{color:#d4202a;font-weight:700}",
+      "#fiche199 .f-l .f-t{border:0;border-right:1px solid #1d1d1b;background:transparent;color:#1c3d8f;cursor:pointer;padding:0;position:relative;touch-action:manipulation;font:700 22px/1 var(--f-texte)}",
+      "#fiche199 .f-l .f-t[data-v=x]{color:#d4202a}",
+      "#fiche199 .f-l .f-s{background:#efeee9}",
+      "#fiche199 .f-tab.off .f-l .f-t{cursor:not-allowed;background:#efeee9}",
+      "#fiche199 .f-off{margin:0;padding:8px;font-size:13px;color:#6b6a64;border-bottom:1px solid #1d1d1b;background:#f4f2ea}",
+      "#fiche199 .f-regle{margin:4px 0 12px;color:#d4202a;font-weight:700;text-align:center;font-size:14px}",
+      "#fiche199 .f-regle.on{background:#d4202a;color:#fff;padding:8px;border-radius:4px}",
+      "#fiche199 .f-note{margin:0 0 10px;font-size:12px;color:#3a3a36}",
+      "#fiche199 .f-sig{display:grid;grid-template-columns:1fr 110px;gap:8px 12px;align-items:end;margin-bottom:8px}",
+      "#fiche199 .f-pied{position:sticky;bottom:0;margin:14px -16px 0;padding:10px 16px 12px;background:linear-gradient(rgba(251,250,245,.85),#fbfaf5 30%);display:flex;gap:10px;align-items:center;flex-wrap:wrap}",
+      "#fiche199 .f-reste{flex:1 1 180px;margin:0;font-size:13px;color:#3a3a36}",
+      "#fiche199 .f-signe{flex:none;border:0;border-radius:999px;background:#1d1d1b;color:#fff;font-weight:700;font-size:15px;padding:12px 20px;cursor:pointer}",
+      "#fiche199 .f-signe.ok{background:#0fa94f}#fiche199 .f-tard{flex:none;border:0;background:transparent;color:#3a3a36;font-weight:600;font-size:15px;padding:12px 8px;cursor:pointer;text-decoration:underline}",
+      "#fiche199 .f-sceau{display:inline-block;padding:8px 10px;border:2px solid #0fa94f;color:#0b7a39;font-weight:700;border-radius:4px}",
+      "#fiche199 .flash{animation:f199f 1.2s ease-out}@keyframes f199f{0%,40%{background:rgba(242,183,5,.55)}100%{background:transparent}}",
+      "@media (max-width:480px){#fiche199 .f-feuille{padding:12px 10px 0}#fiche199 .f-tete,#fiche199 .f-l{grid-template-columns:26px 1fr 44px 30px}#fiche199 .f-ent{grid-template-columns:1fr}#fiche199 .f-pied{margin:12px -10px 0;padding:8px 10px 10px}#fiche199 .f-reste{flex-basis:100%}#fiche199 .f-signe{flex:1 1 auto}}",
+      "html.fiche199 #hud88{visibility:hidden}"].join("\n"); document.head.appendChild(st);
+
+    var el = document.createElement("div"); el.id = "fiche199"; el.hidden = true; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Fiche d'inspection MA4657056");
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function marque(v) { return v === "c" ? "✔" : v === "x" ? "X" : ""; }
+    function table(s) { var off = s.id === "ap" && !marche() && restants("ap").length === s.L.length;
+      return '<div class="f-tab' + (off ? " off" : "") + '" data-sec="' + s.id + '"><div class="f-tete"><span style="grid-column:span 2">' + esc(s.titre) + "</span><i title='Travailleur'>T</i><i title='Superviseur'>S</i></div>" +
+        (off ? '<p class="f-off">Démarre le groupe (bouton vert) pour faire ces vérifications.</p>' : "") +
+        s.L.map(function (x) { var v = K.t[cle(s.id, x.n)] || "";
+          return '<div class="f-l' + (x.r ? " r" : "") + '" id="f199-' + s.id + x.n + '"><span>' + x.n + "-</span><p>" + esc(x.q) + '</p><button type="button" class="f-t" data-k="' + s.id + '" data-n="' + x.n + '" data-v="' + v + '" aria-label="' + esc(s.titre) + " " + x.n + ", colonne T (Travailleur) : " + (v === "c" ? "conforme" : v === "x" ? "non conforme" : "vide") + '">' + marque(v) + '</button><span class="f-s" aria-hidden="true"></span></div>'; }).join("") + "</div>"; }
+    function dessine() { var f = el.querySelector(".f-feuille"), haut = f ? f.scrollTop : 0;
+      el.innerHTML = '<div class="f-feuille" tabindex="-1"><button type="button" class="f-x" data-a="ferme" aria-label="Fermer la fiche">×</button>' +
+        '<p class="f-ref">Machines Roger International · formulaire MA4657056 · août 2026</p><h2>Fiche d’inspection</h2><p class="f-sous">Foreuse au diamant sous-terre</p>' +
+        '<div class="f-ent"><label id="f199-nom"><small>Nom :</small><input type="text" data-c="nom" maxlength="40" autocomplete="name" value="' + esc(K.nom) + '"></label>' +
+        '<label><small>Date :</small><div class="f-val">' + esc(jour()) + "</div></label>" +
+        '<label id="f199-foreuse"><small>N° foreuse</small><input type="text" data-c="foreuse" maxlength="20" value="' + esc(K.foreuse) + '"></label>' +
+        '<div id="f199-quart"><small>Quart de travail :</small><div class="f-choix">' + ["JOUR", "NUIT"].map(function (q) { return '<button type="button" data-quart="' + q + '" aria-pressed="' + (K.quart === q) + '">' + q + "</button>"; }).join("") + "</div></div>" +
+        '<label><small>Heures : Début :</small><input type="text" data-c="debut" maxlength="10" value="' + esc(K.debut) + '"></label>' +
+        '<label><small>Fin :</small><input type="text" data-c="fin" maxlength="10" value="' + esc(K.fin) + '"></label></div>' +
+        '<p class="f-leg">LÉGENDE : Conforme = ✔<b>Non-conforme = X</b></p>' +
+        '<p class="f-note">Touche la case T : une fois ✔ conforme, deux fois X non conforme, trois fois pour l’effacer. T = Travailleur (toi) ; S = Superviseur, à remplir par ton superviseur.</p>' +
+        SEC.map(table).join("") +
+        '<p class="f-regle' + (rougesX().length ? " on" : "") + '" data-r="regle">' + REGLE + "</p>" +
+        '<div class="f-sig"><label><small><b>Signature de l’inspecteur :</b></small><div class="f-val">' + (K.signee ? esc(K.nom) : "") + '</div></label><label><small><b>Heure :</b></small><div class="f-val">' + esc(K.heure) + "</div></label>" +
+        '<label><small><b>Signature du superviseur :</b></small><div class="f-val"></div></label><label><small><b>Heure :</b></small><div class="f-val"></div></label></div>' +
+        '<div><small><b>Inspection conjointe :</b> (1 fois par cédule)</small><div class="f-choix">' + ["OUI", "NON"].map(function (q) { return '<button type="button" data-conj="' + q + '" aria-pressed="' + (K.conj === q) + '">' + q + "</button>"; }).join("") + "</div></div>" +
+        '<label style="display:block;margin-top:10px"><small><b>COMMENTAIRES :</b></small><textarea data-c="com" maxlength="400">' + esc(K.com) + "</textarea></label>" +
+        '<div class="f-pied"><p class="f-reste" data-r="reste" aria-live="polite"></p><button type="button" class="f-tard" data-a="ferme">Plus tard</button><button type="button" class="f-signe" data-a="signe">Signer la fiche</button></div></div>';
+      majPied(); var f2 = el.querySelector(".f-feuille"); if (f2) f2.scrollTop = haut; }
+    function majPied() { var r = el.querySelector('[data-r="reste"]'), b = el.querySelector('[data-a="signe"]'), t = el.querySelector(".f-tard"); if (!r || !b) return;
+      var R = rougesX(), m = manque(), rg = el.querySelector('[data-r="regle"]'); if (rg) rg.classList.toggle("on", !!R.length);
+      if (K.signee) { r.innerHTML = '<span class="f-sceau">Fiche signée à ' + esc(K.heure) + ".</span>"; b.textContent = "Fermer"; b.classList.add("ok"); if (t) t.hidden = true; return; }
+      if (t) t.hidden = false; b.textContent = "Signer la fiche";
+      if (R.length) { r.textContent = "Item rouge non conforme : arrêt des travaux et appel au superviseur."; b.classList.remove("ok"); return; }
+      var av = restants("av").length;
+      r.textContent = av ? "Avant démarrage : il reste " + av + (av > 1 ? " vérifications." : " vérification.") :
+        (!marche() && restants("ap").length) ? "Avant démarrage complété : tu peux démarrer le groupe, puis faire les vérifications après démarrage." :
+        m.length ? "Il reste " + m.length + (m.length > 1 ? " cases à remplir" : " case à remplir") + " (" + m[0].mot + (m.length > 1 ? ", …" : "") + ")." : "Tout est rempli : signe la fiche.";
+      b.classList.toggle("ok", !m.length); }
+    function signe() { if (K.signee) { ferme(); return; } if (rougesX().length) { var rg = el.querySelector('[data-r="regle"]'); if (rg) { rg.scrollIntoView({ block: "center" }); rg.classList.remove("flash"); void rg.offsetWidth; rg.classList.add("flash"); } return; }
+      var m = manque(); if (m.length) { var c = document.getElementById("f199-" + m[0].id); if (c) { try { c.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) { c.scrollIntoView(); } c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); var i = c.querySelector("input"); if (i) try { i.focus({ preventScroll: true }); } catch (e) {} } return; }
+      K.heure = hhmm(); K.signee = true; K.bilan.signee = K.heure; try { localStorage.setItem("visite-carte-nom", K.nom.trim()); } catch (e) {} dessine();
+      setTimeout(function () { ferme(); I.message("Fiche d'inspection signée à " + K.heure + ".", 4500); }, 700); }
+    function annuleSignature() { if (K.signee) { K.signee = false; K.heure = ""; } }
+    // case T : vide -> ✔ -> X -> vide
+    function coche(sid, n) { var k = cle(sid, n), v = K.t[k] || "", nv = v === "" ? "c" : v === "c" ? "x" : ""; if (nv) K.t[k] = nv; else delete K.t[k]; annuleSignature();
+      var x = parId[sid].L[n - 1];
+      if (x.r && nv === "x") { K.bilan.arrets = (K.bilan.arrets || 0) + 1;
+        if (marche() && I.groupeMarche) I.groupeMarche(false);
+        I.message("Item rouge non conforme (" + x.q + ") : arrêt des travaux et appel au superviseur.", 7000); }
+      dessine(); }
+    K.coche = coche;
+    ["pointerdown", "pointerup", "pointermove", "touchstart", "touchmove", "touchend", "wheel", "keydown", "click", "dblclick", "contextmenu"].forEach(function (t) { el.addEventListener(t, function (e) { e.stopPropagation(); }, { passive: t !== "keydown" && t !== "click" && t !== "contextmenu" }); });
+    el.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); ferme(); } else if (e.key === "Enter" && e.target && e.target.tagName === "INPUT") { e.preventDefault(); e.target.blur(); } });
+    el.addEventListener("click", function (e) { var t = e.target.closest ? e.target.closest("[data-a],[data-k],[data-quart],[data-conj]") : null; if (!t) { if (e.target === el) ferme(); return; }
+      var a = t.getAttribute("data-a"); if (a === "ferme") { ferme(); return; } if (a === "signe") { signe(); return; }
+      if (t.hasAttribute("data-quart")) { K.quart = t.getAttribute("data-quart"); annuleSignature(); dessine(); return; }
+      if (t.hasAttribute("data-conj")) { K.conj = K.conj === t.getAttribute("data-conj") ? "" : t.getAttribute("data-conj"); dessine(); return; }
+      var sid = t.getAttribute("data-k"), n = +t.getAttribute("data-n");
+      if (sid === "ap" && !marche() && restants("ap").length === parId.ap.L.length) { I.message("Les vérifications après démarrage se font groupe en marche.", 4000); return; }
+      coche(sid, n); });
+    el.addEventListener("input", function (e) { var t = e.target, c = t && t.getAttribute && t.getAttribute("data-c"); if (!c) return; K[c] = t.value; if (c === "nom" || c === "foreuse") annuleSignature(); majPied(); });
+    document.body.appendChild(el);
+    function ouvre() { if (K.ouvert) return; K.ouvert = true; dessine(); el.hidden = false; document.documentElement.classList.add("fiche199"); K.bilan.ouvertures = (K.bilan.ouvertures || 0) + 1;
+      try { var f = el.querySelector(".f-feuille"); f.scrollTop = 0; f.focus({ preventScroll: true }); } catch (e) {} }
+    function ferme() { if (!K.ouvert) return; K.ouvert = false; el.hidden = true; document.documentElement.classList.remove("fiche199"); try { document.activeElement && document.activeElement.blur && document.activeElement.blur(); } catch (e) {} }
+    K.ouvre = ouvre; K.ferme = ferme;
+    // essai (rendu de test) : coche une section ; v = "c" partout sauf exceptions { 4: "x" } ; sections = ["av"], ["ap"] ...
+    K.essai = function (sections, exceptions) { (sections || ["av"]).forEach(function (sid) { parId[sid].L.forEach(function (x) { K.t[cle(sid, x.n)] = (exceptions && exceptions[x.n]) || "c"; }); });
+      if (!K.nom) K.nom = "Travailleur"; if (!K.foreuse) K.foreuse = "STM-1500"; if (!K.quart) K.quart = "JOUR"; if (K.ouvert) dessine(); return manque(); };
+
+    // ---- 3D : 2e pochette sur la face du power pack tournee vers la chaise (meme facon que inter_carte_travail_v175.js)
+    var rc = new THREE.Raycaster(), fait = false;
+    function construit(b64) { var G = mobiles.groupe; if (!G || fait) return; fait = true;
+      var img = new Image(), tex = new THREE.Texture(img); img.onload = function () { tex.needsUpdate = true; }; img.src = "data:image/jpeg;base64," + b64.trim();
+      tex.encoding = THREE.sRGBEncoding; tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      var g = new THREE.Group(); g.name = "Fiche_inspection_v199";
+      var fiche = new THREE.Mesh(new THREE.PlaneGeometry(K.CARTE[0], K.CARTE[1]), new THREE.MeshStandardMaterial({ name: "fiche_inspection", map: tex, roughness: 0.85, metalness: 0 }));
+      fiche.position.set(0, (K.POCHETTE[1] - K.CARTE[1]) / 2 - 0.006, 0.0015); fiche.receiveShadow = true; g.add(fiche);
+      var dos = new THREE.Mesh(new THREE.PlaneGeometry(K.POCHETTE[0], K.POCHETTE[1]), new THREE.MeshStandardMaterial({ name: "pochette_dos", color: 0xd6d8d4, roughness: 0.4, metalness: 0 }));
+      dos.position.z = 0.0005; dos.receiveShadow = true; g.add(dos);
+      var face = new THREE.Mesh(new THREE.PlaneGeometry(K.POCHETTE[0], K.POCHETTE[1]), new THREE.MeshStandardMaterial({ name: "pochette_plastique", color: 0xf4f6f2, roughness: 0.18, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false }));
+      face.position.z = 0.0028; g.add(face);
+      var bord = new THREE.MeshStandardMaterial({ name: "pochette_bord", color: 0xe9ece6, roughness: 0.3, metalness: 0, transparent: true, opacity: 0.45, depthWrite: false });
+      [[0, -K.POCHETTE[1] / 2 + 0.004, K.POCHETTE[0], 0.008], [-K.POCHETTE[0] / 2 + 0.004, 0, 0.008, K.POCHETTE[1]], [K.POCHETTE[0] / 2 - 0.004, 0, 0.008, K.POCHETTE[1]]].forEach(function (b) {
+        var m = new THREE.Mesh(new THREE.PlaneGeometry(b[2], b[3]), bord); m.position.set(b[0], b[1], 0.003); g.add(m); });
+      G.o.updateMatrixWorld(true); var bG = new THREE.Box3().setFromObject(G.o), z = bG.min.z + K.FZ * (bG.max.z - bG.min.z), y = bG.min.y + K.Y, xs = [];
+      [[0, 0], [-0.07, -0.1], [0.07, -0.1], [-0.07, 0.1], [0.07, 0.1]].forEach(function (d) { rc.set(new THREE.Vector3(bG.min.x - 0.5, y + d[1], z + d[0]), new THREE.Vector3(1, 0, 0)); rc.far = 1.5;
+        var h = rc.intersectObject(G.o, true).filter(function (h) { return h.object.visible && !(h.object.material && h.object.material.transparent) && !/pochette|carte_travail/.test(h.object.material && h.object.material.name || ""); })[0]; if (h) xs.push(h.point.x); });
+      var x = xs.length ? Math.min.apply(null, xs) : bG.min.x; K.bilan.rayons = xs.map(function (v) { return +v.toFixed(3); });
+      g.position.set(x - K.JEU, y, z); g.rotation.y = -Math.PI / 2; scene.add(g); g.updateMatrixWorld(true); G.o.attach(g);
+      K.bilan.pose = [+(x - K.JEU).toFixed(3), +y.toFixed(3), +z.toFixed(3)]; K.pose = true; K.etat = "pret"; }
+    function essaie() { if (fait || K.etat === "charge") return; if (!mobiles.groupe || !(window.__carteTravail && window.__carteTravail.pose)) { setTimeout(essaie, 700); return; } K.etat = "charge";
+      fetch(K.FICHIER).then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.text(); }).then(construit)
+        .catch(function (e) { K.etat = "erreur"; K.erreur = String(e && e.message || e); if (window.console) console.warn("v199", e); }); }
+    setTimeout(essaie, 1600);
+    I.prepare(function () { if (K.etat === "erreur") { I.etat.ficheInspection = "fiche absente"; return true; } if (!K.pose) return false;
+      var g = scene.getObjectByName("Fiche_inspection_v199"); if (!g) return false; var P = K.POCHETTE;
+      I.zone({ o: g, prio: 1, b: new THREE.Box3(new THREE.Vector3(-P[0] / 2, -P[1] / 2, -0.01), new THREE.Vector3(P[0] / 2, P[1] / 2, 0.03)), actif: function () { return I.vu(g) && !K.ouvert; },
+        texte: function () { return K.signee ? ["Clique pour relire la fiche d'inspection", "Touche la fiche d'inspection pour la relire"] : ["Clique pour remplir la fiche d'inspection", "Touche la fiche d'inspection pour la remplir"]; },
+        agit: ouvre });
+      I.etat.ficheInspection = "pret"; return true; });
   })();
   // ---- inter_pieces_v185.js (version 185, 2026-11-26) : utilisateur, devant la liste des modeles du depot pieces-3d qui n'etaient pas encore dans la
   // place de travail : « ajoute 1, 2, 3, 6, 7, 8, 10, 11, 12, 13 ». Chaque objet est exporte de pieces-3d tel quel (assemblage P01, facettes a 0,5,
@@ -20823,7 +21043,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "197-e002d3fb", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "200-82da0d12", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
