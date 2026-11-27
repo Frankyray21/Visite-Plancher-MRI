@@ -285,7 +285,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 218</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 219</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -330,7 +330,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 218</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 219</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -351,7 +351,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 218</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 219</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -17371,7 +17371,8 @@
         // le pistolet couche sur le coffre : son axe (x du modele pieces-3d, vers la tete) pointe devant le visiteur, la tete en avant, un peu vers le bas
         K.poseMain = function () { vP.set(cam.aspect < 1 ? K.MAIN_DEBOUT : K.MAIN[0], K.MAIN[1], K.MAIN[2]).applyQuaternion(cam.quaternion).add(cam.position); tenu.position.copy(vP); tenu.quaternion.copy(cam.quaternion).multiply(qR); };
         try { K.levier = separeLevier(tenu); } catch (e) { erreur("levier", e); }
-        I.anime(function () { if (K.enMain && etape < K.ETAPE) K.repose(); var vu = K.enMain && !(etat && etat.haut); if (tenu.visible !== vu) tenu.visible = vu; if (vu) { K.poseMain(); pompe(); } });
+        I.anime(function () { if (K.enMain && etape < K.ETAPE) K.repose(); var vu = K.enMain && !(etat && etat.haut);
+          if (K.branche && !vu) { K.debrancher(true); if (K.enMain) I.message("Pistolet débranché : pour graisser, reviens à la vue « dans tes yeux » avec le bouton Caméra.", 5000); }   /* v219 */ if (tenu.visible !== vu) tenu.visible = vu; if (vu) { K.poseMain(); pompe(); } });
         K.etat = "pret"; } catch (e) { erreur("pistolet", e); } }
     // ---- v194 : branchement et pompage (utilisateur : « cree l'animation qui connecte le gun a graisse au point de graissage et ajoute aussi mouvement
     // pomper ; la fiche est interactive, doit compter le nombre de coups, indiquer quand arreter et mettre de l'avant le risque »).
@@ -17398,7 +17399,10 @@
     function poseBranchee(P) { vW.subVectors(P, vH); if (vW.lengthSq() < 1e-6) vW.set(0, 0, -1); vW.normalize(); vY.copy(HAUT).addScaledVector(vW, -HAUT.dot(vW)); if (vY.lengthSq() < 1e-4) vY.set(1, 0, 0); vY.normalize(); vZ.crossVectors(vW, vY);
       mW.makeBasis(vW, vY, vZ).multiply(mLt); qB.setFromRotationMatrix(mW); vB.copy(TIP).applyQuaternion(qB); vB.subVectors(P, vB); }
     var B = null, vP2 = new V3(), q0 = new THREE.Quaternion();
-    K.brancher = function (o, d) { if (!K.enMain || K.branche || !tenu) return false; var n = 1 + Math.floor(Math.random() * 5); B = K.branche = { o: o, d: d, n: 0, propre: n, t0: performance.now(), sort: 0, coup: -1, fin: 0 };
+    K.brancher = function (o, d) { if (!K.enMain || K.branche || !tenu) return false;
+      /* v219 : en vue avatar le pistolet n'est pas anime (la fiche de pompage restait ouverte, « Pomper » sans effet) : on le dit au lieu de brancher */
+      if (etat && etat.haut) { window.__inter71.message("Pour graisser, reviens à la vue « dans tes yeux » avec le bouton Caméra.", 5000); return false; }
+      var n = 1 + Math.floor(Math.random() * 5); B = K.branche = { o: o, d: d, n: 0, propre: n, t0: performance.now(), sort: 0, coup: -1, fin: 0 };
       K.branchements++; gouttes().visible = false; panneau(true); maj(); return true; };
     K.debrancher = function (silence) { if (!B) return false; var d = B.d, n = B.n, f = n === 0 ? "" : n < B.propre ? "peu" : n === B.propre ? "ok" : "trop"; B.fin = performance.now(); K.dernier = { id: d[0], coups: n, propre: B.propre, resultat: f };
       if (f === "ok" || f === "trop") { B.o.userData.fait = f; var z = B.o.userData.zone; if (z) { z.icone = f === "ok" ? ICONE_OK : ICONE_TROP; z.niveau = f === "ok" ? "secours" : "avertissement"; } }
@@ -21459,7 +21463,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "218-24524549", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "219-24524549", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
