@@ -16846,6 +16846,8 @@
       // v192 (« mix 5 et 6 avec couleur logique ») : plaque a bandeau bleu (style 5) + un pictogramme par consigne (style 6), couleurs et formes ISO 7010 :
       // rond bleu = geste obligatoire (pomper, porte ouverte), rond rouge = arret, triangle orange = risque (orange = avertissement dans le code de couleurs du jeu)
       DETAIL: false,
+      FAIT_OK: '<div class="pi ok"><i class="ic"><svg viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Graissé</div>',
+      FAIT_TROP: '<div class="pi av"><i class="ic"><svg viewBox="0 0 20 20"><path d="M10 6.5v5M10 13.8v1.4" stroke="#111" stroke-width="2.2" stroke-linecap="round"/></svg></i>Trop de graisse : joint à surveiller</div>',
       COURT: '<div class="pi ob"><i class="ic"><svg viewBox="0 0 20 20"><path d="M3 11h9v3.5H3zM12 12.3h5M6 11V6.5h3.5V11M7.7 6.5V3" stroke="#fff" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg></i>1 à 5 coups</div>' +
         '<div class="pi in"><i class="ic"><svg viewBox="0 0 20 20"><path d="M6 11V5.5a1.1 1.1 0 0 1 2.2 0V10M8.2 10V4.2a1.1 1.1 0 0 1 2.2 0V10M10.4 10V4.8a1.1 1.1 0 0 1 2.2 0V10.5M12.6 10.5V7a1.1 1.1 0 0 1 2.2 0v5.2c0 3-2.2 4.8-4.6 4.8-2 0-3.2-1-4-2.6L4.4 11.6a1.1 1.1 0 0 1 1.7-1.3L7 11.4" stroke="#fff" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg></i>Arrête si ça résiste</div>',
       LONG: '<div class="pi ob"><i class="ic"><svg viewBox="0 0 20 20"><path d="M4 3h8v14H4zM12 5.2l4-1.4v12.4l-4 1" stroke="#fff" stroke-width="1.6" fill="none" stroke-linejoin="round"/><circle cx="9.6" cy="10.5" r="1" fill="#fff"/></svg></i><span class="tx"><small>Avant</small>Porte de cage ouverte</span></div>' +
@@ -16872,7 +16874,8 @@
     // v189 : choix C (« ca peut etre une autre forme ou couleur mais avoir certaine logique ») : six pans = la base du graisseur ; bleu plein = couleur de securite
     // « obligation » (ISO 7010 : geste obligatoire), a part du jaune des actions, de l'orange, du rouge et du vert ; goutte blanche = la graisse
     // v189 : epingle d'objectif (la pointe touche le graisseur) a portee de main, simple point bleu de loin (« inspire toi vrais jeux ») ; CSS du HUD : .ig-loin / .ig-pres
-    var ICONE = '<svg viewBox="0 0 24 30" aria-hidden="true"><g class="ig-loin"><circle cx="12" cy="24" r="4.6" fill="#1f6fd1" stroke="#fff" stroke-width="1.6"/></g><g class="ig-pres"><path d="M12 29.6l-4-6h8z" fill="#fff"/><path d="M12 1.5l9.1 5.25v10.5L12 22.5l-9.1-5.25V6.75z" fill="#1f6fd1" stroke="#fff" stroke-width="1.6"/><path d="M12 5.6c-1.7 2.9-3.9 5.1-3.9 7.5a3.9 3.9 0 0 0 7.8 0c0-2.4-2.2-4.6-3.9-7.5z" fill="#fff"/></g></svg>';
+    // v194 (« je veux point graissage en brun, ca evoque plus la graisse », puis choix de l'icone ambre parmi 10) : six pans ambre (graisse propre), goutte blanche
+    var ICONE = '<svg viewBox="0 0 24 30" aria-hidden="true"><g class="ig-loin"><circle cx="12" cy="24" r="4.6" fill="#c47a12" stroke="#fff" stroke-width="1.6"/></g><g class="ig-pres"><path d="M12 29.6l-4-6h8z" fill="#fff"/><path d="M12 1.5l9.1 5.25v10.5L12 22.5l-9.1-5.25V6.75z" fill="#c47a12" stroke="#fff" stroke-width="1.6"/><path d="M12 5.6c-1.7 2.9-3.9 5.1-3.9 7.5a3.9 3.9 0 0 0 7.8 0c0-2.4-2.2-4.6-3.9-7.5z" fill="#fff"/></g></svg>';
     // un repere par graisseur : petit objet vide rattache au corps (os) qui le porte ; une zone par graisseur, une marque par point (un seul repere)
     function pose(parent, M, d, groupe) { d[3].forEach(function (p, i) { var o = new THREE.Object3D(); o.name = "Graisseur_" + d[0] + "_" + i + "_" + groupe;
         new V3().fromArray(p).applyMatrix4(M).toArray().forEach(function (v, k) { o.position.setComponent(k, v); }); parent.add(o); o.updateMatrixWorld(true);
@@ -16880,10 +16883,12 @@
         if (groupe === "fixe") caches.push(o);
         // v190/v191 : etiquette en deux niveaux (K.COURT au regard, K.LONG apres un clic) ; seulement l'utile sur le moment
         function FI() { var doigt = window.matchMedia && matchMedia("(pointer: coarse)").matches;
-          return K.COURT + (K.DETAIL ? '<div class="fl-sep"></div>' + K.LONG : '<div class="fl-plus">' + (doigt ? "Touche" : "Clique") + ' : détails</div>'); }
-        zones.push(I.zone({ o: o, prio: 2, niveau: "obligation", icone: ICONE, fiche: FI, marque: "graissage " + d[0] + " " + groupe, b: new THREE.Box3(new V3(-b, -b, -b), new V3(b, b, b)),
-          actif: function () { if (!enMainPermis() || o.userData.cache || !chaineVue(o)) return false; var s = o.getWorldScale(vS); return s.x > 0.5; },
-          texte: function () { return K.DETAIL ? TXD : TX; }, agit: function () { K.DETAIL = !K.DETAIL; } })); }); }
+          // v194 (« cree l'animation qui connecte le gun a graisse au point de graissage ») : le clic branche le pistolet ; consigne et risques passent sur la fiche de pompage
+          var f = o.userData.fait; return K.COURT + (f ? '<div class="fl-sep"></div>' + (f === "ok" ? K.FAIT_OK : K.FAIT_TROP) : "") + '<div class="fl-plus">' + (doigt ? "Touche" : "Clique") + ' : brancher le pistolet</div>'; }
+        zones.push(I.zone({ o: o, prio: 2, niveau: "graisse", icone: ICONE, fiche: FI, marque: "graissage " + d[0] + " " + groupe, b: new THREE.Box3(new V3(-b, -b, -b), new V3(b, b, b)),
+          actif: function () { if (!enMainPermis() || K.branche || o.userData.cache || !chaineVue(o)) return false; var s = o.getWorldScale(vS); return s.x > 0.5; },
+          texte: function () { return o.userData.fait ? TXD : TX; }, agit: function () { K.brancher(o, d); } }));
+        o.userData.zone = zones[zones.length - 1]; }); }
     var vS = new V3();
     // graisseur cache par la foreuse fixe (de l'autre cote du mat, sous le traineau) : pas de repere ; un graisseur verifie toutes les 6 images (environ 9 ms par rayon sous SwiftShader), pistolet en main
     // seulement (rayon de l'oeil au graisseur contre les mailles de la foreuse). La STM articulee n'est pas testee (rayons sur la pose de repos des os).
@@ -16908,19 +16913,91 @@
     var pist = null, tenu = null, vP = new V3(), qP = new THREE.Quaternion(), qR = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.12, Math.PI / 2 + 0.18, 0.08, "YXZ"));
     var PREND = ["Clique pour prendre le pistolet à graisse", "Touche pour prendre le pistolet à graisse"], REPOSE = ["Clique pour reposer le pistolet à graisse sur le coffre", "Touche pour reposer le pistolet à graisse sur le coffre"];
     K.prend = function () { if (K.enMain || !pist) return false; K.enMain = true; K.prises++; pist.visible = false; window.__inter71.message(K.MSG, 6500); return true; };
-    K.repose = function () { if (!K.enMain) return false; K.enMain = false; K.DETAIL = false; if (pist) pist.visible = true; if (tenu) tenu.visible = false; return true; };
+    K.repose = function () { if (!K.enMain) return false; if (K.branche) K.debrancher(true); K.enMain = false; K.DETAIL = false; if (pist) pist.visible = true; if (tenu) tenu.visible = false; return true; };
     function essaiePistolet() { var I = window.__inter71; pist = scene.getObjectByName("Piece185_pistolet_graisse"); if (!pist || !I || !I.zone) { setTimeout(essaiePistolet, 1000); return; }
       try { pist.updateMatrixWorld(true); var inv = new M4().copy(pist.matrixWorld).invert(), bb = new THREE.Box3(), t = new M4();
         pist.traverse(function (o) { if (!o.isMesh) return; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); bb.union(o.geometry.boundingBox.clone().applyMatrix4(t.multiplyMatrices(inv, o.matrixWorld))); });
         bb.expandByScalar(0.03);
-        I.zone({ o: pist, prio: 1, marque: "pistolet à graisse", b: bb, actif: function () { return etape >= K.ETAPE && (K.enMain ? chaineVue(pist.parent) : chaineVue(pist)); },
+        I.zone({ o: pist, prio: 1, marque: "pistolet à graisse", b: bb, actif: function () { return etape >= K.ETAPE && !K.branche && (K.enMain ? chaineVue(pist.parent) : chaineVue(pist)); },
           texte: function () { return K.enMain ? REPOSE : PREND; }, agit: function () { if (K.enMain) K.repose(); else K.prend(); } });
         tenu = pist.clone(true); tenu.name = "Pistolet_graisse_en_main"; tenu.position.set(0, 0, 0); tenu.rotation.set(0, 0, 0); tenu.scale.copy(pist.getWorldScale(new V3()));
         tenu.traverse(function (o) { if (o.isMesh) { o.castShadow = false; o.frustumCulled = false; } }); tenu.visible = false; scene.add(tenu);
         // le pistolet couche sur le coffre : son axe (x du modele pieces-3d, vers la tete) pointe devant le visiteur, la tete en avant, un peu vers le bas
         K.poseMain = function () { vP.set(cam.aspect < 1 ? K.MAIN_DEBOUT : K.MAIN[0], K.MAIN[1], K.MAIN[2]).applyQuaternion(cam.quaternion).add(cam.position); tenu.position.copy(vP); tenu.quaternion.copy(cam.quaternion).multiply(qR); };
-        I.anime(function () { if (K.enMain && etape < K.ETAPE) K.repose(); var vu = K.enMain && !(etat && etat.haut); if (tenu.visible !== vu) tenu.visible = vu; if (vu) K.poseMain(); });
+        try { K.levier = separeLevier(tenu); } catch (e) { erreur("levier", e); }
+        I.anime(function () { if (K.enMain && etape < K.ETAPE) K.repose(); var vu = K.enMain && !(etat && etat.haut); if (tenu.visible !== vu) tenu.visible = vu; if (vu) { K.poseMain(); pompe(); } });
         K.etat = "pret"; } catch (e) { erreur("pistolet", e); } }
+    // ---- v194 : branchement et pompage (utilisateur : « cree l'animation qui connecte le gun a graisse au point de graissage et ajoute aussi mouvement
+    // pomper ; la fiche est interactive, doit compter le nombre de coups, indiquer quand arreter et mettre de l'avant le risque »).
+    // Consigne validee (guides de graissage : Vermeer, FieldFix, IsoHiTech) : pomper lentement jusqu'a voir la graisse propre sortir, 1 a 5 coups ; arreter si ca resiste.
+    // Le jeu tire, a chaque branchement, le coup ou la graisse propre sort (1 a 5) : avant, la vieille graisse sale sort ; apres, c'est trop (joint creve).
+    // Repere du pistolet (pieces-3d, pistolet-graisse-1142, metres) : x vers la tete, y vers le levier ; bout du coupleur 5852 = boutCoupleur() ;
+    // direction du dernier troncon de la rallonge 62028 = DL ; levier : triangles du maillage zingue au-dessus de y = 0,045, tournes autour de A (52, 62 mm).
+    var TIP = new V3(0.2205, -0.0264, 0), DL = new V3(0.9795, -0.2013, 0), YL = new V3(0.2013, 0.9795, 0), PIV = new V3(0.052, 0.062, 0);
+    var mLt = new M4().makeBasis(DL, YL, new V3(0, 0, 1)).transpose(), mW = new M4(), qB = new THREE.Quaternion(), vB = new V3(), vW = new V3(), vY = new V3(), vZ = new V3(), vH = new V3(), HAUT = new V3(0, 1, 0);
+    K.COUP_S = 0.75; K.LEVIER_AMP = 0.45; K.TRANSITION_S = 0.45; K.LACHE_M = 2.6;
+    function sousGeo(g, tri) { var r = new THREE.BufferGeometry(); Object.keys(g.attributes).forEach(function (nm) { var a = g.attributes[nm], k = a.itemSize, out = new Float32Array(tri.length * 3 * k);
+        tri.forEach(function (t, i) { for (var j = 0; j < 3 * k; j++) out[i * 3 * k + j] = a.array[t * 3 * k + j]; }); r.setAttribute(nm, new THREE.BufferAttribute(out, k)); }); r.computeBoundingSphere(); return r; }
+    function separeLevier(T) { var mz = null; T.traverse(function (o) { if (o.isMesh && /zingue/.test(o.name)) mz = o; }); if (!mz) return null;
+      T.updateMatrixWorld(true); var M = new M4().copy(T.matrixWorld).invert().multiply(mz.matrixWorld), g = mz.geometry.index ? mz.geometry.toNonIndexed() : mz.geometry, P = g.attributes.position, v = new V3(), c = new V3(), garde = [], lev = [];
+      for (var t = 0; t < P.count / 3; t++) { c.set(0, 0, 0); for (var k = 0; k < 3; k++) c.add(v.fromBufferAttribute(P, t * 3 + k).applyMatrix4(M)); c.multiplyScalar(1 / 3); (c.y > 0.045 && c.x < 0.075 ? lev : garde).push(t); }
+      if (!lev.length) return null; mz.geometry = sousGeo(g, garde);
+      var piv = new THREE.Object3D(); piv.name = "Pistolet_levier_pivot"; piv.position.copy(PIV); T.add(piv);
+      var m = new THREE.Mesh(sousGeo(g, lev), mz.material); m.name = "Pistolet_levier"; m.frustumCulled = false; new M4().makeTranslation(-PIV.x, -PIV.y, -PIV.z).multiply(M).decompose(m.position, m.quaternion, m.scale); piv.add(m); return piv; }
+    // gouttes de graisse au joint (vieille graisse sale, puis graisse propre)
+    var goutte = null, matSale = null, matPropre = null;
+    function gouttes() { if (goutte) return goutte; matSale = new THREE.MeshStandardMaterial({ color: 0x2b2116, roughness: 0.35, metalness: 0 }); matPropre = new THREE.MeshStandardMaterial({ color: 0xc8861a, roughness: 0.25, metalness: 0 });
+      goutte = new THREE.Mesh(new THREE.SphereGeometry(1, 14, 10), matSale); goutte.name = "Graisse_au_joint"; goutte.visible = false; scene.add(goutte); return goutte; }
+    // pose branchee : le coupleur pousse sur le graisseur, dans l'axe main -> graisseur, levier vers le haut
+    function poseBranchee(P) { vW.subVectors(P, vH); if (vW.lengthSq() < 1e-6) vW.set(0, 0, -1); vW.normalize(); vY.copy(HAUT).addScaledVector(vW, -HAUT.dot(vW)); if (vY.lengthSq() < 1e-4) vY.set(1, 0, 0); vY.normalize(); vZ.crossVectors(vW, vY);
+      mW.makeBasis(vW, vY, vZ).multiply(mLt); qB.setFromRotationMatrix(mW); vB.copy(TIP).applyQuaternion(qB); vB.subVectors(P, vB); }
+    var B = null, vP2 = new V3(), q0 = new THREE.Quaternion();
+    K.brancher = function (o, d) { if (!K.enMain || K.branche || !tenu) return false; var n = 1 + Math.floor(Math.random() * 5); B = K.branche = { o: o, d: d, n: 0, propre: n, t0: performance.now(), sort: 0, coup: -1, fin: 0 };
+      K.branchements++; gouttes().visible = false; panneau(true); maj(); return true; };
+    K.debrancher = function (silence) { if (!B) return false; var d = B.d, n = B.n, f = n === 0 ? "" : n < B.propre ? "peu" : n === B.propre ? "ok" : "trop"; B.fin = performance.now(); K.dernier = { id: d[0], coups: n, propre: B.propre, resultat: f };
+      if (f === "ok" || f === "trop") { B.o.userData.fait = f; var z = B.o.userData.zone; if (z) { z.icone = f === "ok" ? ICONE_OK : ICONE_TROP; z.niveau = f === "ok" ? "secours" : "avertissement"; } }
+      if (!silence) { var I = window.__inter71; if (f === "peu") I.message("Trop peu de graisse : usure, grippage. Rebranche et pompe jusqu'à voir la graisse propre.", 6000);
+        else if (f === "ok") I.message(d[1] + " : graissé.", 3500); else if (f === "trop") I.message("Trop de graisse : le joint peut crever et laisser entrer la saleté.", 6000); }
+      K.sortie = B; B = K.branche = null; panneau(false); return true; };
+    K.pomper = function () { if (!B || B.coup >= 0 || performance.now() - B.t0 < K.TRANSITION_S * 1000) return false; B.coup = performance.now(); return true; };
+    K.branchements = 0;
+    var ICONE_OK = '<svg viewBox="0 0 24 30" aria-hidden="true"><g class="ig-loin"><circle cx="12" cy="24" r="4.6" fill="#2fbf5b" stroke="#fff" stroke-width="1.6"/></g><g class="ig-pres"><path d="M12 29.6l-4-6h8z" fill="#fff"/><path d="M12 1.5l9.1 5.25v10.5L12 22.5l-9.1-5.25V6.75z" fill="#1f9b48" stroke="#fff" stroke-width="1.6"/><path d="M7.6 12.2l3 3 5.8-6" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
+    var ICONE_TROP = '<svg viewBox="0 0 24 30" aria-hidden="true"><g class="ig-loin"><circle cx="12" cy="24" r="4.6" fill="#f08a00" stroke="#fff" stroke-width="1.6"/></g><g class="ig-pres"><path d="M12 29.6l-4-6h8z" fill="#fff"/><path d="M12 1.5l9.1 5.25v10.5L12 22.5l-9.1-5.25V6.75z" fill="#f08a00" stroke="#fff" stroke-width="1.6"/><path d="M12 6.5v7M12 16.4v1.6" stroke="#111" stroke-width="2.4" stroke-linecap="round"/></g></svg>';
+    // animation, chaque image, pistolet en main : main -> graisseur, coups de levier, goutte au joint ; retour a la main apres debranchement
+    var vG = new V3(), qM = new THREE.Quaternion(), vM = new V3();
+    function lisse(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+    function pompe() { var now = performance.now(), S = K.sortie, lev = 0;
+      vH.copy(tenu.position); qM.copy(tenu.quaternion); vM.copy(vH);
+      if (B) { if (!chaineVue(B.o) || (etat && etat.haut)) { K.debrancher(true); return; } B.o.getWorldPosition(vG); if (vG.distanceTo(cam.position) > K.LACHE_M) { K.debrancher(); return; }
+        poseBranchee(vG); var u = lisse((now - B.t0) / (K.TRANSITION_S * 1000)); tenu.position.lerpVectors(vM, vB, u); tenu.quaternion.copy(qM).slerp(qB, u);
+        if (B.coup >= 0) { var c = (now - B.coup) / (K.COUP_S * 1000); if (c >= 1) { B.coup = -1; B.n++; B.sort = now; maj(); } else lev = Math.sin(Math.PI * c); } }
+      else if (S && now - S.fin < K.TRANSITION_S * 1000) { S.o.getWorldPosition(vG); poseBranchee(vG); var w = lisse(1 - (now - S.fin) / (K.TRANSITION_S * 1000)); tenu.position.lerpVectors(vM, vB, w); tenu.quaternion.copy(qM).slerp(qB, w); }
+      if (K.levier) K.levier.rotation.z = -K.LEVIER_AMP * lev;
+      // goutte : vieille graisse sale qui pousse a chaque coup, graisse propre au bon coup, bourrelet qui grossit si on continue
+      var g = goutte; if (g) { var cible = B || (S && now - S.fin < 2500 ? S : null); g.visible = !!(cible && cible.n > 0);
+        if (g.visible) { cible.o.getWorldPosition(vG); poseBranchee(vG); var e = Math.min(1, (now - cible.sort) / 400), r = 0.006 + 0.0025 * Math.min(cible.n, 8);
+          g.material = cible.n >= cible.propre ? matPropre : matSale; g.position.copy(vG).addScaledVector(vY, -0.022).addScaledVector(vZ, 0.012); g.scale.set(r, r * 0.8 * (0.6 + 0.4 * e), r); } } }
+    // fiche de pompage : compteur, quand arreter, risque en avant (meme plaque que l'etiquette : bandeau bleu, pictogrammes ISO 7010)
+    var pan = null;
+    function panneau(ouvert) { if (!pan) { pan = document.createElement("div"); pan.id = "graisse194"; pan.setAttribute("role", "dialog"); pan.setAttribute("aria-label", "Pompage du graisseur");
+        pan.innerHTML = '<div class="hd"></div><div class="bd"><div class="cpt"><b>0</b><span>coup</span><div class="pips"></div></div><div class="etat"></div><div class="regle"><i class="ic in"><svg viewBox="0 0 20 20"><path d="M5 5l10 10M15 5L5 15" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></i>Ça résiste ? Arrête et débranche.</div>' +
+          '<div class="bt"><button type="button" class="pomper">Pomper</button><button type="button" class="debr">Débrancher</button></div></div>';
+        var st194 = document.createElement("style"); st194.textContent = '#graisse194{position:fixed;right:24px;top:50%;translate:0 -50%;z-index:60;width:280px;border-radius:8px;overflow:hidden;box-shadow:0 6px 22px rgba(0,0,0,.6);font:500 14px/1.3 var(--f-texte,system-ui),sans-serif;color:#fff;display:none;user-select:none;-webkit-user-select:none}#graisse194.ouvert{display:block}#graisse194 .hd{background:#1f6fd1;padding:7px 11px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}#graisse194 .bd{background:rgba(10,14,18,.92);padding:10px 11px 11px}#graisse194 .cpt{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}#graisse194 .cpt b{font-size:34px;line-height:1;font-weight:800}#graisse194 .cpt span{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#9aa6b2}#graisse194 .pips{display:flex;gap:4px;margin-left:auto}#graisse194 .pips i{width:14px;height:14px;border-radius:3px;border:1.5px solid rgba(255,255,255,.35)}#graisse194 .pips i.sale{background:#4a3a28;border-color:#8a6a48}#graisse194 .pips i.propre{background:#2fbf5b;border-color:#fff}#graisse194 .pips i.trop{background:#f08a00;border-color:#fff}#graisse194 .etat{display:flex;gap:10px;align-items:center;margin:10px -11px 0;padding:8px 11px;border-left:4px solid #4b95ff;background:rgba(75,149,255,.12)}#graisse194 .etat b{display:block;font-size:15px}#graisse194 .etat small{display:block;font-size:12px;color:#c9d2da;margin-top:2px}#graisse194[data-etat=sale] .etat{border-color:#8a6a48;background:rgba(138,106,72,.18)}#graisse194[data-etat=ok] .etat{border-color:#2fbf5b;background:rgba(47,191,91,.18)}#graisse194[data-etat=av] .etat{border-color:#f08a00;background:rgba(240,138,0,.25);animation:gr194 .9s ease-in-out infinite alternate}#graisse194[data-etat=av] .etat b{font-size:16px;color:#ffb347}@keyframes gr194{from{background:rgba(240,138,0,.14)}to{background:rgba(240,138,0,.34)}}#graisse194 .ic{flex:0 0 28px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid #fff;box-sizing:border-box;background:#1f6fd1}#graisse194 .ic svg{width:16px;height:16px}#graisse194 .ic.sale{background:#6b4a2a}#graisse194 .ic.ok{background:#1f9b48}#graisse194 .ic.in{background:#d62d26;flex-basis:20px;width:20px;height:20px;border-width:1.5px}#graisse194 .ic.in svg{width:11px;height:11px}#graisse194 .ic.av{border:0;border-radius:0;background:#f08a00;clip-path:polygon(50% 4%,98% 94%,2% 94%)}#graisse194 .ic.av svg{margin-top:5px}#graisse194 .regle{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12px;color:#ffb3ae}#graisse194 .bt{display:flex;gap:8px;margin-top:10px}#graisse194 .bt button{flex:1;font:700 14px/1 inherit;font-family:inherit;padding:11px 8px;border-radius:6px;border:0;cursor:pointer;color:#fff;letter-spacing:.03em}#graisse194 .pomper{background:#1f6fd1}#graisse194 .pomper:active{background:#174f99}#graisse194 .debr{background:rgba(255,255,255,.14);flex:0 0 auto!important;padding:11px 12px!important}@media (max-width:699px){#graisse194{left:12px;right:12px;width:auto;top:auto;bottom:calc(78px + env(safe-area-inset-bottom,0px));translate:none}#graisse194 .cpt b{font-size:28px}}'; document.head.appendChild(st194);
+        document.body.appendChild(pan); pan.querySelector(".pomper").addEventListener("click", function (e) { e.stopPropagation(); K.pomper(); });
+        pan.querySelector(".debr").addEventListener("click", function (e) { e.stopPropagation(); K.debrancher(); });
+        ["pointerdown", "pointerup", "click", "touchstart"].forEach(function (t) { pan.addEventListener(t, function (e) { e.stopPropagation(); }); }); }
+      pan.classList.toggle("ouvert", !!ouvert); document.body.classList.toggle("graisse194", !!ouvert); }
+    var PIC = { pompe: '<svg viewBox="0 0 20 20"><path d="M3 11h9v3.5H3zM12 12.3h5M6 11V6.5h3.5V11M7.7 6.5V3" stroke="#fff" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg>',
+      ok: '<svg viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      att: '<svg viewBox="0 0 20 20"><path d="M10 6.5v5M10 13.8v1.4" stroke="#111" stroke-width="2.2" stroke-linecap="round"/></svg>' };
+    function maj() { if (!pan || !B) return; var n = B.n, p = B.propre, h = "";
+      pan.querySelector(".hd").textContent = B.d[1]; pan.querySelector(".cpt b").textContent = n; pan.querySelector(".cpt span").textContent = n > 1 ? "coups" : "coup";
+      for (var i = 1; i <= Math.max(5, n); i++) h += '<i class="' + (i > n ? "" : i < p ? "sale" : i === p ? "propre" : "trop") + '"></i>'; pan.querySelector(".pips").innerHTML = h;
+      var e = n === 0 ? ["ob", PIC.pompe, "Pompe lentement, un coup à la fois.", "Porte de cage ouverte : plus d'hydraulique."]
+        : n < p ? ["sale", PIC.pompe, "Graisse sale qui sort : continue.", "Arrêter ici : trop peu, usure et grippage."]
+        : n === p ? ["ok", PIC.ok, "Graisse propre : arrête.", "Débranche le pistolet."]
+        : ["av", PIC.att, "Trop : joint crevé, la saleté entre.", "Arrête de pomper et débranche."];
+      pan.dataset.etat = e[0]; pan.querySelector(".etat").innerHTML = '<i class="ic ' + e[0] + '">' + e[1] + '</i><span><b>' + e[2] + '</b><small>' + e[3] + '</small></span>'; }
     setTimeout(function () { essaiePistolet(); essaieFixe(); }, 2500);
   })();
   // ---- inter_plans_etapes_v156.js (v156, 2026-11-23) : demande de l'utilisateur (« pour l'ensemble des etapes de construction, analyse comment tu peux
@@ -20027,7 +20104,7 @@
     // (version 180) utilisateur : « adapte la couleur au danger », « sera utliser pour de la prvention » : code de couleurs de securite (rouge = danger,
     // orange = avertissement, vert = secours/premiers soins ; jaune = action ordinaire). zone.niveau l'impose ; sinon il est deduit du texte et de la marque.
     // La couleur passe a l'icone, a l'etiquette, au contour de la piece et a son repere ; l'etiquette d'un danger commence par « Danger · ».
-    H.NIVEAUX = { danger: { col: 0xe5322d, mot: "Danger" }, avertissement: { col: 0xff8a1f, mot: "Attention" }, secours: { col: 0x2fbf5b, mot: "" }, obligation: { col: 0x4b95ff, mot: "" } };   // v189 : obligation (bleu, ISO 7010) = entretien prescrit (graisseurs)
+    H.NIVEAUX = { danger: { col: 0xe5322d, mot: "Danger" }, avertissement: { col: 0xff8a1f, mot: "Attention" }, secours: { col: 0x2fbf5b, mot: "" }, obligation: { col: 0x4b95ff, mot: "" }, graisse: { col: 0xe09a2e, mot: "" } };   // v189 : obligation (bleu, ISO 7010) = entretien prescrit (graisseurs)
     H.niveau = function (z, t) { if (z && z.niveau) return z.niveau; var x = ((z && z.marque) || "") + " " + (t || "");
       if (/explosi|non saut|électrocu|600 ?v|haute tension|mortel/i.test(x)) return "danger";
       if (/\brisques?\b|attention|pincement|écrasement|coincement|chute|glissant|coupant|brûlure/i.test(x)) return "avertissement";
