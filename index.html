@@ -285,7 +285,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 217</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 218</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -330,7 +330,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 217</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 218</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -351,7 +351,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 217</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 218</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -16925,6 +16925,8 @@
       "#fiche199 .f-sceau{display:inline-block;padding:8px 10px;border:2px solid #0fa94f;color:#0b7a39;font-weight:700;border-radius:4px}",
       "#fiche199 .flash{animation:f199f 1.2s ease-out}@keyframes f199f{0%,40%{background:rgba(242,183,5,.55)}100%{background:transparent}}",
       "@media (max-width:480px){#fiche199 .f-feuille{padding:12px 10px 0}#fiche199 .f-tete,#fiche199 .f-l{grid-template-columns:26px 1fr 44px 30px}#fiche199 .f-ent{grid-template-columns:1fr}#fiche199 .f-pied{margin:12px -10px 0;padding:8px 10px 10px}#fiche199 .f-reste{flex-basis:100%}#fiche199 .f-signe{flex:1 1 auto}}",
+      "#fiche199 .f-ronde{flex:none;border:0;background:transparent;color:#1f6fd0;font-weight:700;font-size:15px;padding:12px 8px;cursor:pointer;text-decoration:underline}",
+      "#fiche199 .f-vu{font-style:normal;font-size:11px;font-weight:600;color:#1f6fd0;white-space:nowrap}",   // v218 : item vu pendant la ronde d'entretien
       "html.fiche199 #hud88{visibility:hidden}"].join("\n"); document.head.appendChild(st);
 
     var el = document.createElement("div"); el.id = "fiche199"; el.hidden = true; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Fiche d'inspection MA4657056");
@@ -16934,7 +16936,7 @@
       return '<div class="f-tab' + (off ? " off" : "") + '" data-sec="' + s.id + '"><div class="f-tete"><span style="grid-column:span 2">' + esc(s.titre) + "</span><i title='Travailleur'>T</i><i title='Superviseur'>S</i></div>" +
         (off ? '<p class="f-off">Démarre le groupe (bouton vert) pour faire ces vérifications.</p>' : "") +
         s.L.map(function (x) { var v = K.t[cle(s.id, x.n)] || "";
-          return '<div class="f-l' + (x.r ? " r" : "") + '" id="f199-' + s.id + x.n + '"><span>' + x.n + "-</span><p>" + esc(x.q) + '</p><button type="button" class="f-t" data-k="' + s.id + '" data-n="' + x.n + '" data-v="' + v + '" aria-label="' + esc(s.titre) + " " + x.n + ", colonne T (Travailleur) : " + (v === "c" ? "conforme" : v === "x" ? "non conforme" : "vide") + '">' + marque(v) + '</button><span class="f-s" aria-hidden="true"></span></div>'; }).join("") + "</div>"; }
+          return '<div class="f-l' + (x.r ? " r" : "") + '" id="f199-' + s.id + x.n + '"><span>' + x.n + "-</span><p>" + esc(x.q) + (I.ronde && I.ronde.actif && I.ronde.vu(s.id, x.n) ? ' <em class="f-vu">vu en ronde</em>' : "") + '</p><button type="button" class="f-t" data-k="' + s.id + '" data-n="' + x.n + '" data-v="' + v + '" aria-label="' + esc(s.titre) + " " + x.n + ", colonne T (Travailleur) : " + (v === "c" ? "conforme" : v === "x" ? "non conforme" : "vide") + '">' + marque(v) + '</button><span class="f-s" aria-hidden="true"></span></div>'; }).join("") + "</div>"; }
     function dessine() { var f = el.querySelector(".f-feuille"), haut = f ? f.scrollTop : 0;
       el.innerHTML = '<div class="f-feuille" tabindex="-1"><button type="button" class="f-x" data-a="ferme" aria-label="Fermer la fiche">×</button>' +
         '<p class="f-ref">Machines Roger International · formulaire MA4657056 · août 2026</p><h2>Fiche d’inspection</h2><p class="f-sous">Foreuse au diamant sous-terre</p>' +
@@ -16952,9 +16954,10 @@
         '<label><small><b>Signature du superviseur :</b></small><div class="f-val"></div></label><label><small><b>Heure :</b></small><div class="f-val"></div></label></div>' +
         '<div><small><b>Inspection conjointe :</b> (1 fois par cédule)</small><div class="f-choix">' + ["OUI", "NON"].map(function (q) { return '<button type="button" data-conj="' + q + '" aria-pressed="' + (K.conj === q) + '">' + q + "</button>"; }).join("") + "</div></div>" +
         '<label style="display:block;margin-top:10px"><small><b>COMMENTAIRES :</b></small><textarea data-c="com" maxlength="400">' + esc(K.com) + "</textarea></label>" +
-        '<div class="f-pied"><p class="f-reste" data-r="reste" aria-live="polite"></p><button type="button" class="f-tard" data-a="ferme">Plus tard</button><button type="button" class="f-signe" data-a="signe">Signer la fiche</button></div></div>';
+        '<div class="f-pied"><p class="f-reste" data-r="reste" aria-live="polite"></p><button type="button" class="f-ronde" data-a="ronde">Faire la ronde</button><button type="button" class="f-tard" data-a="ferme">Plus tard</button><button type="button" class="f-signe" data-a="signe">Signer la fiche</button></div></div>';
       majPied(); var f2 = el.querySelector(".f-feuille"); if (f2) f2.scrollTop = haut; }
     function majPied() { var r = el.querySelector('[data-r="reste"]'), b = el.querySelector('[data-a="signe"]'), t = el.querySelector(".f-tard"); if (!r || !b) return;
+      var rb = el.querySelector(".f-ronde"); if (rb) rb.hidden = K.signee;   // v218
       var R = rougesX(), m = manque(), rg = el.querySelector('[data-r="regle"]'); if (rg) rg.classList.toggle("on", !!R.length);
       if (K.signee) { r.innerHTML = '<span class="f-sceau">Fiche signée à ' + esc(K.heure) + ".</span>"; b.textContent = "Fermer"; b.classList.add("ok"); if (t) t.hidden = true; return; }
       if (t) t.hidden = false; b.textContent = "Signer la fiche";
@@ -16981,6 +16984,7 @@
     el.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); ferme(); } else if (e.key === "Enter" && e.target && e.target.tagName === "INPUT") { e.preventDefault(); e.target.blur(); } });
     el.addEventListener("click", function (e) { var t = e.target.closest ? e.target.closest("[data-a],[data-k],[data-quart],[data-conj]") : null; if (!t) { if (e.target === el) ferme(); return; }
       var a = t.getAttribute("data-a"); if (a === "ferme") { ferme(); return; } if (a === "signe") { signe(); return; }
+      if (a === "ronde") { ferme(); if (I.ronde && I.ronde.demarre) I.ronde.demarre(); return; }   // v218 : ronde d'entretien (inter_ronde_entretien_v218.js)
       if (t.hasAttribute("data-quart")) { K.quart = t.getAttribute("data-quart"); annuleSignature(); dessine(); return; }
       if (t.hasAttribute("data-conj")) { K.conj = K.conj === t.getAttribute("data-conj") ? "" : t.getAttribute("data-conj"); dessine(); return; }
       var sid = t.getAttribute("data-k"), n = +t.getAttribute("data-n");
@@ -17441,6 +17445,123 @@
         : ["av", PIC.att, "Trop : joint crevé, la saleté entre.", "Arrête de pomper et débranche."];
       pan.dataset.etat = e[0]; pan.querySelector(".etat").innerHTML = '<i class="ic ' + e[0] + '">' + e[1] + '</i><span><b>' + e[2] + '</b><small>' + e[3] + '</small></span>'; }
     setTimeout(function () { essaiePistolet(); essaieFixe(); }, 2500);
+  })();
+  // ---- inter_ronde_entretien_v218.js (version 218, 2026-11-27) : utilisateur : ameliorations du jeu ; demande transmise : un mode « Ronde
+  // d'entretien », liste a cocher qui se remplit pendant qu'on joue, branchee sur les actions deja la (graissage v202, fiche d'inspection v199).
+  // Source unique : la fiche d'inspection MA4657056 (Machines Roger, aout 2026), VERIFICATIONS AVANT DEMARRAGE. Rien n'est ajoute au formulaire :
+  // la ronde est la tournee de la place de travail qui va VOIR chaque item avant de le cocher. Seuls les items dont la piece est dans la scene
+  // sont des arrets de la ronde ; les autres (2, 15, 17 a 20, 25) restent a cocher sur la fiche, comme avant.
+  //  - un arret = une piece de la scene ; son repere bleu (bleu = « obligation », ISO 7010, comme le niveau HUD deja prevu) s'ouvre au regard
+  //    avec le numero et le texte mot pour mot des items de la fiche, items rouges en rouge ; clic = « vu » : la case T de ces items passe a ✔
+  //    sur la fiche (le joueur peut encore la changer pour X) ;
+  //  - item 16 « Graisser tous les points de graissage » : se coche seul quand les graisseurs de la STM-1500 sont tous faits (inter_graissage_v189.js) ;
+  //  - avant demarrage = groupe arrete (titre de la section du formulaire) : groupe en marche, un arret est refuse ;
+  //  - suivi facon jeu (« objectifs ») sous les pastilles du coin : fond sombre translucide comme les pastilles v209, replie au telephone.
+  // On la lance depuis la fiche (bouton « Faire la ronde »). K.ACTIF = false : version 217.
+  (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
+    var F = I.ficheInspection, K = { ACTIF: true, actif: false, replie: false, vus: {}, cible: {}, bilan: { arrets: 0, refus: 0 }, erreurs: [] };
+    I.ronde = K; try { window.__ronde = K; } catch (e) {}
+    if (!K.ACTIF || !F || !F.SECTIONS) { K.ACTIF = false; return; }
+    var V3 = THREE.Vector3, AV = F.SECTIONS[0], doigt = window.matchMedia && matchMedia("(pointer: coarse)").matches;
+    // [id, nom court, items de la fiche (avant demarrage), [reperes : objet de la scene (nom) + decalage en m]]
+    var ARRETS = [
+      { id: "pp", nom: "Power pack", items: [3, 5, 6, 7], rep: [["Groupe_hydraulique", [0, 0.25, 0]]] },
+      { id: "c600", nom: "Câble électrique 600 V", items: [4], rep: [["Coupleur_600V", [0, 0, 0]]] },
+      { id: "eau", nom: "Pompe à eau et réservoir", items: [8, 9, 10], rep: [["Piece_tubeEau", [0, 0.35, 0]]] },
+      { id: "ext", nom: "Extincteur", items: [11], rep: [["Poste_secours_15", [0, 0, 0]]] },
+      { id: "dev", nom: "Trousse de déversement et bac", items: [12], rep: [["Piece_trousseZenith", [0, 0.45, 0]], ["Piece_bacHuile", [0, 0.45, 0]]] },
+      { id: "ps", nom: "Premiers soins et lave-yeux", items: [13], rep: [["Poste_secours_4", [0, 0, 0]]] },
+      { id: "cage", nom: "Clôture et porte", items: [14], rep: [["SM_Porte_Battant", [0, 0, 0]]] },
+      { id: "fc", nom: "Foot clamp et tête", items: [21, 22, 23], rep: [["Graisseur_F_0_fixe", [0, 0.05, 0]], ["Graisseur_C_0_fixe|Graisseur_D_0_fixe", [0, 0.1, 0]]] },
+      { id: "tiges", nom: "Support à tiges", items: [24], rep: [["Rack_tiges", [0, 0, 0]]] },
+      { id: "gr", nom: "Graisseurs de la foreuse", items: [16], auto: true }];
+    K.ARRETS = ARRETS;
+    function item(n) { return AV.L[n - 1]; }
+    function fait(a) { return a.auto ? graisseFait() : a.rep.every(function (r, i) { return K.vus[a.id + i]; }); }
+    K.fait = function (id) { var a = ARRETS.filter(function (x) { return x.id === id; })[0]; return !!(a && fait(a)); };
+    // la fiche demande si un item a ete vu en ronde (petite marque « vu » a cote de la case)
+    K.vu = function (sid, n) { if (sid !== "av") return false; return ARRETS.some(function (a) { return a.items.indexOf(n) >= 0 && fait(a); }); };
+    function graisseurs() { return (I.zones || []).filter(function (z) { return /^graissage .* fixe$/.test(z.marque || ""); }); }
+    function graisseFait() { var g = graisseurs(); return g.length > 0 && g.every(function (z) { return !!z.o.userData.fait; }); }
+    function nGraisse() { var g = graisseurs(), groupes = {}, f = {}; g.forEach(function (z) { groupes[z.marque] = 1; if (z.o.userData.fait) f[z.marque] = (f[z.marque] || 0) + 1; });
+      var n = 0, t = 0; Object.keys(groupes).forEach(function (m) { t++; if (g.filter(function (z) { return z.marque === m; }).every(function (z) { return z.o.userData.fait; })) n++; }); return [n, t]; }
+    // coche ✔ sur la fiche (colonne T) les items d'un arret encore vides ; un X deja mis par le joueur reste
+    function cocheFiche(a) { var n = 0; a.items.forEach(function (k) { if (!F.t["av" + k]) { F.t["av" + k] = "c"; n++; } }); if (n && F.ouvert && F.ouvre) { F.ferme(); F.ouvre(); } return n; }
+
+    // ---- reperes 3D : un objet vide par repere, une zone du HUD (style marqueur : icone d'abord, texte au regard)
+    var ICONE = '<svg viewBox="0 0 24 30" aria-hidden="true"><g class="ig-loin"><circle cx="12" cy="24" r="4.6" fill="#2f74d0" stroke="#fff" stroke-width="1.6"/></g><g class="ig-pres"><path d="M12 29.6l-4-6h8z" fill="#fff"/><rect x="3.2" y="2.2" width="17.6" height="20.6" rx="3" fill="#2f74d0" stroke="#fff" stroke-width="1.6"/><path d="M8.6 2.2h6.8v3.2H8.6z" fill="#fff"/><path d="M7.4 12.6l3 3 6.2-6.4" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
+    var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+    function ficheHtml(a) { return '<div class="r213-l">' + a.items.map(function (k) { var x = item(k); return '<div class="' + (x.r ? "r" : "") + '"><i>' + k + "</i>" + esc(x.q) + "</div>"; }).join("") + "</div>" +
+      '<div class="fl-plus">' + (doigt ? "Touche" : "Clique") + " : vu, coché sur la fiche</div>"; }
+    var vS = new V3();
+    function chaineVue(o) { while (o) { if (!o.visible) return false; if (o === scene) return true; o = o.parent; } return false; }
+    function trouve(noms) { var l = noms.split("|"), o = null; for (var i = 0; i < l.length && !o; i++) o = scene.getObjectByName(l[i]); return o; }
+    var poses = 0;
+    function poseReperes() { var reste = 0;
+      ARRETS.forEach(function (a) { if (a.auto) return; a.rep.forEach(function (r, i) { var cle = a.id + i; if (K.cible[cle]) return; var o = trouve(r[0]); if (!o) { reste++; return; }
+        try { o.updateMatrixWorld(true); var c = new THREE.Box3().setFromObject(o).getCenter(new V3()), p = new THREE.Object3D(); p.name = "Ronde_" + cle;
+          p.position.copy(o.worldToLocal(c.add(new V3().fromArray(r[1])))); o.add(p); p.updateMatrixWorld(true); K.cible[cle] = p; poses++;
+          var t = a.nom + " : " + a.items.map(function (k) { return k + ". " + item(k).q; }).join(" ; "), TX = [t, t], b = 0.06;
+          I.zone({ o: p, prio: 2, niveau: "obligation", icone: ICONE, fiche: function () { return ficheHtml(a); }, marque: "ronde " + cle, b: new THREE.Box3(new V3(-b, -b, -b), new V3(b, b, b)),
+            actif: function () { return K.actif && !K.vus[cle] && chaineVue(o); }, texte: function () { return TX; }, agit: function () { vu(a, i); } });
+        } catch (e) { K.erreurs.push(cle + " : " + String(e && e.message || e)); } }); });
+      return reste === 0; }
+    function vu(a, i) {
+      if (I.partage.groupeMarche) { K.bilan.refus++; I.message("Ronde d'avant démarrage : arrête le groupe avant de vérifier.", 4500); return; }
+      K.vus[a.id + i] = true; K.bilan.arrets++;
+      if (fait(a)) { var n = cocheFiche(a); I.message(a.nom + " vu : " + (a.items.length > 1 ? "items " : "item ") + a.items.join(", ") + (n ? " cochés ✔ sur la fiche." : " déjà remplis sur la fiche."), 4000); }
+      else I.message(a.nom + " : encore " + a.rep.filter(function (r, j) { return !K.vus[a.id + j]; }).length + " endroit à voir.", 3500);
+      dessine(); }
+
+    // ---- suivi (« objectifs ») sous les pastilles du coin haut droit
+    var st = document.createElement("style"); st.textContent = [
+      "#ronde213{position:fixed;right:max(12px,env(safe-area-inset-right));top:96px;z-index:6;width:min(268px,calc(100vw - 24px));box-sizing:border-box;color:#fff;font:400 13px/1.3 var(--f-texte,system-ui),sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.6);pointer-events:auto}",
+      "#ronde213[hidden]{display:none}",
+      "#ronde213 .r-tete{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:6px 10px;border:1px solid rgba(255,255,255,.28);border-radius:12px;background:rgba(14,16,20,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;font:600 13px/1.2 var(--f-texte,system-ui),sans-serif;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;text-align:left;box-shadow:none}",
+      "#ronde213 .r-tete svg{flex:0 0 22px;width:22px;height:27px}#ronde213 .r-tete b{flex:1 1 auto;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ronde213 .r-tete em{font-style:normal;color:#9cc6ff;font-weight:700;letter-spacing:0}",
+      "#ronde213 .r-tete .r-x{flex:0 0 auto;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:18px;line-height:1;color:#cfd6df}",
+      "#ronde213 .r-barre{height:3px;margin:6px 4px 0;border-radius:2px;background:rgba(255,255,255,.18);overflow:hidden}#ronde213 .r-barre i{display:block;height:100%;width:0;background:#4b95ff;transition:width .3s}",
+      "#ronde213 ul{list-style:none;margin:6px 0 0;padding:6px 8px;border-radius:12px;background:rgba(14,16,20,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);max-height:calc(100vh - 220px);overflow:auto}",
+      "#ronde213.replie ul{display:none}",
+      "#ronde213 li{display:flex;gap:8px;align-items:flex-start;padding:4px 2px}#ronde213 li .c{flex:0 0 16px;width:16px;height:16px;margin-top:1px;border:2px solid #9cc6ff;border-radius:4px;box-sizing:border-box;display:flex;align-items:center;justify-content:center}",
+      "#ronde213 li.ok{color:rgba(255,255,255,.6)}#ronde213 li.ok .c{background:#1f9b48;border-color:#1f9b48}#ronde213 li.ok .c::after{content:'';width:7px;height:4px;margin-top:-2px;border:solid #fff;border-width:0 0 2px 2px;transform:rotate(-45deg)}",
+      "#ronde213 li.ok .t{text-decoration:line-through;text-decoration-color:rgba(255,255,255,.45)}#ronde213 li .n{color:#9cc6ff;font-size:11px;letter-spacing:.02em}#ronde213 li .n .r{color:#ff8f86;font-weight:700}",
+      "#ronde213 li.part .c{border-color:#f0b25a}#ronde213 .r-fin{margin:4px 2px 2px;color:#8fe0a8;font-weight:600}",
+      // repere de la ronde au regard : meme trait de rappel que les graisseurs (v201), en bleu
+      "#hud88.s-marqueur .invite.fiche[data-niveau=obligation] kbd.ico{filter:drop-shadow(0 0 4px #4b95ff) drop-shadow(0 0 1px #000)}",
+      "#hud88.s-marqueur .invite.fiche[data-niveau=obligation]>span::before{background:#4b95ff}",
+      "#hud88.s-marqueur .invite.fiche[data-niveau=obligation] small{border-bottom-color:#4b95ff;color:#9cc6ff}",
+      "#hud88 .r213-l div{display:flex;gap:6px;font-size:14px;font-weight:600;line-height:1.25;padding:1px 0}#hud88 .r213-l i{flex:0 0 auto;font-style:normal;color:#9cc6ff;min-width:18px}#hud88 .r213-l .r{color:#ff8f86}#hud88 .r213-l .r i{color:#ff8f86}",
+      "html.fiche199 #ronde213,html.carte192 #ronde213{visibility:hidden}",
+      "@media (max-width:699px){#ronde213{width:min(240px,calc(100vw - 24px));font-size:12px}#ronde213.replie{width:auto}#ronde213 .r-long{display:none}#ronde213 ul{max-height:42vh}}"].join("\n"); document.head.appendChild(st);
+    var el = document.createElement("div"); el.id = "ronde213"; el.hidden = true; el.setAttribute("role", "region"); el.setAttribute("aria-label", "Ronde d'entretien");
+    var ICO_T = '<svg viewBox="0 0 24 30" aria-hidden="true"><rect x="3.2" y="3.2" width="17.6" height="22.6" rx="3" fill="#2f74d0" stroke="#fff" stroke-width="1.6"/><path d="M8.6 3.2h6.8v3.2H8.6z" fill="#fff"/><path d="M7.4 14.6l3 3 6.2-6.4" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    function compte() { var n = 0; ARRETS.forEach(function (a) { if (fait(a)) n++; }); return n; }
+    var dernier = "";
+    function dessine() { if (!K.actif) return; var n = compte(), N = ARRETS.length, g = nGraisse();
+      var h = '<button type="button" class="r-tete" data-a="plie" aria-expanded="' + !K.replie + '">' + ICO_T + "<b>Ronde<span class=\"r-long\"> d'entretien</span></b><em>" + n + "/" + N + '</em><span class="r-x" data-a="ferme" role="button" aria-label="Fermer la ronde">×</span></button>' +
+        '<div class="r-barre"><i style="width:' + Math.round(100 * n / N) + '%"></i></div><ul>' +
+        ARRETS.map(function (a) { var ok = fait(a), part = !ok && !a.auto && a.rep.some(function (r, i) { return K.vus[a.id + i]; });
+          var nums = a.items.map(function (k) { return item(k).r ? '<span class="r">' + k + "</span>" : k; }).join(", ");
+          return '<li class="' + (ok ? "ok" : part ? "part" : "") + '"><span class="c"></span><span><span class="t">' + esc(a.nom) + (a.auto && g[1] ? " (" + g[0] + "/" + g[1] + ")" : "") + '</span><br><span class="n">Fiche ' + (a.items.length > 1 ? "items " : "item ") + nums + "</span></span></li>"; }).join("") +
+        (n === N ? '<li class="r-fin">Ronde complète : finis et signe la fiche.</li>' : "") + "</ul>";
+      if (h !== dernier) { el.innerHTML = h; dernier = h; } el.classList.toggle("replie", K.replie); }
+    ["pointerdown", "pointerup", "touchstart", "touchend", "wheel", "click", "dblclick", "contextmenu"].forEach(function (t) { el.addEventListener(t, function (e) { e.stopPropagation(); }, { passive: t !== "click" && t !== "contextmenu" }); });
+    el.addEventListener("click", function (e) { var t = e.target.closest ? e.target.closest("[data-a]") : null; if (!t) return;
+      if (t.getAttribute("data-a") === "ferme") { K.arrete(); return; } K.replie = !K.replie; dessine(); });
+    document.body.appendChild(el);
+    function place() { var hd = document.getElementById("haut-droit"), y = 96; try { if (hd && hd.offsetParent !== null) { var r = hd.getBoundingClientRect(); if (r.bottom > 0) y = Math.round(r.bottom + 10); } } catch (e) {} el.style.top = y + "px"; }
+    K.demarre = function () { if (!poseReperes() && !poses) { I.message("La ronde se fait une fois l'équipement en place.", 4000); return false; }
+      if (!K.actif) { K.actif = true; K.replie = doigt && innerWidth < 700; K.bilan.debut = K.bilan.debut || new Date().toISOString(); }
+      el.hidden = false; dernier = ""; place(); dessine();
+      I.message("Ronde d'entretien : va voir chaque repère bleu, groupe arrêté. Les items vus se cochent sur la fiche.", 6000); return true; };
+    K.arrete = function () { K.actif = false; el.hidden = true; };
+    var k = 0, avant = "";
+    I.anime(function () { if (!K.actif || (k++ % 20)) return; place();
+      var g = graisseFait(), s = Object.keys(K.vus).length + "|" + nGraisse().join("/") + "|" + K.replie;
+      if (g && !K.graisse) { K.graisse = true; var a = ARRETS.filter(function (x) { return x.auto; })[0]; if (cocheFiche(a)) I.message("Graisseurs tous faits : item 16 coché ✔ sur la fiche.", 4000); }
+      if (s !== avant) { avant = s; dessine(); } });
+    var essais = 0; I.prepare(function () { return poseReperes() || ++essais > 400; });
   })();
   // ---- inter_plans_etapes_v156.js (v156, 2026-11-23) : demande de l'utilisateur (« pour l'ensemble des etapes de construction, analyse comment tu peux
   // ameliorer le deplacement de la camera et quelle info pertinente tu peux ajouter a meme l'animation », puis « Oui, fais-les »). Plans de camera par
@@ -21338,7 +21459,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "217-24524549", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "218-24524549", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
