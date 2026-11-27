@@ -124,7 +124,11 @@
   #accueil.acc-s3 .acc-pied { padding-top: 20px; }
   @media (max-width: 640px) {
     #accueil .acc-tete h1 { font-size: 26px; }
-    #accueil .acc-choix { grid-template-columns: 1fr; grid-auto-rows: 1fr; }
+    #accueil .acc-choix { grid-template-columns: 1fr; grid-auto-rows: minmax(min-content, 1fr); }
+    /* v211 : sur telephone, les deux cartes du choix de la foreuse etaient ecrasees (image 96 px + texte > 1fr) : le bouton « Entrer » passait sous la carte suivante */
+    #accueil .acc-img { min-height: 64px; }
+    /* v211 : la pastille « Installer » (en haut a droite) cachait la fin du titre et du numero de version */
+    #accueil.acc-inst .acc-tete { padding-right: 132px; }
     #accueil .acc-txt, #accueil.acc-s1 .acc-txt, #accueil.acc-s2 .acc-txt { grid-template-columns: minmax(0, 1fr); grid-template-areas: "sur" "titre" "desc" "btn"; padding: 12px 16px 14px; }
     #accueil .acc-titre, #accueil.acc-s1 .acc-titre { font-size: 27px; }
     #accueil .acc-desc { font-size: 14px; margin-top: 5px; }
@@ -281,7 +285,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 210</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 211</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +330,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 210</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 211</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +351,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 210</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 211</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -16785,7 +16789,10 @@
           var i = c.nextElementSibling; while (i && !(i.tagName === "INPUT")) { if (i.classList && i.classList.contains("c-rang")) { i = null; break; } i = i.nextElementSibling; } if (i) try { i.focus({ preventScroll: true }); } catch (e) {} } return; }
       K.heure = hhmm(); K.remplie = true; K.bilan.signee = K.heure; try { localStorage.setItem("visite-carte-nom", K.nom.trim()); } catch (e) {}
       var h = el.querySelector('[data-r="heure"]'); if (h) h.textContent = K.heure; majPied();
-      setTimeout(function () { ferme(); I.message("Carte de travail signée à " + K.heure + ". Tu peux démarrer le groupe hydraulique (bouton vert).", 5000); }, 900); }
+      setTimeout(function () { ferme(); // v211 : depuis la fiche d'inspection (v199), le groupe refuse aussi tant que les verifications avant demarrage ne sont pas faites : le message le dit
+        var F = I.ficheInspection, rf = F && F.ACTIF && F.bloque ? F.bloque() : "";
+        I.message("Carte de travail signée à " + K.heure + (rf === "avant" ? ". Fais maintenant les vérifications avant démarrage de la fiche d'inspection (2e pochette), puis démarre le groupe (bouton vert)."
+          : rf === "rouge" ? ". Un item rouge de la fiche d'inspection est non conforme : arrêt des travaux et appel au superviseur." : ". Tu peux démarrer le groupe hydraulique (bouton vert)."), 5000); }, 900); }
     // le clavier, la souris et le toucher restent dans la carte (le visiteur ne marche pas pendant qu'il ecrit)
     ["pointerdown", "pointerup", "pointermove", "touchstart", "touchmove", "touchend", "wheel", "keydown", "click", "dblclick", "contextmenu"].forEach(function (t) { el.addEventListener(t, function (e) { e.stopPropagation(); }, { passive: t !== "keydown" && t !== "click" && t !== "contextmenu" }); });
     el.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); ferme(); } else if (e.key === "Enter" && e.target && e.target.tagName === "INPUT") { e.preventDefault(); e.target.blur(); } });
@@ -20747,6 +20754,11 @@
             // v201 : etiquette « fiche » (trait de rappel) : l'invite ne fait que la taille de l'epingle, le texte est pose a cote ; on mesure le texte pour choisir le cote, et sur telephone on decale le texte centre (--dx) pour qu'il reste dans l'ecran
             var spF = invite.classList.contains("fiche") ? invite.querySelector("span") : null, wF = spF ? spF.offsetWidth : 0; if (spF) { wI = 34; var dxF = Math.min(cv.right - 8 - wF / 2, Math.max(cv.left + 8 + wF / 2, kx)) - kx; invite.style.setProperty("--dx", dxF.toFixed(1) + "px"); }
             gauche = spF ? kx + 46 + wF > cv.right - 10 && kx - 46 - wF >= cv.left + 10 : kx + wI > cv.right - 10 && kx - wI >= cv.left + 10;
+            // v211 (essai de bout en bout sur telephone) : etiquette trop large pour les deux cotes (ex. « Attention · Carte de travail » visee au centre d'un ecran
+            // de 390 px) : le texte sortait de l'ecran a droite. On prend le cote le plus large et on y borne la largeur du texte (il passe a la ligne).
+            var spM = spF ? null : invite.querySelector("span"); if (spM) { var cleM = spM.textContent; if (H.mesM !== cleM) { H.mesM = cleM; spM.style.maxWidth = ""; H.wNatM = spM.offsetWidth; }
+              var plD = cv.right - 10 - (kx + 27), plG = kx - 27 - (cv.left + 10), wN = H.wNatM || 0, borne = "";
+              if (wN > plD && wN > plG) { gauche = plG > plD; borne = Math.max(120, Math.floor(gauche ? plG : plD)) + "px"; } if (spM.style.maxWidth !== borne) { spM.style.maxWidth = borne; spM.style.boxSizing = borne ? "border-box" : ""; } }
             var gm = gauche ? "g1" : "d1"; if (H.gauche !== gm) { H.gauche = gm; invite.classList.toggle("gauche", gauche); invite.classList.remove("sansfil"); }
             var ouv = performance.now() - H.tVise >= H.FIXE * 1000; if (invite.classList.contains("ouvert") !== ouv) invite.classList.toggle("ouvert", ouv);
             var tx = gauche ? kx + 17 - wI : kx - 17; invite.style.transform = "translate(" + tx.toFixed(1) + "px," + (ky - hI / 2).toFixed(1) + "px)"; poseReperes(); return; }
@@ -20971,7 +20983,7 @@
         if (!T.ACTIF) { if (tx.style.maxHeight) tx.style.maxHeight = ""; return; }
         if (fi.hidden || fi.classList.contains("reduite") || !tx.clientHeight) return;
         var f = fi.getBoundingClientRect(), autres = f.height - tx.getBoundingClientRect().height, haut = T.MARGE, H = window.innerHeight;
-        if (!fi.classList.contains("deplacee")) ["haut-gauche", "haut-droit"].forEach(function (id) { var e = document.getElementById(id); if (!e) return; for (var i = 0; i < e.children.length; i++) { var c = e.children[i]; if (c.hidden) continue; var r = c.getBoundingClientRect();
+        if (!fi.classList.contains("deplacee")) ["haut-gauche", "haut-droit", "inv-bois"].forEach(function (id) { var e = document.getElementById(id); if (!e || e.hidden) return; for (var i = 0; i < e.children.length; i++) { var c = e.children[i]; if (c.hidden) continue; var r = c.getBoundingClientRect();
             if (r.width > 1 && r.height > 1 && r.right > f.left + 2 && r.left < f.right - 2 && r.bottom < f.bottom) haut = Math.max(haut, r.bottom + T.MARGE); } });
         // base : la limite de la page (26 % de la hauteur de l'ecran, 19 % au telephone), lue sans notre reglage ; elle sert de plancher
         var dispo, anc = tx.style.maxHeight; tx.style.maxHeight = ""; var base = parseFloat(getComputedStyle(tx).maxHeight) || T.MIN; tx.style.maxHeight = anc; T.base = Math.round(base);
@@ -21257,7 +21269,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "210-eef12a19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "211-eef12a19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
@@ -21353,7 +21365,7 @@
       var lieux = [[btn, couche], [hl, bas], [maj, bas]].filter(function (x) { return x[0]; }).map(function (x) { return { e: x[0], dans: x[1], pere: null, apres: null }; }), dedans = false;
       var suitAccueil = function () { var acc = document.getElementById("accueil"), vu = !!(acc && !acc.hidden && acc.getClientRects().length); if (vu === dedans) return; dedans = vu; couche.hidden = !vu;
         lieux.forEach(function (l) { if (vu) { l.pere = l.e.parentNode; l.apres = l.e.nextSibling; l.dans.appendChild(l.e); } else if (l.pere) { l.pere.insertBefore(l.e, l.apres && l.apres.parentNode === l.pere ? l.apres : null); } }); PWA.surAccueil = vu; };
-      suitAccueil(); setInterval(suitAccueil, 300); } catch (e) { PWA.erreur = "couche accueil : " + (e && e.message || e); }
+      suitAccueil(); setInterval(function () { suitAccueil(); var ac = document.getElementById("accueil"); if (ac) ac.classList.toggle("acc-inst", !!(btn && !btn.hidden && dedans)); }, 300); } catch (e) { PWA.erreur = "couche accueil : " + (e && e.message || e); }
     var SW = navigator.serviceWorker;
     hl.addEventListener("click", function (e) { var a = e.target && e.target.getAttribute && e.target.getAttribute("data-a");
       if (a === "accepte") { try { localStorage.setItem(CLE_OFFRE, "oui"); } catch (er) {} PWA.accepte = true; PWA.etat = "charge"; affiche(); enregistre(false); return; }
@@ -21861,13 +21873,13 @@
                      : "Pendant l'examen d'une pièce : boutons <b>+</b> et <b>−</b> pour zoomer, <b>Fermer</b> pour la reposer." },
     { titre: "Les boutons de l'écran", boutons: true,
       img: function () { return listeBoutons(); },
-      texte: "En haut à droite, chaque pastille a son mot dessous. En bas à gauche, la <b>fiche de l'étape</b> donne les consignes, avec Précédente et Suivante.",
+      texte: "En haut à droite, les pastilles des commandes : leur nom paraît dans une bulle quand tu les survoles ou que tu appuies longtemps dessus. En bas à gauche, la <b>fiche de l'étape</b> donne les consignes, avec Précédente et Suivante.",
       astuce: "Le <b>Menu</b> permet aussi de revoir cette aide. Bonne visite !" }];
   // les pastilles du coin, lues sur la page au moment d'ouvrir (elles changent selon le mode) : pictogramme, mot court et a quoi elles servent
   var USAGE = { deplacer: "Bouger et tourner l'équipement sur le plancher.", termine: "Terminer le déplacement de l'équipement.", joue: "Voir un travailleur soulever et porter une charge.",
     equipe: "Faire paraître les travailleurs sur la place.", foreuse: "Charger la foreuse.", accroupir: "Te mettre à genoux pour voir sous l'équipement.", relever: "Te remettre debout.", plusbas: "Descendre encore plus bas.",
     pencher: "Pencher la tête : les commandes de déplacement bougent alors ta tête.", avatar: "Te voir de l'extérieur.", oeil: "Revenir dans tes yeux.", angle: "Changer l'angle de forage et voir le plancher secondaire.",
-    depart: "Revenir au point de départ.", menu: "Changer de mode ou de foreuse, revoir cette aide.", quitter: "Revenir à la première page.", installer: "Installer la visite sur l'appareil." };
+    depart: "Revenir au point de départ.", oiseau: "Voir toute la place de travail d'en haut, et régler la hauteur du vol.", ranger: "Remettre dans le coffre les pièces que tu en as sorties.", menu: "Changer de mode ou de foreuse, revoir cette aide.", quitter: "Revenir à la première page.", installer: "Installer la visite sur l'appareil." };
   function listeBoutons() { var hd = document.getElementById("haut-droit"), h = "";
     if (hd) [].forEach.call(hd.querySelectorAll("button"), function (b) { if (b.hidden || !b.getClientRects().length) return; var s = b.querySelector("svg.jeu-ico"), ico = s && s.__ico, mot = b.getAttribute("data-jeu") || (b.textContent || "").trim();
       if (!mot) return; var u = USAGE[ico] || "";
@@ -22088,6 +22100,15 @@
   #inv-bois .inv-regle { margin-top: 6px; font-size: 11.5px; color: #c9d1d7; }
   @media (max-width: 700px) { #inv-bois { width: 214px; top: calc(96px + env(safe-area-inset-top, 0px)); padding: 7px 9px 9px; }
     #inv-bois .inv-nom { font-size: 14px; } #inv-bois .inv-ligne { font-size: 12px; grid-template-columns: 22px 34px 1fr 46px; } #inv-bois .inv-total b { font-size: 18px; } }
+  /* v211 (essai sur telephone) : le panneau de 214 px couvrait le bas des pastilles et le titre de la fiche de l'etape. Au telephone : bande compacte
+     sous les pastilles (top pose par le script), les deux piles cote a cote, total a droite du titre ; la fiche de l'etape commence sous la bande. */
+  @media (max-width: 560px) { #inv-bois { right: max(16px, env(safe-area-inset-right, 0px)); width: auto; padding: 6px 8px 7px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 6px; }
+    #inv-bois .inv-tete { grid-column: 1; grid-row: 1; margin-bottom: 2px; } #inv-bois .inv-titre { font-size: 12px; } #inv-bois .inv-sous { font-size: 11px; }
+    #inv-bois .inv-total { grid-column: 2; grid-row: 1; margin: 0 0 2px; padding: 0; border: 0; font-size: 12px; justify-content: flex-end; gap: 6px; } #inv-bois .inv-total b { font-size: 15px; } #inv-bois .inv-total b span { font-size: 11px; }
+    #inv-bois .inv-pile { margin-top: 2px; padding: 4px 6px 5px; } #inv-bois .inv-nom { font-size: 12.5px; } #inv-bois .inv-nom small { font-size: 10.5px; }
+    #inv-bois .inv-etat { font-size: 10.5px; min-height: 0; margin: 0 0 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #inv-bois .inv-ligne { font-size: 11px; grid-template-columns: 14px 32px 1fr 40px; gap: 4px; margin-top: 2px; white-space: nowrap; } #inv-bois .inv-ico.p38 { width: 14px; height: 6px; } #inv-bois .inv-ico.p66 { width: 9px; height: 9px; }
+    #inv-bois .inv-regle { display: none; } }
 </style>
 <script>
 // v206 (utilisateur 2026-11-27 : « revoit comment tu presentes la quantite de bois, je veux meilleur video sim jeux ») : panneau d'inventaire du bois
@@ -22123,7 +22144,12 @@
       P.forEach(function (p, i) { ligne(cartes[i], { n38: p.t38, n66: p.t66, etat: "Livrée sur son rack · " + (p.t38 + p.t66) + " pièces", cls: "" }, i); });
       total(TOT); return; }
     el.hidden = true; } catch (e) { el.hidden = true; } }
-  (function boucle() { maj(); setTimeout(boucle, 200); })();
+  var vu = null;
+  function cale() { var tel = window.innerWidth <= 560, t = "";
+    if (tel && !el.hidden) { var hd = document.getElementById("haut-droit"), b = hd && hd.getBoundingClientRect(); if (b && b.height) t = Math.round(b.bottom + 6) + "px"; }
+    if (el.style.top !== t) el.style.top = t;
+    if (vu !== el.hidden) { vu = el.hidden; var T = window.__texte96; if (T && T.place) setTimeout(T.place, 0); } }
+  (function boucle() { maj(); cale(); setTimeout(boucle, 200); })();
 })();
 </script>
 </body>
