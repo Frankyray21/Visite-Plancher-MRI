@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 199</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 199</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 199</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -16740,7 +16740,7 @@
   // pieces-3d, fiche-inspection-dd, pages/P01.webp et P02.webp). Rien d'autre n'est ajoute :
   //  - en-tete : Nom, Date, No foreuse, Quart de travail (JOUR / NUIT), Heures Debut / Fin ; legende Conforme = ✔, Non-conforme = X ;
   //  - VERIFICATIONS AVANT DEMARRAGE (1 a 25), APRES DEMARRAGE (1 a 10), SUPPLEMENTAIRES (SI APPLICABLE) (1 a 7), mot pour mot, colonnes T et S ;
-  //    le joueur coche la colonne T (la colonne S n'est pas expliquee sur le formulaire : elle reste vide) ;
+  //    le joueur coche la colonne T (Travailleur) ; la colonne S (Superviseur) reste au superviseur (T et S confirmes par l'utilisateur, v200) ;
   //  - items en rouge sur le formulaire (rouges ici aussi) : « SI UN ITEM ROUGE EST NON-CONFORME, ARRET DES TRAVAUX ET APPEL AU SUPERVISEUR » ;
   //  - Signature de l'inspecteur + Heure (l'heure de l'appareil) ; Signature du superviseur laissee au superviseur ; Inspection conjointe
   //    (1 fois par cedule) OUI / NON ; COMMENTAIRES.
@@ -16843,10 +16843,10 @@
     function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
     function marque(v) { return v === "c" ? "✔" : v === "x" ? "X" : ""; }
     function table(s) { var off = s.id === "ap" && !marche() && restants("ap").length === s.L.length;
-      return '<div class="f-tab' + (off ? " off" : "") + '" data-sec="' + s.id + '"><div class="f-tete"><span style="grid-column:span 2">' + esc(s.titre) + "</span><i>T</i><i>S</i></div>" +
+      return '<div class="f-tab' + (off ? " off" : "") + '" data-sec="' + s.id + '"><div class="f-tete"><span style="grid-column:span 2">' + esc(s.titre) + "</span><i title='Travailleur'>T</i><i title='Superviseur'>S</i></div>" +
         (off ? '<p class="f-off">Démarre le groupe (bouton vert) pour faire ces vérifications.</p>' : "") +
         s.L.map(function (x) { var v = K.t[cle(s.id, x.n)] || "";
-          return '<div class="f-l' + (x.r ? " r" : "") + '" id="f199-' + s.id + x.n + '"><span>' + x.n + "-</span><p>" + esc(x.q) + '</p><button type="button" class="f-t" data-k="' + s.id + '" data-n="' + x.n + '" data-v="' + v + '" aria-label="' + esc(s.titre) + " " + x.n + ", colonne T : " + (v === "c" ? "conforme" : v === "x" ? "non conforme" : "vide") + '">' + marque(v) + '</button><span class="f-s" aria-hidden="true"></span></div>'; }).join("") + "</div>"; }
+          return '<div class="f-l' + (x.r ? " r" : "") + '" id="f199-' + s.id + x.n + '"><span>' + x.n + "-</span><p>" + esc(x.q) + '</p><button type="button" class="f-t" data-k="' + s.id + '" data-n="' + x.n + '" data-v="' + v + '" aria-label="' + esc(s.titre) + " " + x.n + ", colonne T (Travailleur) : " + (v === "c" ? "conforme" : v === "x" ? "non conforme" : "vide") + '">' + marque(v) + '</button><span class="f-s" aria-hidden="true"></span></div>'; }).join("") + "</div>"; }
     function dessine() { var f = el.querySelector(".f-feuille"), haut = f ? f.scrollTop : 0;
       el.innerHTML = '<div class="f-feuille" tabindex="-1"><button type="button" class="f-x" data-a="ferme" aria-label="Fermer la fiche">×</button>' +
         '<p class="f-ref">Machines Roger International · formulaire MA4657056 · août 2026</p><h2>Fiche d’inspection</h2><p class="f-sous">Foreuse au diamant sous-terre</p>' +
@@ -16857,7 +16857,7 @@
         '<label><small>Heures : Début :</small><input type="text" data-c="debut" maxlength="10" value="' + esc(K.debut) + '"></label>' +
         '<label><small>Fin :</small><input type="text" data-c="fin" maxlength="10" value="' + esc(K.fin) + '"></label></div>' +
         '<p class="f-leg">LÉGENDE : Conforme = ✔<b>Non-conforme = X</b></p>' +
-        '<p class="f-note">Touche la case T : une fois ✔ conforme, deux fois X non conforme, trois fois pour l’effacer. La colonne S reste vide.</p>' +
+        '<p class="f-note">Touche la case T : une fois ✔ conforme, deux fois X non conforme, trois fois pour l’effacer. T = Travailleur (toi) ; S = Superviseur, à remplir par ton superviseur.</p>' +
         SEC.map(table).join("") +
         '<p class="f-regle' + (rougesX().length ? " on" : "") + '" data-r="regle">' + REGLE + "</p>" +
         '<div class="f-sig"><label><small><b>Signature de l’inspecteur :</b></small><div class="f-val">' + (K.signee ? esc(K.nom) : "") + '</div></label><label><small><b>Heure :</b></small><div class="f-val">' + esc(K.heure) + "</div></label>" +
@@ -20966,7 +20966,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "199-82da0d12", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "200-82da0d12", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
