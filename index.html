@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 201</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 201</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 201</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -2863,7 +2863,7 @@
     if (COLLISIONS) { try { COLLISIONS.image(dt); } catch (e) { if (!COLLISIONS.erreurs++) console.warn("collisions :", e); } }
     if (++compte % 10 === 0) { affX.textContent = fmt(etat.x); affZ.textContent = fmt(Math.abs(etat.z)); }
     var d = dehorsK(); if (d !== dehors) { dehors = d; grilles.forEach(function (g) { g.visible = !d; }); }
-    if (!(window.__vol200 && window.__vol200.actif && window.__vol200.rend(dt))) renderer.render(scene, cam); requestAnimationFrame(boucle);   // v200 : vue a vol d'oiseau (inter_vol_oiseau.js)
+    if (!(window.__vol201 && window.__vol201.actif && window.__vol201.rend(dt))) renderer.render(scene, cam); requestAnimationFrame(boucle);   // v201 : vue a vol d'oiseau (inter_vol_oiseau.js)
   }
   // ---------------------------------------------------------------- Scene : roche fine, poussiere, son, cles du garde-corps (patch_scene.js)
   // Tout est fabrique dans la page (aucune texture ni aucun son telecharge) et tout se coupe si l'appareil ne suit pas.
@@ -16740,7 +16740,7 @@
   // pieces-3d, fiche-inspection-dd, pages/P01.webp et P02.webp). Rien d'autre n'est ajoute :
   //  - en-tete : Nom, Date, No foreuse, Quart de travail (JOUR / NUIT), Heures Debut / Fin ; legende Conforme = ✔, Non-conforme = X ;
   //  - VERIFICATIONS AVANT DEMARRAGE (1 a 25), APRES DEMARRAGE (1 a 10), SUPPLEMENTAIRES (SI APPLICABLE) (1 a 7), mot pour mot, colonnes T et S ;
-  //    le joueur coche la colonne T (la colonne S n'est pas expliquee sur le formulaire : elle reste vide) ;
+  //    le joueur coche la colonne T (Travailleur) ; la colonne S (Superviseur) reste au superviseur (T et S confirmes par l'utilisateur, v200) ;
   //  - items en rouge sur le formulaire (rouges ici aussi) : « SI UN ITEM ROUGE EST NON-CONFORME, ARRET DES TRAVAUX ET APPEL AU SUPERVISEUR » ;
   //  - Signature de l'inspecteur + Heure (l'heure de l'appareil) ; Signature du superviseur laissee au superviseur ; Inspection conjointe
   //    (1 fois par cedule) OUI / NON ; COMMENTAIRES.
@@ -16843,10 +16843,10 @@
     function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
     function marque(v) { return v === "c" ? "✔" : v === "x" ? "X" : ""; }
     function table(s) { var off = s.id === "ap" && !marche() && restants("ap").length === s.L.length;
-      return '<div class="f-tab' + (off ? " off" : "") + '" data-sec="' + s.id + '"><div class="f-tete"><span style="grid-column:span 2">' + esc(s.titre) + "</span><i>T</i><i>S</i></div>" +
+      return '<div class="f-tab' + (off ? " off" : "") + '" data-sec="' + s.id + '"><div class="f-tete"><span style="grid-column:span 2">' + esc(s.titre) + "</span><i title='Travailleur'>T</i><i title='Superviseur'>S</i></div>" +
         (off ? '<p class="f-off">Démarre le groupe (bouton vert) pour faire ces vérifications.</p>' : "") +
         s.L.map(function (x) { var v = K.t[cle(s.id, x.n)] || "";
-          return '<div class="f-l' + (x.r ? " r" : "") + '" id="f199-' + s.id + x.n + '"><span>' + x.n + "-</span><p>" + esc(x.q) + '</p><button type="button" class="f-t" data-k="' + s.id + '" data-n="' + x.n + '" data-v="' + v + '" aria-label="' + esc(s.titre) + " " + x.n + ", colonne T : " + (v === "c" ? "conforme" : v === "x" ? "non conforme" : "vide") + '">' + marque(v) + '</button><span class="f-s" aria-hidden="true"></span></div>'; }).join("") + "</div>"; }
+          return '<div class="f-l' + (x.r ? " r" : "") + '" id="f199-' + s.id + x.n + '"><span>' + x.n + "-</span><p>" + esc(x.q) + '</p><button type="button" class="f-t" data-k="' + s.id + '" data-n="' + x.n + '" data-v="' + v + '" aria-label="' + esc(s.titre) + " " + x.n + ", colonne T (Travailleur) : " + (v === "c" ? "conforme" : v === "x" ? "non conforme" : "vide") + '">' + marque(v) + '</button><span class="f-s" aria-hidden="true"></span></div>'; }).join("") + "</div>"; }
     function dessine() { var f = el.querySelector(".f-feuille"), haut = f ? f.scrollTop : 0;
       el.innerHTML = '<div class="f-feuille" tabindex="-1"><button type="button" class="f-x" data-a="ferme" aria-label="Fermer la fiche">×</button>' +
         '<p class="f-ref">Machines Roger International · formulaire MA4657056 · août 2026</p><h2>Fiche d’inspection</h2><p class="f-sous">Foreuse au diamant sous-terre</p>' +
@@ -16857,7 +16857,7 @@
         '<label><small>Heures : Début :</small><input type="text" data-c="debut" maxlength="10" value="' + esc(K.debut) + '"></label>' +
         '<label><small>Fin :</small><input type="text" data-c="fin" maxlength="10" value="' + esc(K.fin) + '"></label></div>' +
         '<p class="f-leg">LÉGENDE : Conforme = ✔<b>Non-conforme = X</b></p>' +
-        '<p class="f-note">Touche la case T : une fois ✔ conforme, deux fois X non conforme, trois fois pour l’effacer. La colonne S reste vide.</p>' +
+        '<p class="f-note">Touche la case T : une fois ✔ conforme, deux fois X non conforme, trois fois pour l’effacer. T = Travailleur (toi) ; S = Superviseur, à remplir par ton superviseur.</p>' +
         SEC.map(table).join("") +
         '<p class="f-regle' + (rougesX().length ? " on" : "") + '" data-r="regle">' + REGLE + "</p>" +
         '<div class="f-sig"><label><small><b>Signature de l’inspecteur :</b></small><div class="f-val">' + (K.signee ? esc(K.nom) : "") + '</div></label><label><small><b>Heure :</b></small><div class="f-val">' + esc(K.heure) + "</div></label>" +
@@ -20152,7 +20152,7 @@
       angle: '<path d="M4 19.5h16M4 19.5L17 7M11.5 19.5a7.5 7.5 0 0 0-2.2-5.3"/>',   // v149 : angle de forage (place de travail prete)
       quitter: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',   // v123 : retour a la premiere page (deux choix)
       installer: '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/>',
-      oiseau: '<path d="M3.5 8.5c2.6-2.2 5.4-1.8 8.5 1 3.1-2.8 5.9-3.2 8.5-1M4.5 14h15v6.5h-15z"/>',   // v200 : vue a vol d'oiseau (goeland au-dessus du plan)
+      oiseau: '<path d="M3.5 8.5c2.6-2.2 5.4-1.8 8.5 1 3.1-2.8 5.9-3.2 8.5-1M4.5 14h15v6.5h-15z"/>',   // v201 : vue a vol d'oiseau (goeland au-dessus du plan)
       point: '<path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>' };
     // mot court sous la pastille, d'apres le texte complet du bouton (les autres codes continuent d'ecrire ce texte)
     var MOTS = [[/^Installer$/i, "Installer", "installer"], [/^Déplacer$/i, "Déplacer", "deplacer"], [/^Terminer$/i, "Terminer", "termine"], [/^Levage et transport$/i, "Levage", "joue"],
@@ -20172,7 +20172,7 @@
     // la page et le module du telephone rangent leurs plaques d'apres la taille de ce coin : on leur fait refaire le calcul
     try { window.dispatchEvent(new Event("resize")); setTimeout(function () { window.dispatchEvent(new Event("resize")); }, 600); } catch (e) {}
   })();
-  // ---- inter_vol_oiseau.js (version 200). Utilisateur : « ajouter une vue a vol doiseau ». Bouton « Vol d'oiseau » dans le coin haut droit : la camera
+  // ---- inter_vol_oiseau.js (version 201). Utilisateur : « ajouter une vue a vol doiseau ». Bouton « Vol d'oiseau » dans le coin haut droit : la camera
   // monte au-dessus de toute la place de travail (galerie, plancher, foreuse, power pack, rack, entree), regard vers le bas, et y reste jusqu'au retour.
   // Rien n'est change a la scene : seule l'image est faite autrement. A chaque image, la page calcule sa camera comme d'habitude (le jeu continue :
   // le visiteur peut marcher au clavier, son repere jaune bouge) ; juste avant le rendu, la camera est posee au-dessus, le toit de la galerie (roc du toit,
@@ -20181,15 +20181,15 @@
   // Commandes : glisser = tourner autour et incliner ; molette ou pincer = zoom ; clic droit ou deux doigts = deplacer ; double clic ou double toucher =
   // recadrer ; Echap ou le bouton = revenir a la vue du jeu (la camera redescend en douceur). VOL.ACTIF = false : pas de bouton.
   (function () { var VOL = { ACTIF: true, actif: false, k: 0, sens: 0, T: 0.9, TOIT: 2.75, FOV: 50, C: [9.1, 0.25, 0], DEMI: [9.3, 2.7], az: 0, el: 1.25, zoom: 1, pan: new THREE.Vector3(), rendus: 0 };
-    try { window.__vol200 = VOL; } catch (e) {}
+    try { window.__vol201 = VOL; } catch (e) {}
     if (!VOL.ACTIF) return; var hd = document.getElementById("haut-droit"); if (!hd) return;
     var st = document.createElement("style"); st.textContent = [
-      "body.vol200 #hud88,body.vol200 #bas,body.vol200 #angles,body.vol200 #guide,body.vol200 #manche,body.vol200 [data-etiq-obstacle],body.vol200 [data-obstacle-ecran],body.vol200 #credits-mouvement{visibility:hidden!important}",
-      "#vol200-aide{position:fixed;left:50%;bottom:calc(40px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:6;max-width:calc(100vw - 32px);box-sizing:border-box;margin:0;padding:8px 14px;border-left:3px solid var(--signal);background:rgba(10,14,16,.86);color:var(--texte);font:600 13px/1.35 var(--f-titre);text-align:center;pointer-events:none}",
-      "#vol200-aide b{color:var(--signal);font-weight:700}#vol200-aide[hidden]{display:none}"].join("\n");
+      "body.vol201 #hud88,body.vol201 #bas,body.vol201 #angles,body.vol201 #guide,body.vol201 #manche,body.vol201 [data-etiq-obstacle],body.vol201 [data-obstacle-ecran],body.vol201 #credits-mouvement{visibility:hidden!important}",
+      "#vol201-aide{position:fixed;left:50%;bottom:calc(40px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:6;max-width:calc(100vw - 32px);box-sizing:border-box;margin:0;padding:8px 14px;border-left:3px solid var(--signal);background:rgba(10,14,16,.86);color:var(--texte);font:600 13px/1.35 var(--f-titre);text-align:center;pointer-events:none}",
+      "#vol201-aide b{color:var(--signal);font-weight:700}#vol201-aide[hidden]{display:none}"].join("\n");
     document.head.appendChild(st);
     var tactile = !(window.matchMedia && window.matchMedia("(pointer: fine)").matches);
-    var aide = document.createElement("p"); aide.id = "vol200-aide"; aide.hidden = true;
+    var aide = document.createElement("p"); aide.id = "vol201-aide"; aide.hidden = true;
     aide.innerHTML = "<b>Vue à vol d'oiseau</b> · " + (tactile ? "glisse pour tourner, pince pour zoomer, deux doigts pour déplacer, touche deux fois pour recadrer" : "glisse pour tourner, molette pour zoomer, clic droit pour déplacer, double clic pour recadrer, Échap pour revenir");
     document.body.appendChild(aide);
     var b = document.createElement("button"); b.id = "btn-vol"; b.type = "button"; b.setAttribute("aria-pressed", "false"); b.textContent = "Vue à vol d'oiseau";
@@ -20225,9 +20225,9 @@
         montre.forEach(function (o) { o.visible = true; }); montre.length = 0; rep.visible = false; if (f) { f.near = sauve.fn; f.far = sauve.ff; }
         cam.position.copy(sauve.p); cam.quaternion.copy(sauve.q); cam.fov = sauve.fov; cam.near = sauve.near; cam.far = sauve.far; cam.updateProjectionMatrix(); cam.updateMatrixWorld(true); }
       return true; };
-    function ouvre() { if (VOL.actif && VOL.sens > 0) return; if (!VOL.actif) { inventaire(); recadre(); VOL.k = 0; } VOL.actif = true; VOL.sens = 1; document.body.classList.add("vol200"); aide.hidden = false; b.setAttribute("aria-pressed", "true"); }
+    function ouvre() { if (VOL.actif && VOL.sens > 0) return; if (!VOL.actif) { inventaire(); recadre(); VOL.k = 0; } VOL.actif = true; VOL.sens = 1; document.body.classList.add("vol201"); aide.hidden = false; b.setAttribute("aria-pressed", "true"); }
     function ferme(net) { if (!VOL.actif) return; if (!net) { VOL.sens = -1; aide.hidden = true; b.setAttribute("aria-pressed", "false"); return; }
-      VOL.actif = false; VOL.sens = 0; VOL.k = 0; ptrs = {}; document.body.classList.remove("vol200"); aide.hidden = true; b.setAttribute("aria-pressed", "false"); }
+      VOL.actif = false; VOL.sens = 0; VOL.k = 0; ptrs = {}; document.body.classList.remove("vol201"); aide.hidden = true; b.setAttribute("aria-pressed", "false"); }
     VOL.ouvre = ouvre; VOL.ferme = ferme;
     b.addEventListener("click", function () { if (VOL.actif && VOL.sens > 0) ferme(false); else ouvre(); });
     // les autres boutons du coin (Menu, Depart, Avatar, Deplacer...) ramenent d'abord a la vue du jeu
@@ -21048,7 +21048,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "200-82da0d12", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "201-82da0d12", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
