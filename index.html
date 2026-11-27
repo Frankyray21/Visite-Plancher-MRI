@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 194</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 195</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 194</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 195</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 194</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 195</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -16728,10 +16728,12 @@
   // 10. boite a lunch de mineur (boite-lunch-mineur) et 13. boulon d'ancrage TIME 83-52 de 5 pi (boulon-ancrage-time) : sur le sol de la galerie, contre
   //     la paroi de gauche, avant le rack a boites a carottes (l'allee et le pied de l'escalier restent libres).
   // Visibles avec l'equipement (etape 18). Ajoute a la page deja construite (hors de la chaine de fabrication). K.ACTIF = false : version 184.
+  var BOULON_DEBOUT_V195 = true;   // v195 : boulon d'ancrage debout dans le coin du rack a tiges (false : couche au sol comme en v185 a v194)
   (function () {
     var K = { ACTIF: true, etat: "attente", bilan: {}, erreurs: [],
       // objets seuls (deplacables comme les autres pieces) : [nom, fichier, octets, x, y, z, lacet, titre]
       SEULS: [["trousseZenith", "trousse_deversement.txt", 842008, 13.72, -0.345, -1.93, 0, "la trousse de déversement"],
+        /* v195 : le boulon d'ancrage est debout dans le coin du rack a tiges, attache par une chaine (inter_boulon_debout_v195) ; couche ici si BOULON_DEBOUT_V195 = false */
         ["boulonAncrage", "boulon_ancrage.txt", 103564, 11.62, -0.345, 2.12, 0, "le boulon d'ancrage de 5 pi"],
         /* v194 : la boite a lunch quitte le sol de la galerie pour le dessus du power pack (voir POSES) */
         /* v186 (« c'est la cle a tube avec carbide qui est sur le clou de la table a core, l'autre pince va pres foreuse ») : la pince pour tube interieur
@@ -16753,6 +16755,7 @@
     function erreur(ou, e) { K.erreurs.push(ou + " : " + String(e && e.message || e)); if (window.console) console.warn("v185", ou, e); }
     function prepare(r) { r.traverse(function (o) { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = true; var m = o.material; if (m && m.metalness > 0.35) { m.metalness = 0.35; m.roughness = Math.max(m.roughness, 0.45); } }); return r; }
     // 1, 10, 13 : comme les pieces de PIECES (meme chargement, deplacables)
+    if (BOULON_DEBOUT_V195) K.SEULS = K.SEULS.filter(function (s) { return s[0] !== "boulonAncrage"; });
     K.SEULS.forEach(function (s) { PIECES.push({ nom: s[0], f: s[1], n: s[2], pos: [s[3], s[4], s[5]], lacet: s[6], titre: s[7] }); PIECES_LISTE[s[0]] = true; });
     // 3, 7, 8, 11, 12 : sur le coffre et sur la tablette du bas de la table
     function surface(o, x, z, y0, bb) { var hs = [], dx = (bb.max.x - bb.min.x) / 2 * 0.8, dz = (bb.max.z - bb.min.z) / 2 * 0.8;
@@ -16822,6 +16825,79 @@
         var b = Math.max(0, Math.min(1, (R5.t - P.T_POSE - P.PAUSE) / P.T_NIVEAU)); niveleR5(ad(b)); if (b >= 1) R5.t = -1; }); })();
     K._R5 = R5; setTimeout(function () { try { chargeR5(); } catch (e) {} }, 20000);   // niveau de l etape 5 pret avant qu on ouvre l installation du rack
     setTimeout(function () { essaiePoses(); essaieNiveau(); essaieFixe(); essaieClou(); K.etat = "pret"; }, 1500);
+  })();
+  // ---- inter_boulon_debout_v195.js (version 195, 2026-11-27) : utilisateur : « ajoute la pine d'ancrage dans le coin a droite du rack a rod et
+  // attache avec chaine a la paroi ». Le boulon d'ancrage TIME 83-52 de 5 pi (boulon_ancrage.txt, modele boulon-ancrage-time de pieces-3d, deja
+  // dans la page depuis la v185, couche sur le sol de la galerie pres de la boite a lunch) quitte le sol : il est debout dans le coin entre le
+  // rack a tiges et le front de taille, paroi de gauche (sol de la galerie, entre le bout du plancher et le front), la pointe en bas, le filet en haut.
+  // Une chaine galvanisee de 1/4 po fait le tour du boulon et va a un crochet en S accroche a un fil horizontal du grillage de la paroi, pour qu'il
+  // ne tombe pas. Le crochet est cherche par rayons sur le grillage (fil horizontal), sinon pose sur le roc. Chaine : maillons de 25 mm (interieur)
+  // x 10 mm, fil de 6,4 mm. Visible avec l'equipement (etape 18). K.ACTIF = false : version 194 (boulon couche au sol).
+  (function () {
+    var K = { ACTIF: BOULON_DEBOUT_V195, etat: "attente", bilan: {}, erreurs: [], f: "boulon_ancrage.txt", n: 103564,
+      X: -0.15, Z: 2.33,                 // pied du boulon (centre), sol de la galerie dans le coin rack / front
+      Y_BOUCLE: 1.30,                    // hauteur du tour de chaine sur le boulon
+      CROCHET: { Y: [1.42, 1.80], DX: 0.015 },   // recherche du fil horizontal du grillage au-dessus du tour de chaine
+      M: { INT: 0.025, LARGE: 0.010, FIL: 0.0032 }, COULEUR: 0x9ea3a7 };
+    try { window.__boulon195 = K; } catch (e) {} if (!K.ACTIF) return;
+    var V3 = THREE.Vector3, rc = new THREE.Raycaster(), fait = false, essais = 0;
+    function mailles(re) { var l = []; scene.traverse(function (o) { if (o.isMesh && o.visible && re.test(o.name)) l.push(o); }); return l; }
+    function tir(o, d, l, loin) { rc.set(o, d); rc.far = loin || 3; return rc.intersectObjects(l, false)[0] || null; }
+    // maillon : stade (deux demi-cercles et deux droites), axe long sur y
+    function geoMaillon() { var M = K.M, Rc = M.LARGE / 2 + M.FIL, L = Math.max(0.001, M.INT + 2 * M.FIL - 2 * Rc);
+      var pts = [], n = 28;
+      for (var i = 0; i < n; i++) { var s = i / n * (2 * Math.PI * Rc + 2 * L), p;
+        if (s < L) p = [Rc, -L / 2 + s]; else if (s < L + Math.PI * Rc) { var a = (s - L) / Rc; p = [Rc * Math.cos(a), L / 2 + Rc * Math.sin(a)]; }
+        else if (s < 2 * L + Math.PI * Rc) p = [-Rc, L / 2 - (s - L - Math.PI * Rc)]; else { var b = (s - 2 * L - Math.PI * Rc) / Rc; p = [-Rc * Math.cos(b), -L / 2 - Rc * Math.sin(b)]; }
+        pts.push(new V3(p[0], p[1], 0)); }
+      return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 48, M.FIL, 8, true); }
+    // repere d'un maillon : axe y le long de la chaine, plan tourne de 90 degres un maillon sur deux
+    function matrice(p, t, i, ref) { var y = t.clone().normalize(), x = new V3().crossVectors(ref, y); if (x.lengthSq() < 1e-6) x.set(1, 0, 0); x.normalize();
+      var z = new V3().crossVectors(x, y); if (i % 2) { var tmp = x; x = z; z = tmp.negate(); }
+      return new THREE.Matrix4().makeBasis(x, y, z).setPosition(p); }
+    function construit(gltf) {
+      var sol = mailles(/^Galerie_Sol$/), gril = mailles(/Grillage/), roc = mailles(/^Galerie_Roc/);
+      var hs = tir(new V3(K.X, 1.2, K.Z), new V3(0, -1, 0), sol, 3), y0 = hs ? hs.point.y : -0.03; K.bilan.sol = +y0.toFixed(3);
+      var r = gltf.scene; r.name = "Boulon_ancrage_debout_v195"; r.traverse(function (o) { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = true; var m = o.material; if (m && m.metalness > 0.35) { m.metalness = 0.35; m.roughness = Math.max(m.roughness, 0.45); } });
+      r.rotation.z = -Math.PI / 2;   // le bout (+x du modele, pointe) en bas, le filet en haut
+      r.updateMatrixWorld(true); var bb = new THREE.Box3().setFromObject(r);
+      r.position.set(K.X - (bb.min.x + bb.max.x) / 2, y0 - bb.min.y + 0.002, K.Z - (bb.min.z + bb.max.z) / 2);
+      var g = new THREE.Group(); g.name = "Boulon_debout_chaine_v195"; g.add(r); r.updateMatrixWorld(true);
+      var rb = (bb.max.x - bb.min.x) / 2; K.bilan.boulon = { rayon: +rb.toFixed(4), haut: +(y0 + bb.max.y - bb.min.y).toFixed(3) };
+      // crochet : premier fil horizontal du grillage de la paroi de gauche au-dessus du tour de chaine (trois rayons cote a cote touchent a la meme hauteur)
+      var H = null, fil = true;
+      for (var yy = K.CROCHET.Y[0]; yy <= K.CROCHET.Y[1] && !H; yy += 0.004) { var hh = [-1, 0, 1].map(function (k) { return tir(new V3(K.X + k * K.CROCHET.DX, yy, K.Z), new V3(0, 0, 1), gril, 0.4); });
+        if (hh[0] && hh[1] && hh[2] && Math.abs(hh[0].point.z - hh[2].point.z) < 0.02) H = hh[1].point.clone(); }
+      if (!H) { if (essais++ < 30) return false; fil = false; var hr = tir(new V3(K.X, K.Y_BOUCLE + 0.15, K.Z), new V3(0, 0, 1), roc, 0.6); H = hr ? hr.point.clone() : new V3(K.X, K.Y_BOUCLE + 0.15, K.Z + 0.2); }
+      H.y += 0.002; K.bilan.crochet = { pos: H.toArray().map(function (v) { return +v.toFixed(3); }), surFil: fil };
+      var acier = new THREE.MeshStandardMaterial({ name: "chaine_galvanisee", color: K.COULEUR, metalness: 0.35, roughness: 0.5 });
+      // crochet en S (fil de 6,4 mm) dans le plan y-z : arc du haut par-dessus le fil, arc du bas qui tient le dernier maillon
+      var a = 0.011, u = -1, pts = [], i;   // u : du fil vers la galerie (-z)
+      for (i = 0; i <= 12; i++) { pts.push(new V3(H.x, H.y + a * Math.sin(Math.PI * i / 12), H.z - u * a * Math.cos(Math.PI * i / 12))); }
+      pts.reverse(); pts.unshift(new V3(H.x, H.y - 0.006, H.z - u * a));   // pointe derriere le fil
+      var bas = H.y - 0.035; pts.push(new V3(H.x, bas, H.z + u * a));
+      var cb = new V3(H.x, bas, H.z + u * 2 * a);
+      for (i = 1; i <= 12; i++) pts.push(new V3(H.x, bas - a * Math.sin(Math.PI * i / 12), cb.z - u * a * Math.cos(Math.PI * i / 12)));
+      pts.push(new V3(H.x, bas + 0.008, cb.z + u * a));
+      var crochet = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 64, 0.0032, 8, false), acier); crochet.name = "Crochet_S_v195"; g.add(crochet);
+      var A = new V3(H.x, bas - a - 0.004, cb.z);   // le maillon du bout pend au fond de l'arc du bas
+      // tour du boulon : maillons sur un cercle (nombre entier de pas), puis brin vers le crochet avec un peu de flache
+      var P = K.M.INT, nT = Math.max(8, Math.round(2 * Math.PI * (rb + 0.012) / P)), Rl = nT * P / (2 * Math.PI), C = new V3(K.X, K.Y_BOUCLE, K.Z), liste = [];
+      var a0 = Math.atan2(A.z - C.z, A.x - C.x);
+      for (i = 0; i < nT; i++) { var ang = a0 + 2 * Math.PI * i / nT; liste.push([new V3(C.x + Rl * Math.cos(ang), C.y, C.z + Rl * Math.sin(ang)), new V3(-Math.sin(ang), 0, Math.cos(ang)), new V3(0, 1, 0)]); }
+      var D = new V3(C.x + Rl * Math.cos(a0), C.y, C.z + Rl * Math.sin(a0)), dist = D.distanceTo(A), nB = Math.max(1, Math.round(dist / P) + 1), flache = 0.04 * dist;
+      var courbe = new THREE.QuadraticBezierCurve3(D, new V3((D.x + A.x) / 2, Math.min(D.y, A.y) - flache, (D.z + A.z) / 2), A), lng = courbe.getLength(), nb = Math.max(1, Math.round(lng / P));
+      for (i = 1; i <= nb; i++) { var s = Math.min(1, (i - 0.5) / nb), q = courbe.getPointAt(s), tg = courbe.getTangentAt(s); liste.push([q, tg, new V3(0, 0, 1)]); }
+      var geo = geoMaillon(), chaine = new THREE.InstancedMesh(geo, acier, liste.length); chaine.name = "Chaine_boulon_v195";
+      liste.forEach(function (l, k) { chaine.setMatrixAt(k, matrice(l[0], l[1], k, l[2])); }); chaine.instanceMatrix.needsUpdate = true; g.add(chaine);
+      [crochet, chaine].forEach(function (o) { o.castShadow = true; o.receiveShadow = true; });
+      K.bilan.maillons = { tour: nT, brin: nb, rayon: +Rl.toFixed(4) };
+      g.visible = etape >= ETAPE_EQ; scene.add(g); g.updateMatrixWorld(true); chantier.push(g); boites.push({ o: g, b: new THREE.Box3().setFromObject(r) });
+      K.groupe = g; K.etat = "pret"; return true; }
+    function essaie() { if (fait) return; if (!mailles(/^Galerie_Sol$/).length) { setTimeout(essaie, 1000); return; } fait = true; K.etat = "charge";
+      telecharge(K.f, K.n, function () {}).then(function (gltf) { (function pose() { try { if (!construit(gltf)) setTimeout(pose, 1000); } catch (e) { K.etat = "erreur"; K.erreurs.push(String(e && e.message || e)); if (window.console) console.warn("v195", e); } })(); })
+        .catch(function (e) { K.etat = "erreur"; K.erreurs.push(String(e && e.message || e)); if (window.console) console.warn("v195", e); }); }
+    setTimeout(essaie, 2000);
   })();
   // ---- inter_graissage_v189.js (version 189, 2026-11-26) : utilisateur : « lorsqu'on prend le graisse gun les points de graissage apparaissent et
   // trouve info nombre de coups a donner et le risque associe si pas respecte ». Le pistolet a graisse Lincoln 1142 (v185, sur le dessus du coffre) se
@@ -20638,7 +20714,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "194-e002d3fb", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "195-e002d3fb", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
