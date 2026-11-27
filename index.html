@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 188</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 189</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 188</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 189</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 188</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 189</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -11032,6 +11032,8 @@
       return J; }
     /* v185 : repere de la foreuse (P010) -> monde, pour l'os Mat a l'angle a (S en K.POS, tourne de 180 degres ; vers le bas seulement, a <= 0) : arret d'urgence a cable sur la foreuse fixe */
     K.matMonde = function (a) { return new M4().makeTranslation(K.POS[0], K.POS[1], K.POS[2]).multiply(new M4().makeRotationY(Math.PI)).multiply(pose(valeurs(a)).Mat); };
+    /* v189 : meme chose pour n'importe quel os (graisseurs de la foreuse fixe, inter_graissage_v189.js) */
+    K.matOs = function (a, nom) { var J = pose(valeurs(a)); return new M4().makeTranslation(K.POS[0], K.POS[1], K.POS[2]).multiply(new M4().makeRotationY(Math.PI)).multiply(J[nom] || J.Traineau); };
     function applique(a) { if (!S) return; S.position.fromArray(K.POS); S.updateMatrixWorld(true); var J = pose(valeurs(a)), D = {}, t = new M4();
       OS.forEach(function (o) { var j = J[o.name]; D[o.name] = j ? new M4().multiplyMatrices(W, j).multiply(Wi).multiply(REPOS[o.name]) : REPOS[o.name].clone(); });
       OS.forEach(function (o) { var pw = o.parent && o.parent.isBone ? D[o.parent.name] : o.parent.matrixWorld; t.copy(pw).invert().multiply(D[o.name]); t.decompose(o.position, o.quaternion, o.scale); });
@@ -11100,6 +11102,7 @@
         S.traverse(function (o) { if (o.isBone && RIG.bones.some(function (b) { return b.name === o.name; })) { OS.push(o); OSN[o.name] = o; REPOS[o.name] = o.matrixWorld.clone(); }
           if (o.isMesh) { o.frustumCulled = false; o.castShadow = true; o.receiveShadow = true; peint(o); } });
         try { if (window.__pieces185 && window.__pieces185.surArticulee) window.__pieces185.surArticulee(S); } catch (e185) {}   /* v185 : arret d'urgence a cable sur l'os Mat */
+        try { if (window.__graissage && window.__graissage.surArticulee) window.__graissage.surArticulee(S); } catch (e189) {}   /* v189 : graisseurs sur leurs os */
         OS.sort(function (a, b) { var da = 0, db = 0, p; for (p = a; p.parent && p.parent.isBone; p = p.parent) da++; for (p = b; p.parent && p.parent.isBone; p = p.parent) db++; return da - db; });
         S.visible = false; scene.add(S); K.etat = "pret"; I.etat.angleStm = "pret"; return S; }).catch(function (e) { chargement = null; err(e, "charge"); K.etat = "erreur"; });
       return chargement; }
@@ -16654,6 +16657,97 @@
     K._R5 = R5; setTimeout(function () { try { chargeR5(); } catch (e) {} }, 20000);   // niveau de l etape 5 pret avant qu on ouvre l installation du rack
     setTimeout(function () { essaiePoses(); essaieNiveau(); essaieFixe(); essaieClou(); K.etat = "pret"; }, 1500);
   })();
+  // ---- inter_graissage_v189.js (version 189, 2026-11-26) : utilisateur : « lorsqu'on prend le graisse gun les points de graissage apparaissent et
+  // trouve info nombre de coups a donner et le risque associe si pas respecte ». Le pistolet a graisse Lincoln 1142 (v185, sur le dessus du coffre) se
+  // prend et se repose comme le boyau d'arrosage ; en main, il est tenu devant le visiteur, a droite, et chaque graisseur de la STM-1500 recoit un
+  // repere (style marqueur : icone d'abord, texte quand on le fixe). Reposer le pistolet sur le coffre fait disparaitre les reperes.
+  // Points : manuel de pieces de la STM-1500, page 1.04 « Grease position » (details A a F) et pages 1.5, 1.6 et 8.3 (pieces-3d,
+  // public/equipment/stm-1500/entretien.json). Positions : centres des graisseurs du modele pieces-3d (P010, repere de la foreuse), C et D approches
+  // (graisseurs non modelises). Le manuel ne donne ni nombre de coups ni intervalle ni graisse. v189b (utilisateur : « t'avais valide toute l'info ? »,
+  // « cherche en ligne ») : seules les consignes trouvees en ligne restent, communes a tous les points (K.G, K.R : Vermeer, Conequip, AMSOIL, FieldFix,
+  // IsoHiTech, Construction Equipment ; poulie : NSW, « badly lubricated sheaves cause ... wear on the wire rope ») ; message de prise : porte de la
+  // cage ouverte (coupe l'hydraulique, consigne de l'utilisateur), injection de graisse (Lincoln, HSE). Aucun modele ajoute.
+  // Chaque point suit son corps de la foreuse (os du squelette de rig.js) : foreuse fixe a -30 degres (pose de l'os a -30 en monde, comme l'arret
+  // d'urgence v185) et STM articulee de l'ecran Angle de forage (rattache a l'os). La rallonge (pivot de poulie, guide de tiges) est retiree en montant.
+  // K.ACTIF = false : version 188.
+  (function () {
+    var K = { ACTIF: true, ETAPE: 18, enMain: false, prises: 0, etat: "attente", erreurs: [], bilan: {},
+      MAIN: [0.22, -0.27, -0.50], MAIN_DEBOUT: 0.08, BOITE: 0.045,   // ecran debout (telephone) : le pistolet plus au centre, sinon hors champ
+      // v189b (utilisateur : « pas cadenassage, lorsqu'on ouvre la porte il n'a pas de fonction hydraulique ») : la porte de la cage coupe les fonctions hydrauliques
+      MSG: "Pistolet à graisse en main : les graisseurs de la foreuse sont marqués. Ouvre la porte de la cage avant de graisser : porte ouverte, plus aucune fonction hydraulique. Essuie le graisseur, garde les doigts loin du coupleur : une injection de graisse sous la peau est une urgence médicale.",
+      // [id, nom court, os, [positions dans le repere de la foreuse P010], consigne (coups, trop peu, trop), source]
+      // consigne commune (guides de graissage d'equipement lourd : Vermeer, Conequip, AMSOIL, FieldFix, IsoHiTech ; aucun chiffre propre a la STM)
+      G: "Pompe lentement jusqu'à voir la graisse propre sortir (1 à 5 coups selon les guides) ; arrête si ça résiste.",
+      R: "Trop peu : métal sur métal, usure, grippage. Trop : joint crevé, la saleté entre et la graisse retient la poussière.",
+      // [id, nom court, os, [positions dans le repere de la foreuse P010], ajout propre au point, source de l'emplacement]
+      POINTS: [
+        ["A", "Graisseur A · œil de tige du vérin de bascule", "Support", [[0.812, 0.575, -0.455], [0.812, 0.575, 0.455]], "Un de chaque côté.", "Manuel p. 1.04, détail A"],
+        ["B", "Graisseur B · fond du vérin de bascule", "Traineau", [[0.471, 0.216, -0.455], [0.471, 0.216, 0.455]], "Un de chaque côté.", "Manuel p. 1.04, détail B"],
+        ["C", "Graisseur C · table de la tête", "Table", [[0.555, 0.966, 0.345]], "", "Manuel p. 1.04, détail C"],
+        ["D", "Graisseur D · table de la tête", "Table", [[0.555, 0.966, -0.345]], "", "Manuel p. 1.04, détail D"],
+        ["E", "Graisseur E · palier de pivot du support d'avance", "Traineau", [[0.961, 0.667, -0.402], [-0.004, 0.667, -0.402], [0.961, 0.667, 0.402], [-0.004, 0.667, 0.402]], "4 paliers, un sur chaque poteau.", "Manuel p. 1.04, détail E"],
+        ["F", "Graisseur F · serre-tiges de pied (Boyles 12HH)", "Mat", [[1.08, 1.399, 0]], "", "Manuel p. 1.04, détail F"],
+        ["poulie", "Graisseur · pivot de poulie de la rallonge", "Rallonge", [[-2.081, 0.638, 0.113]], "Une poulie mal graissée use aussi le câble.", "Manuel p. 1.5"],
+        ["guide", "Graisseur · rouleau du guide de tiges", "Rallonge", [[-1.991, 1.175, 0.156]], "", "Manuel p. 1.6"],
+        ["treuil", "Graisseur · guide-câble du treuil", "Treuil_Guide", [[-1.535, 0.613, 0]], "", "Manuel p. 8.3"]] };
+    try { window.__graissage = K; } catch (e) {} if (!K.ACTIF) return;
+    var V3 = THREE.Vector3, M4 = THREE.Matrix4;
+    function erreur(ou, e) { K.erreurs.push(ou + " : " + String(e && e.message || e)); if (window.console) console.warn("v189", ou, e); }
+    function chaineVue(o) { while (o) { if (!o.visible) return false; if (o === scene) return true; o = o.parent; } return false; }
+    function enMainPermis() { return K.enMain && etape >= K.ETAPE; }
+    var zones = [];
+    // icone propre aux points de graissage (utilisateur : « cree icone specifique point graissage ») : graisseur a bille vu de cote (bille, col, six pans, filet)
+    // v189 : choix C (« ca peut etre une autre forme ou couleur mais avoir certaine logique ») : six pans = la base du graisseur ; bleu plein = couleur de securite
+    // « obligation » (ISO 7010 : geste obligatoire), a part du jaune des actions, de l'orange, du rouge et du vert ; goutte blanche = la graisse
+    // v189 : epingle d'objectif (la pointe touche le graisseur) a portee de main, simple point bleu de loin (« inspire toi vrais jeux ») ; CSS du HUD : .ig-loin / .ig-pres
+    var ICONE = '<svg viewBox="0 0 24 30" aria-hidden="true"><g class="ig-loin"><circle cx="12" cy="24" r="4.6" fill="#1f6fd1" stroke="#fff" stroke-width="1.6"/></g><g class="ig-pres"><path d="M12 29.6l-4-6h8z" fill="#fff"/><path d="M12 1.5l9.1 5.25v10.5L12 22.5l-9.1-5.25V6.75z" fill="#1f6fd1" stroke="#fff" stroke-width="1.6"/><path d="M12 5.6c-1.7 2.9-3.9 5.1-3.9 7.5a3.9 3.9 0 0 0 7.8 0c0-2.4-2.2-4.6-3.9-7.5z" fill="#fff"/></g></svg>';
+    // un repere par graisseur : petit objet vide rattache au corps (os) qui le porte ; une zone par graisseur, une marque par point (un seul repere)
+    function pose(parent, M, d, groupe) { d[3].forEach(function (p, i) { var o = new THREE.Object3D(); o.name = "Graisseur_" + d[0] + "_" + i + "_" + groupe;
+        new V3().fromArray(p).applyMatrix4(M).toArray().forEach(function (v, k) { o.position.setComponent(k, v); }); parent.add(o); o.updateMatrixWorld(true);
+        var I = window.__inter71, b = K.BOITE, t = d[1] + " : " + (d[4] ? d[4] + " " : "") + K.G + " " + K.R + " (Emplacement : " + d[5].charAt(0).toLowerCase() + d[5].slice(1) + ". Coups et risques : guides de graissage, le manuel n'en donne pas.)", TX = [t, t];
+        if (groupe === "fixe") caches.push(o);
+        zones.push(I.zone({ o: o, prio: 2, niveau: "obligation", icone: ICONE, marque: "graissage " + d[0] + " " + groupe, b: new THREE.Box3(new V3(-b, -b, -b), new V3(b, b, b)),
+          actif: function () { if (!enMainPermis() || o.userData.cache || !chaineVue(o)) return false; var s = o.getWorldScale(vS); return s.x > 0.5; },
+          texte: function () { return TX; }, agit: function () {} })); }); }
+    var vS = new V3();
+    // graisseur cache par la foreuse fixe (de l'autre cote du mat, sous le traineau) : pas de repere ; un graisseur verifie toutes les 6 images (environ 9 ms par rayon sous SwiftShader), pistolet en main
+    // seulement (rayon de l'oeil au graisseur contre les mailles de la foreuse). La STM articulee n'est pas testee (rayons sur la pose de repos des os).
+    var caches = [], kCache = 0, kImg = 0, rcC = new THREE.Raycaster(), vC1 = new V3(), vC2 = new V3();
+    K.cache = function (o) { o.getWorldPosition(vC1); vC2.subVectors(vC1, cam.position); var L = vC2.length(); rcC.set(cam.position, vC2.divideScalar(L)); rcC.far = L - 0.07;
+      var h = rcC.intersectObject(foreuse, true).filter(function (x) { return x.object.isMesh && chaineVue(x.object); })[0]; o.userData.cache = !!h; return !!h; };
+    function anime() { var I = window.__inter71; if (!I || !I.anime) { setTimeout(anime, 1000); return; }
+      I.anime(function () { if (!enMainPermis() || !caches.length || (kImg++ % 6)) return; try { K.cache(caches[kCache++ % caches.length]); } catch (e) {} }); }
+    anime();
+    // foreuse fixe (STM a -30 degres) : repere de l'os a -30 en monde, ramene dans le repere de la foreuse
+    var fixeFait = false;
+    function essaieFixe() { if (fixeFait) return; var I = window.__inter71, A = I && I.angleStm;
+      if (typeof FOREUSE === "undefined" || !FOREUSE.type) { setTimeout(essaieFixe, 1000); return; } if (FOREUSE.type !== "stm") { K.bilan.fixe = "foreuse " + FOREUSE.type + " : pas de points"; return; }
+      if (!foreuse || !A || !A.matOs || !I.zone) { setTimeout(essaieFixe, 1000); return; } fixeFait = true;
+      try { foreuse.updateMatrixWorld(true); var inv = new M4().copy(foreuse.matrixWorld).invert();
+        K.POINTS.forEach(function (d) { pose(foreuse, new M4().copy(inv).multiply(A.matOs(-30, d[2])), d, "fixe"); }); K.bilan.fixe = zones.length; } catch (e) { erreur("fixe", e); } }
+    // STM articulee (ecran Angle de forage) : au repos, repere de la foreuse = S ; dans le repere de l'os : inverse(os au repos) x S
+    K.surArticulee = function (S) { try { var I = window.__inter71; if (!I || !I.zone) return; S.updateMatrixWorld(true); var os = {}, n = 0; S.traverse(function (o) { if (o.isBone) os[o.name] = o; });
+        K.POINTS.forEach(function (d) { var b = os[d[2]]; if (!b) { erreur("articulee", "os " + d[2] + " absent"); return; } pose(b, new M4().copy(b.matrixWorld).invert().multiply(S.matrixWorld), d, "articulee"); n++; });
+        K.bilan.articulee = n; } catch (e) { erreur("articulee", e); } };
+    // pistolet : prendre sur le coffre, tenir devant soi, reposer
+    var pist = null, tenu = null, vP = new V3(), qP = new THREE.Quaternion(), qR = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.12, Math.PI / 2 + 0.18, 0.08, "YXZ"));
+    var PREND = ["Clique pour prendre le pistolet à graisse", "Touche pour prendre le pistolet à graisse"], REPOSE = ["Clique pour reposer le pistolet à graisse sur le coffre", "Touche pour reposer le pistolet à graisse sur le coffre"];
+    K.prend = function () { if (K.enMain || !pist) return false; K.enMain = true; K.prises++; pist.visible = false; window.__inter71.message(K.MSG, 6500); return true; };
+    K.repose = function () { if (!K.enMain) return false; K.enMain = false; if (pist) pist.visible = true; if (tenu) tenu.visible = false; return true; };
+    function essaiePistolet() { var I = window.__inter71; pist = scene.getObjectByName("Piece185_pistolet_graisse"); if (!pist || !I || !I.zone) { setTimeout(essaiePistolet, 1000); return; }
+      try { pist.updateMatrixWorld(true); var inv = new M4().copy(pist.matrixWorld).invert(), bb = new THREE.Box3(), t = new M4();
+        pist.traverse(function (o) { if (!o.isMesh) return; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); bb.union(o.geometry.boundingBox.clone().applyMatrix4(t.multiplyMatrices(inv, o.matrixWorld))); });
+        bb.expandByScalar(0.03);
+        I.zone({ o: pist, prio: 1, marque: "pistolet à graisse", b: bb, actif: function () { return etape >= K.ETAPE && (K.enMain ? chaineVue(pist.parent) : chaineVue(pist)); },
+          texte: function () { return K.enMain ? REPOSE : PREND; }, agit: function () { if (K.enMain) K.repose(); else K.prend(); } });
+        tenu = pist.clone(true); tenu.name = "Pistolet_graisse_en_main"; tenu.position.set(0, 0, 0); tenu.rotation.set(0, 0, 0); tenu.scale.copy(pist.getWorldScale(new V3()));
+        tenu.traverse(function (o) { if (o.isMesh) { o.castShadow = false; o.frustumCulled = false; } }); tenu.visible = false; scene.add(tenu);
+        // le pistolet couche sur le coffre : son axe (x du modele pieces-3d, vers la tete) pointe devant le visiteur, la tete en avant, un peu vers le bas
+        K.poseMain = function () { vP.set(cam.aspect < 1 ? K.MAIN_DEBOUT : K.MAIN[0], K.MAIN[1], K.MAIN[2]).applyQuaternion(cam.quaternion).add(cam.position); tenu.position.copy(vP); tenu.quaternion.copy(cam.quaternion).multiply(qR); };
+        I.anime(function () { if (K.enMain && etape < K.ETAPE) K.repose(); var vu = K.enMain && !(etat && etat.haut); if (tenu.visible !== vu) tenu.visible = vu; if (vu) K.poseMain(); });
+        K.etat = "pret"; } catch (e) { erreur("pistolet", e); } }
+    setTimeout(function () { essaiePistolet(); essaieFixe(); }, 2500);
+  })();
   // ---- inter_plans_etapes_v156.js (v156, 2026-11-23) : demande de l'utilisateur (« pour l'ensemble des etapes de construction, analyse comment tu peux
   // ameliorer le deplacement de la camera et quelle info pertinente tu peux ajouter a meme l'animation », puis « Oui, fais-les »). Plans de camera par
   // etape (3 ou 4 : ensemble, detail du geste, resultat), concus et verifies sur des rendus reels de la visite (C:/IA/banc/visite_web/v148/plans,
@@ -19650,6 +19744,10 @@
       "#hud88.s-marqueur .rep{rotate:none;border-radius:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border:2px solid var(--hud);background:rgba(10,14,16,.55);box-shadow:0 0 0 1px rgba(0,0,0,.45)}",
       "#hud88.s-marqueur .rep::after{content:'';position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:var(--hud)}",
       "#hud88.s-marqueur .rep.pres{background:rgba(10,14,16,.55);box-shadow:0 0 0 1px rgba(0,0,0,.45),0 0 8px var(--hud)}#hud88.s-marqueur .rep.pres::after{width:6px;height:6px;margin:-3px 0 0 -3px}",
+      // (version 189) utilisateur : « cree icone specifique point graissage » : zone.icone (SVG) remplace le point central du repere et le « i » de l'etiquette (graisseurs : un graisseur a bille dessine)
+      "#hud88.s-marqueur .rep.ico,#hud88.s-marqueur .rep.ico.pres{width:24px;height:30px;margin:-24px 0 0 -12px;border:0;border-radius:0;background:none;box-shadow:none;filter:drop-shadow(0 0 1px rgba(0,0,0,.8))}#hud88.s-marqueur .rep.ico.pres{margin:-30px 0 0 -12px;filter:drop-shadow(0 0 4px var(--hud))}#hud88.s-marqueur .rep.ico::after{display:none}#hud88.s-marqueur .rep.ico svg{position:absolute;inset:0;width:24px;height:30px}",
+      "#hud88 .rep.ico .ig-pres,#hud88 .rep.ico.pres .ig-loin,#hud88 .invite kbd.ico .ig-loin{display:none}#hud88 .rep.ico.pres .ig-pres{display:inline}",
+      "#hud88.s-marqueur .invite.info kbd.ico{border:0;background:none;box-shadow:none;filter:drop-shadow(0 0 4px rgba(0,0,0,.7))}#hud88.s-marqueur .invite.info kbd.ico svg{width:30px;height:38px}",
       // F bandeau : grande invite claire, toujours au meme endroit en bas de l'ecran
       "#hud88.s-bandeau .invite{background:rgba(244,246,247,.96);color:#14171a;border:0;clip-path:none;border-radius:999px;padding:8px 24px 8px 8px;gap:12px;box-shadow:0 6px 24px rgba(0,0,0,.55)}",
       "#hud88.s-bandeau .invite kbd{width:34px;height:34px;min-width:34px;background:#14171a;border-color:#14171a}#hud88.s-bandeau .invite kbd svg{stroke:#fff;width:18px;height:18px}#hud88.s-bandeau .invite:not(.info) kbd:empty::after{background:#fff}",
@@ -19738,7 +19836,7 @@
     // (version 180) utilisateur : « adapte la couleur au danger », « sera utliser pour de la prvention » : code de couleurs de securite (rouge = danger,
     // orange = avertissement, vert = secours/premiers soins ; jaune = action ordinaire). zone.niveau l'impose ; sinon il est deduit du texte et de la marque.
     // La couleur passe a l'icone, a l'etiquette, au contour de la piece et a son repere ; l'etiquette d'un danger commence par « Danger · ».
-    H.NIVEAUX = { danger: { col: 0xe5322d, mot: "Danger" }, avertissement: { col: 0xff8a1f, mot: "Attention" }, secours: { col: 0x2fbf5b, mot: "" } };
+    H.NIVEAUX = { danger: { col: 0xe5322d, mot: "Danger" }, avertissement: { col: 0xff8a1f, mot: "Attention" }, secours: { col: 0x2fbf5b, mot: "" }, obligation: { col: 0x4b95ff, mot: "" } };   // v189 : obligation (bleu, ISO 7010) = entretien prescrit (graisseurs)
     H.niveau = function (z, t) { if (z && z.niveau) return z.niveau; var x = ((z && z.marque) || "") + " " + (t || "");
       if (/explosi|non saut|électrocu|600 ?v|haute tension|mortel/i.test(x)) return "danger";
       if (/\brisques?\b|attention|pincement|écrasement|coincement|chute|glissant|coupant|brûlure/i.test(x)) return "avertissement";
@@ -19798,7 +19896,7 @@
         var ki = p.info && H.s.pos === "marque" ? p.action.indexOf(" : ") : -1; if (ki > 0) { p.nom = p.action.slice(0, ki); p.action = maj(p.action.slice(ki + 3)); }   // (version 178) info « Nom : consigne » : le nom en petit au-dessus de la consigne
         var nv = H.niveau(z, t), NV = H.NIVEAUX[nv], nom0 = sc ? p.objet : p.nom; H.zCol = NV ? NV.col : null; if (NV) invite.style.setProperty("--hud", hexCss(NV.col)); else invite.style.removeProperty("--hud");
         if (NV && NV.mot && H.s.pos === "marque") nom0 = NV.mot + (nom0 ? " · " + nom0 : ""); invite.setAttribute("data-niveau", nv);
-        nomEl.textContent = nom0; actEl.textContent = sc ? p.verbe : p.action; invite.classList.toggle("info", p.info); if (p.info) touche.textContent = nv === "danger" ? "!" : "i"; else touche.innerHTML = picto(p.action); }
+        nomEl.textContent = nom0; actEl.textContent = sc ? p.verbe : p.action; invite.classList.toggle("info", p.info); if (p.info) { if (z.icone) touche.innerHTML = z.icone; else touche.textContent = nv === "danger" ? "!" : "i"; } else touche.innerHTML = picto(p.action); touche.classList.toggle("ico", !!(p.info && z.icone)); }
       invite.classList.toggle("tact", !invite.classList.contains("info")); cadre.classList.add("vu"); invite.classList.add("vu"); };
 
     // ---- reperes des pieces interactives proches (liste refaite toutes les 10 images, position a chaque image)
@@ -19817,7 +19915,7 @@
         if (Math.abs(v.x) > 0.96 || Math.abs(v.y) > 0.96) continue; var sx = r.left + (v.x + 1) / 2 * r.width, sy = r.top + (1 - v.y) / 2 * r.height, trop = false;
         for (var j = 0; j < pris.length; j += 2) if (Math.abs(pris[j] - sx) < 46 && Math.abs(pris[j + 1] - sy) < 46) { trop = true; break; } if (trop) continue;
         if (H.z && sx > R.x0 - 8 && sx < R.x1 + 8 && sy > R.y0 - 8 && sy < R.y1 + 8) continue;   // deja dans le cadre de la piece visee
-        pris.push(sx, sy); var e = reperes[n++]; if (e.col !== c.col) { e.col = c.col; if (c.col) e.el.style.setProperty("--hud", c.col); else e.el.style.removeProperty("--hud"); e.el.classList.toggle("dg", c.col === "#e5322d"); } e.el.style.translate = sx.toFixed(1) + "px " + sy.toFixed(1) + "px"; e.el.style.opacity = c.d <= I.PORTEE ? 1 : Math.max(0.25, 0.75 - (c.d - I.PORTEE) / (H.REPERES_PORTEE - I.PORTEE) * 0.5);
+        pris.push(sx, sy); var e = reperes[n++]; var ic = c.z.icone || ""; if (e.ico !== ic) { e.ico = ic; e.el.innerHTML = ic; e.el.classList.toggle("ico", !!ic); } if (e.col !== c.col) { e.col = c.col; if (c.col) e.el.style.setProperty("--hud", c.col); else e.el.style.removeProperty("--hud"); e.el.classList.toggle("dg", c.col === "#e5322d"); } e.el.style.translate = sx.toFixed(1) + "px " + sy.toFixed(1) + "px"; e.el.style.opacity = c.d <= I.PORTEE ? 1 : Math.max(0.25, 0.75 - (c.d - I.PORTEE) / (H.REPERES_PORTEE - I.PORTEE) * 0.5);
         var pres = c.d <= I.PORTEE; if (e.pres !== pres) { e.pres = pres; e.el.classList.toggle("pres", pres); } if (!e.vu) { e.vu = true; e.el.style.display = "block"; } }
       for (; n < reperes.length; n++) if (reperes[n].vu) { reperes[n].vu = false; reperes[n].el.style.display = "none"; } }
 
@@ -20344,7 +20442,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "188-2a1f1588", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "189-2a1f1588", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
