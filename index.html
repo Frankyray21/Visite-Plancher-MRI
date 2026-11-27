@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 206</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 207</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 206</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 207</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 206</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 207</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -12992,7 +12992,7 @@
       for (var i = 0; i < plan.length; i++) { var e = plan[i]; if (!e.pile) continue; t[e.sec][e.pile]++; if (e.ph === 2) n[e.sec][e.pile]++; }
       PS.piles.forEach(function (p, s) { var a = t[s]["38"] ? Math.round(p.n38 * n[s]["38"] / t[s]["38"]) : 0, b = t[s]["66"] ? Math.round(p.n66 * n[s]["66"] / t[s]["66"]) : 0;
         var k = a + (a >= p.n38 ? b : 0); if (p.k !== k) { p.k = k; p.m.geometry.setDrawRange(0, k * 36); p.m.visible = k > 0; } });
-      K.piles = PS.piles.map(function (p) { return p.k; }); }
+      K.piles = PS.piles.map(function (p) { return p.k; }); K.pilesDetail = PS.piles.map(function (p, s) { return { n38: Math.min(p.n38, p.k), n66: Math.max(0, p.k - p.n38), t38: p.n38, t66: p.n66 }; }); }
     var ouvreAvantPiles = ouvre; ouvre = function () { ouvreAvantPiles.apply(this, arguments); try { if (K.ouvert && G && pilesPretes()) { if (PS.g.parent !== G) G.add(PS.g); PS.piles.forEach(function (p) { p.k = -1; }); remplitPiles(); K.camPiles = false; } } catch (e) { K.erreur = "piles : " + String(e).slice(0, 200); } };
     K.ouvre = ouvre;
 
@@ -13052,9 +13052,9 @@
     [["dem-secondaire", "1. Plancher secondaire retiré en premier : gardé tel quel, on le réutilise", [2.2, 0.95, 0.3], 600, 6000],
      ["dem-planches", "2. Une section de 16 × 16 à la fois : d'abord la section 2 (entrée), ses planches (tire-fonds enlevés à mesure), puis ses 6 × 6, sur la pile 2 juste devant", [7.3, 0.6, -1.2], 6000, 16300],
      ["dem-6x6", "3. Puis la section 1 (fond) : ses planches, puis ses 6 × 6, sur la pile 1, à la place de la section 2 ; ne jamais enjamber le bois", [2.4, 0.6, -1.2], 16300, 22000],
-     ["dem-piles", "Une pile par section de 16 × 16 · Total : 48 planches 3 × 8 + 21 pièces 6 × 6 = 69 pièces de 16 pi", [9.8, 1.25, -1.3], 24500, 1e9],
-     ["dem-pile1", "Pile 1 · section 1 (fond) : 24 planches 3 × 8 + 7 madriers 6 × 6 = 31 pièces", [7.32, 0.95, -1.3], 24500, 1e9],
-     ["dem-pile2", "Pile 2 · section 2 (entrée) : 24 planches 3 × 8 + 14 pièces 6 × 6 = 38 pièces", [12.30, 1.1, -1.3], 24500, 1e9],
+     ["dem-piles", "Une pile par section de 16 × 16", [9.8, 1.25, -1.3], 24500, 1e9],
+     ["dem-pile1", "PILE 1 · section 1 · 31 pièces", [7.32, 0.95, -1.3], 24500, 1e9],
+     ["dem-pile2", "PILE 2 · section 2 · 38 pièces", [12.30, 1.1, -1.3], 24500, 1e9],
      ["dem-boue", "Boue de forage sous le plancher : glissante", [6.4, 0.15, -1.05], 14000, 17000],
      ["dem-stable", "Se placer dans la partie la plus solide et stable ; rester vigilant, les pieds solides au sol", [8.4, 0.75, 1.3], 14000, 18000],
      ["dem-glisser", "Commencer au fond de la baie de forage : faire glisser les pièces de bois les unes sur les autres pour les sortir", [3.0, 0.75, 1.4], 17000, 22000],
@@ -15648,8 +15648,8 @@
     // r6
     etiquette("b66u", "6 × 6 × 16 pi : madriers, jonction, soutiens", "note", [2]);
     // v198 : une pile par section de 16 x 16, chacune sur son rack de transport
-    etiquette("sec1", K.SECTIONS[0].nom + " : " + K.SECTIONS[0].detail, "note", [0, 1, 2]); etiquette("sec2", K.SECTIONS[1].nom + " : " + K.SECTIONS[1].detail, "note", [0, 1, 2]);
-    etiquette("piles16", "Une pile par section de 16 × 16 · " + K.TOTAL, "note", [0, 1, 2]); etiquette("b38u", "3 × 8 × 16 pi : planches", "note", [2]); etiquette("blocs", "Blocages 6 × 6 et 3 × 8", "note", [2]);
+    etiquette("sec1", "PILE 1 · section 1 · 31 pièces", "note", [0, 1, 2]); etiquette("sec2", "PILE 2 · section 2 · 38 pièces", "note", [0, 1, 2]);
+    etiquette("piles16", "Une pile par section de 16 × 16", "note", [0, 1, 2]); etiquette("b38u", "3 × 8 × 16 pi : planches", "note", [2]); etiquette("blocs", "Blocages 6 × 6 et 3 × 8", "note", [2]);
     // r7-r8 : outils, par groupe
     etiquette("biche", "Pied de biche", "note", [3], "biche"); etiquette("masse", "Masse", "note", [3], "masse"); etiquette("marteau", "Marteau", "note", [3], "marteau");
     etiquette("sciotte", "Sciotte (scie à main)", "note", [3], "sciotte"); etiquette("pinces", "Pinces à billots", "note", [3], "pinces");
@@ -21233,7 +21233,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "206-eef12a19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "207-eef12a19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
@@ -22027,6 +22027,79 @@
   function ferme() { if (!boite) return; try { lecteur.pause(); } catch (e) {} boite.hidden = true; VID.ouvert = false; if (retour && retour.focus) try { retour.focus(); } catch (e) {} }
   VID.ouvre = ouvre; VID.ferme = ferme;
   bouton.addEventListener("click", ouvre);
+})();
+</script>
+<style>
+  /* v206 : inventaire du bois facon jeu (ecrans Materiel et Demantelement) : une carte par pile de section, compteurs et barres */
+  #inv-bois { position: fixed; z-index: 6; left: max(16px, env(safe-area-inset-left, 0px)); top: calc(112px + env(safe-area-inset-top, 0px)); width: 268px;
+    background: color-mix(in srgb, #14171a 90%, transparent); border: 1px solid #343c44; border-top: 3px solid var(--signal, #f2b705); border-radius: 6px;
+    padding: 10px 12px 12px; color: #e9edf0; font-family: var(--f-texte, sans-serif); backdrop-filter: blur(6px); pointer-events: none;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.45); transition: opacity 0.3s; }
+  #inv-bois[hidden] { display: none !important; }
+  #inv-bois .inv-tete { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; column-gap: 10px; margin-bottom: 8px; }
+  #inv-bois .inv-titre { font-family: var(--f-titre, sans-serif); font-weight: 700; font-size: 15px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--signal, #f2b705); }
+  #inv-bois .inv-sous { font-size: 12px; color: #9aa5ae; }
+  #inv-bois .inv-pile { border: 1px solid #343c44; border-radius: 5px; padding: 7px 8px 8px; margin-top: 6px; background: rgba(255,255,255,0.03); transition: border-color 0.3s, background 0.3s; }
+  #inv-bois .inv-pile.actif { border-color: var(--signal, #f2b705); background: rgba(242,183,5,0.08); }
+  #inv-bois .inv-pile.fini { border-color: #3fae5a; }
+  #inv-bois .inv-pile.attente { opacity: 0.55; }
+  #inv-bois .inv-nom { display: flex; justify-content: space-between; align-items: baseline; font-family: var(--f-titre, sans-serif); font-weight: 700; font-size: 16px; letter-spacing: 0.04em; text-transform: uppercase; }
+  #inv-bois .inv-nom small { font-family: var(--f-texte, sans-serif); font-weight: 500; font-size: 11.5px; letter-spacing: 0; text-transform: none; color: #9aa5ae; }
+  #inv-bois .inv-etat { font-size: 11.5px; color: #9aa5ae; min-height: 14px; margin: 1px 0 4px; }
+  #inv-bois .inv-pile.actif .inv-etat { color: var(--signal, #f2b705); }
+  #inv-bois .inv-pile.fini .inv-etat { color: #5fd37a; }
+  #inv-bois .inv-ligne { display: grid; grid-template-columns: 26px 42px 1fr 54px; align-items: center; gap: 6px; margin-top: 4px; font-size: 13px; }
+  #inv-bois .inv-ico { display: block; background: linear-gradient(135deg, #e7c38e, #c99a5b); border: 1px solid #7a5a2c; border-radius: 1px; justify-self: center; }
+  #inv-bois .inv-ico.p38 { width: 22px; height: 8px; }
+  #inv-bois .inv-ico.p66 { width: 14px; height: 14px; }
+  #inv-bois .inv-barre { height: 7px; border-radius: 4px; background: #2a3138; overflow: hidden; }
+  #inv-bois .inv-barre i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #c99a5b, #f2b705); transition: width 0.25s; }
+  #inv-bois .inv-pile.fini .inv-barre i { background: #3fae5a; }
+  #inv-bois .inv-n { font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
+  #inv-bois .inv-n span { color: #9aa5ae; font-weight: 400; }
+  #inv-bois .inv-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 9px; padding-top: 7px; border-top: 1px solid #343c44;
+    font-family: var(--f-titre, sans-serif); font-weight: 700; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; }
+  #inv-bois .inv-total b { font-size: 22px; color: var(--signal, #f2b705); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+  #inv-bois .inv-total b span { font-size: 14px; color: #9aa5ae; font-weight: 600; }
+  #inv-bois .inv-regle { margin-top: 6px; font-size: 11.5px; color: #c9d1d7; }
+  @media (max-width: 700px) { #inv-bois { width: 214px; top: calc(96px + env(safe-area-inset-top, 0px)); padding: 7px 9px 9px; }
+    #inv-bois .inv-nom { font-size: 14px; } #inv-bois .inv-ligne { font-size: 12px; grid-template-columns: 22px 34px 1fr 46px; } #inv-bois .inv-total b { font-size: 18px; } }
+</style>
+<script>
+// v206 (utilisateur 2026-11-27 : « revoit comment tu presentes la quantite de bois, je veux meilleur video sim jeux ») : panneau d'inventaire du bois
+// de 16 pi, facon jeu, aux ecrans Materiel (bois livre : piles pleines) et Demantelement (compteurs en direct : chaque piece rangee sur la pile de sa
+// section). Comptes : ceux du plancher de la page (24 + 7 et 24 + 14 pieces). Lit seulement window.__inter71 ; aucune ecriture dans la scene.
+(function () { "use strict";
+  var P = [{ nom: "Pile 1", sec: "section 1 · fond", t38: 24, t66: 7 }, { nom: "Pile 2", sec: "section 2 · entrée", t38: 24, t66: 14 }];
+  var TOT = P.reduce(function (s, p) { return s + p.t38 + p.t66; }, 0);
+  var el = document.createElement("div"); el.id = "inv-bois"; el.hidden = true; el.setAttribute("aria-live", "polite");
+  var h = '<div class="inv-tete"><span class="inv-titre">Inventaire du bois</span><span class="inv-sous">16 pi</span></div>';
+  P.forEach(function (p, i) { h += '<div class="inv-pile" id="inv-p' + i + '"><div class="inv-nom">' + p.nom + '<small>' + p.sec + '</small></div><div class="inv-etat"></div>' +
+    '<div class="inv-ligne"><i class="inv-ico p38"></i><span>3 × 8</span><span class="inv-barre"><i></i></span><span class="inv-n"></span></div>' +
+    '<div class="inv-ligne"><i class="inv-ico p66"></i><span>6 × 6</span><span class="inv-barre"><i></i></span><span class="inv-n"></span></div></div>'; });
+  h += '<div class="inv-total"><span>Total</span><b></b></div><div class="inv-regle">Une pile par section de 16 × 16, les 6 × 6 dessus.</div>';
+  el.innerHTML = h; document.body.appendChild(el);
+  var cartes = P.map(function (p, i) { var c = document.getElementById("inv-p" + i), b = c.querySelectorAll(".inv-barre i"), n = c.querySelectorAll(".inv-n");
+    return { c: c, etat: c.querySelector(".inv-etat"), b38: b[0], b66: b[1], n38: n[0], n66: n[1], cle: "" }; });
+  var tot = el.querySelector(".inv-total b"), cleTot = "";
+  function ligne(c, d, i) { var p = P[i], cle = [d.n38, d.n66, d.etat, d.cls].join("|"); if (c.cle === cle) return; c.cle = cle;
+    c.b38.style.width = (100 * d.n38 / p.t38) + "%"; c.b66.style.width = (100 * d.n66 / p.t66) + "%";
+    c.n38.innerHTML = d.n38 + '<span> / ' + p.t38 + '</span>'; c.n66.innerHTML = d.n66 + '<span> / ' + p.t66 + '</span>';
+    c.etat.textContent = d.etat; c.c.className = "inv-pile" + (d.cls ? " " + d.cls : ""); }
+  function total(n) { var cle = String(n); if (cle === cleTot) return; cleTot = cle; tot.innerHTML = n + '<span> / ' + TOT + ' pièces</span>'; }
+  function maj() { try {
+    var I = window.__inter71 || {}, M = I.materiel, D = I.demontage;
+    if (D && D.ouvert && D.T && D.T.sections) { el.hidden = false;
+      var dd = D.pilesDetail || [], t = D.t || 0, S = D.T.sections, n = 0;
+      P.forEach(function (p, i) { var d = dd[i] || { n38: 0, n66: 0 }, plein = d.n38 >= p.t38 && d.n66 >= p.t66, actif = i === 1 ? t >= S[0] && t < S[2] : t >= S[2] && t < S[4];
+        var etat = plein ? "✓ Pile complète" : actif ? (d.n38 < p.t38 ? "En cours : planches 3 × 8" : "En cours : 6 × 6 sur le dessus") : i === 0 ? "Après la section 2" : "À venir";
+        n += d.n38 + d.n66; ligne(cartes[i], { n38: d.n38, n66: d.n66, etat: etat, cls: plein ? "fini" : actif ? "actif" : "attente" }, i); });
+      total(n); return; }
+    if (M && M.ouvert) { el.hidden = false;
+      P.forEach(function (p, i) { ligne(cartes[i], { n38: p.t38, n66: p.t66, etat: "Livrée sur son rack · " + (p.t38 + p.t66) + " pièces", cls: "" }, i); });
+      total(TOT); return; }
+    el.hidden = true; } catch (e) { el.hidden = true; } }
+  (function boucle() { maj(); setTimeout(boucle, 200); })();
 })();
 </script>
 </body>
