@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 192</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 196</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 192</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 196</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 192</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 196</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -15050,9 +15050,12 @@
   // Etat commun : I.partage.groupeMarche (les manometres de la console le suivent). AUCUN son. VIBRATION (fausse par defaut) : tremblement de 0,2 mm du groupe en marche.
   // Tout se coupe par K.ACTIF ; window.__inter71.groupe = K ; I.basculeGroupe() / I.groupeMarche(true|false).
   (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
-    var K = { ACTIF: true, VIBRATION: false, VIB_AMPL: 0.0002, X: -0.40, Z0: -0.64, Z1: -0.54, bilan: {} };
+    // v193 (carte de travail a remplir avant demarrage, inter_carte_remplir_v193.js) : DEPART_ARRETE = groupe arrete en debut de quart ; le bouton
+    // vert ne demarre pas tant que I.carteRemplir.bloque() (carte non signee, question 16 du formulaire MA4657078). DEPART_ARRETE = false : en marche (v192).
+    var K = { ACTIF: true, DEPART_ARRETE: true, VIBRATION: false, VIB_AMPL: 0.0002, X: -0.40, Z0: -0.64, Z1: -0.54, bilan: {} };
     I.groupe = K; I.etat.groupe = "attente"; if (!K.ACTIF) { I.etat.groupe = "coupe"; return; }
-    I.partage.groupeMarche = true;
+    I.partage.groupeMarche = !K.DEPART_ARRETE;
+    function bloque() { var C = I.carteRemplir; return !!(C && C.ACTIF && C.bloque && C.bloque()); }
     var R = null;
     function rond(k, cx, cy, c0, c1, c2) { var g = k.createRadialGradient(cx - 6, cy - 7, 1, cx, cy, 30); g.addColorStop(0, c0); g.addColorStop(0.45, c1); g.addColorStop(1, c2); k.fillStyle = g; k.fillRect(cx - 28, cy - 28, 56, 56); }
     function applique() { if (!R) return; var on = I.partage.groupeMarche, m = R.mE.material;
@@ -15065,8 +15068,11 @@
     function prepare() { if ((typeof FOREUSE !== "undefined" && FOREUSE.type === "dr")) { I.etat.groupe = "sans objet : groupe de la DR1500-U"; return true; } var G = window.__g63; if (!G || !G.groupe || !G.groupe.details) return false;
       var mE = G.groupe.details, cv = mE.material.map && mE.material.map.image; R = { G: G, mE: mE, racine: G.groupe.racine, force: mE.material.emissiveIntensity, ctx: cv && cv.getContext ? cv.getContext("2d") : null };
       var y = {}; G.COMMANDES.forEach(function (q) { y[q.n] = q.y; });
-      function zone(n, on, txt) { I.zone({ o: mE, prio: 1, b: new THREE.Box3(new THREE.Vector3(K.X - 0.035, y[n] - 0.048, K.Z0), new THREE.Vector3(K.X + 0.035, y[n] + 0.048, K.Z1)),
-        actif: function () { return I.vu(R.racine) && I.partage.groupeMarche !== on; }, texte: function () { return txt; }, agit: function () { regle(on); } }); }
+      function zone(n, on, txt) { var z = I.zone({ o: mE, prio: 1, b: new THREE.Box3(new THREE.Vector3(K.X - 0.035, y[n] - 0.048, K.Z0), new THREE.Vector3(K.X + 0.035, y[n] + 0.048, K.Z1)),
+        actif: function () { return I.vu(R.racine) && I.partage.groupeMarche !== on; },
+        texte: function () { return on && bloque() ? ["Carte de travail : remplis-la et signe-la avant de démarrer le groupe", "Carte de travail : remplis-la et signe-la avant de démarrer le groupe"] : txt; },
+        agit: function () { if (on && bloque()) { K.bilan.refus = (K.bilan.refus || 0) + 1; I.message("Démarrage refusé : remplis d'abord la carte de travail, dans la pochette sur le power pack (question 16 : carte complétée avant utilisation).", 6000); return; } regle(on); } });
+        if (on) Object.defineProperty(z, "niveau", { get: function () { return bloque() ? "avertissement" : ""; } }); }   // v193 : orange tant que la carte n'est pas signee
       zone("vert", true, ["Clique sur le bouton vert pour démarrer le groupe", "Touche le bouton vert pour démarrer le groupe"]);
       zone("rouge", false, ["Clique sur le bouton rouge pour arrêter le groupe", "Touche le bouton rouge pour arrêter le groupe"]);
       if (!I.partage.groupeMarche) applique();
@@ -16558,6 +16564,162 @@
         .catch(function (e) { K.etat = "erreur"; K.erreur = String(e && e.message || e); if (window.console) console.warn("v175", e); }); }
     setTimeout(essaie, 1500);
   })();
+  // ---- inter_carte_remplir_v193.js (version 193, 2026-11-27) : utilisateur (livret du jeu, idee « ouvrir la carte de travail sur le power pack et
+  // cocher l'inspection avant de pouvoir demarrer le groupe ») : « je veux tester ».
+  // Source unique : le formulaire MA4657078 « Forage au diamant sous-terre » de Machines Roger International (pieces-3d, carte-forage-dd,
+  // pages/P02.webp, volet INSPECTION et PLANIFICATION ; P01.webp pour les signatures). Rien d'autre n'est ajoute :
+  //  - les 21 questions de l'« Analyse de risque sur le terrain » mot pour mot (fautes du formulaire comprises), colonne Travailleur (Oui / Non) ;
+  //    la colonne Superviseur reste au superviseur. Les questions 18 et 19 se repondent par ecrit (endroit du refuge, de l'extincteur), comme sur la carte ;
+  //  - les cases ombrees du formulaire (rose) sont reproduites a la meme place : ce sont les reponses qui demandent un « moyen de controle ».
+  //    Chaque reponse dans une case ombree ajoute sa ligne a la PLANIFICATION (« #R = Risque de la section inspection » : #R, type de risques,
+  //    moyen de controle), a remplir avant de signer ;
+  //  - SIGNATURES : Travailleur + Heure (l'heure de l'appareil).
+  // Demarrage du groupe : question 16 du formulaire (« ... complete la carte d'inspection avant utilisation ? »). Le groupe est ARRETE au depart
+  // (inter_groupe.js, K.DEPART_ARRETE) et son bouton vert refuse de demarrer tant que la carte n'est pas signee (I.carteRemplir.bloque()).
+  // Ouverture : clic sur la pochette du power pack (inter_carte_travail_v175.js, groupe « Carte_travail_v175 »). K.ACTIF = false : version 192.
+  (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
+    var K = { ACTIF: true, ouvert: false, remplie: false, heure: "", rep: {}, txt: {}, plan: {}, nom: "", tache: "", bilan: {} };
+    I.carteRemplir = K; I.etat.carteRemplir = K.ACTIF ? "attente" : "coupe"; if (!K.ACTIF) { K.bloque = function () { return false; }; return; }
+    // a = reponse dans la case ombree du formulaire (o = Oui, n = Non) ; t = question a reponse ecrite
+    var Q = [
+      { n: 1, q: "Est-ce que j’ai besoin de délimiter ma zone de travail?", a: "o" },
+      { n: 2, q: "Est-ce que j’ai besoin d’aide?", a: "o" },
+      { n: 3, q: "Ai-je besoin d’avertir quelqu’un avant d’accomplir ma tâche?", a: "o" },
+      { n: 4, q: "Est-ce que je suis exposé à une chute?", a: "o" },
+      { n: 5, q: "Est-ce qu’il a un risque d’incendie?", a: "o" },
+      { n: 6, q: "Y a-t-il quelque chose de différent aujourd’hui?", s: "(État d’esprit, changement de quart, nouveau collègue, etc.)", a: "o" },
+      { n: 7, q: "Est-ce que j’ai les outils / équipements / élingues / échelles / EPI appropriés et sont-ils en bon état?", a: "n" },
+      { n: 8, q: "Est-ce que j’ai besoin de contrôler des sources d’énergie?", s: "(électrique, pneumatique, hydraulique, résiduelle, etc.)", a: "o" },
+      { n: 9, q: "Mes mains sont-elles à risque d’être écrasées, coupées, coincées?", a: "o" },
+      { n: 10, q: "Est-ce que l’état et la propreté des lieux sont satisfaisants?", a: "n" },
+      { n: 11, q: "Puis-je m’attendre à des efforts excessifs / positions dangereuses?", a: "o" },
+      { n: 12, q: "Est-ce que les accès et la place de travail sont conformes?", a: "n" },
+      { n: 13, q: "Je suis bien positionné afin d’éviter d’être dans la ligne de tir?", a: "n" },
+      { n: 14, q: "Est-ce que les conditions de terrain sont conformes?", s: "(absence de support de terrain endommagé, absence de roche branlante, etc.)", a: "n" },
+      { n: 15, q: "Est-ce que la ventilation est conforme?", s: "(débit suffisant, conduite de ventilation en bon état, absence de gaz, poussières.)", a: "n" },
+      { n: 16, q: "Est-ce que j’ai fait l’inspection de mon équipement mobile et de la foreuse et complété la carte d’inspection avant utilisation?", a: "n" },
+      { n: 17, q: "Suis-je formé pour la tâche et je connais bien la ou les procédures?", a: "n" },
+      { n: 18, q: "Quel est l’endroit du refuge le plus près?", t: true },
+      { n: 19, q: "Quel est l’endroit de l’extincteur le plus près?", t: true },
+      { n: 20, q: "Est-ce qu’il y a d’autres risques?", a: "o" },
+      { n: 21, q: "Est-ce que j’ai validé les plans et devis?", a: "n" }];
+    K.QUESTIONS = Q;
+    function signalees() { return Q.filter(function (x) { return !x.t && K.rep[x.n] && K.rep[x.n] === x.a; }); }
+    function manque() { var m = [];
+      Q.forEach(function (x) { if (x.t ? !(K.txt[x.n] || "").trim() : !K.rep[x.n]) m.push({ id: "q" + x.n, mot: "question " + x.n }); });
+      signalees().forEach(function (x) { var p = K.plan[x.n] || {}; if (!(p.type || "").trim() || !(p.ctrl || "").trim()) m.push({ id: "p" + x.n, mot: "planification #R " + x.n }); });
+      if (!K.nom.trim()) m.push({ id: "sig", mot: "signature" }); return m; }
+    K.manque = manque; K.bloque = function () { return !K.remplie; };
+    try { K.nom = localStorage.getItem("visite-carte-nom") || ""; } catch (e) {}   // nom du travailleur retenu sur cet appareil (commodite)
+
+    // ---- habillage : la carte telle qu'imprimee (papier, titres rouge / bleu, cases ombrees roses), reponses a l'encre bleue
+    var st = document.createElement("style"); st.textContent = [
+      "#carte192{position:fixed;inset:0;z-index:65;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:rgba(8,10,12,.62)}",
+      "#carte192[hidden]{display:none}",
+      "#carte192 .c-feuille{position:relative;width:min(620px,100%);max-height:100%;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fbfaf5;color:#1d1d1b;border-radius:6px;box-shadow:0 18px 50px rgba(0,0,0,.55);padding:16px 16px 0;font:400 14px/1.3 var(--f-texte);text-transform:none;letter-spacing:0}",
+      "#carte192 button{font:inherit;text-transform:none;letter-spacing:0;min-height:0;min-width:0;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none}",
+      "#carte192 .c-x{position:absolute;top:8px;right:8px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(29,29,27,.08);color:#1d1d1b;font-size:24px;line-height:1;padding:0;cursor:pointer;z-index:2}",
+      "#carte192 .c-ref{margin:0;padding-right:48px;font-size:11px;letter-spacing:.06em;color:#6b6a64;text-transform:uppercase}",
+      "#carte192 h2{margin:6px 0 10px;text-align:center;font:700 20px/1.1 var(--f-titre);letter-spacing:.02em;text-transform:uppercase}",
+      "#carte192 h2.r{color:#d4202a}#carte192 h2.b{color:#0a8fd0}#carte192 h2.n{color:#1d1d1b;text-align:left;font-size:17px}",
+      "#carte192 .c-cadre{border:2px solid #d4202a}#carte192 .c-cadre.b{border-color:#0a8fd0}",
+      "#carte192 .c-tache{display:flex;flex-direction:column;gap:2px;padding:6px 8px;border-bottom:1px solid #1d1d1b}",
+      "#carte192 label small,#carte192 .c-tache small{font-size:12px;color:#3a3a36}",
+      "#carte192 input[type=text]{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid #9a988f;background:transparent;color:#1c3d8f;font:500 16px/1.25 var(--f-texte);padding:4px 2px;border-radius:0;outline:none}",
+      "#carte192 input[type=text]:focus{border-bottom-color:#0a8fd0;background:rgba(10,143,208,.06)}",
+      "#carte192 .c-ent{display:grid;grid-template-columns:30px 1fr 54px 54px;background:#e8e8e6;border-bottom:1px solid #1d1d1b;font-weight:700;align-items:center}",
+      "#carte192 .c-ent span{padding:5px 4px;text-align:center;font-weight:400}#carte192 .c-ent .r2{grid-row:span 2;align-self:stretch;display:flex;align-items:center;font-weight:700;border-right:1px solid #1d1d1b}",
+      "#carte192 .c-ent .r2.q{font-size:15px;padding-left:8px}#carte192 .c-ent .tr{grid-column:span 2;border-bottom:1px solid #1d1d1b}#carte192 .c-ent .o{border-right:1px solid #1d1d1b}",
+      "#carte192 .c-l{display:grid;grid-template-columns:30px 1fr 54px 54px;border-bottom:1px solid #1d1d1b;align-items:stretch}",
+      "#carte192 .c-l:last-child{border-bottom:0}",
+      "#carte192 .c-l > span{display:flex;align-items:center;justify-content:center;border-right:1px solid #1d1d1b;font-size:13px}",
+      "#carte192 .c-l p{margin:0;padding:6px 8px;border-right:1px solid #1d1d1b}#carte192 .c-l p small{display:block;font-size:12px;color:#3a3a36}",
+      "#carte192 .c-l .c-on{border:0;border-right:1px solid #1d1d1b;background:transparent;color:#1c3d8f;cursor:pointer;padding:0;font-size:12px;position:relative;touch-action:manipulation}",
+      "#carte192 .c-l .c-on:last-child{border-right:0}",
+      "#carte192 .c-l .c-on.ombre{background:#f3cbbd}",
+      "#carte192 .c-l .c-on i{font-style:normal;color:#6b6a64}",
+      "#carte192 .c-l .c-on[aria-pressed=true] i{color:transparent}",
+      "#carte192 .c-l .c-on[aria-pressed=true]::after{content:'✕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 24px/1 var(--f-texte);color:#1c3d8f}",
+      "#carte192 .c-l.t{grid-template-columns:30px 1fr}#carte192 .c-l.t p{border-right:0}",
+      "#carte192 .c-l.t input{margin-top:4px}",
+      "#carte192 .c-plan{display:grid;grid-template-columns:44px 1fr 1fr;border-bottom:1px solid #1d1d1b}",
+      "#carte192 .c-plan > span{display:flex;align-items:center;justify-content:center;border-right:1px solid #1d1d1b;font-weight:700}",
+      "#carte192 .c-plan > label{padding:4px 8px;border-right:1px solid #1d1d1b}#carte192 .c-plan > label:last-child{border-right:0}",
+      "#carte192 .c-plan.ent{font-weight:700;color:#fff;border-bottom:1px solid #1d1d1b}#carte192 .c-plan.ent span{color:#1d1d1b;background:#fbfaf5}",
+      "#carte192 .c-plan.ent b{padding:6px 8px;text-align:center}#carte192 .c-plan.ent b.r{background:#d4202a}#carte192 .c-plan.ent b.v{background:#0fa94f}",
+      "#carte192 .c-note{margin:6px 0 0;font-size:12px;color:#3a3a36}",
+      "#carte192 .c-vide{padding:8px;margin:0;font-size:13px;color:#6b6a64}",
+      "#carte192 .c-sig{display:grid;grid-template-columns:1fr 110px;gap:12px;align-items:end}",
+      "#carte192 .c-sig .h{color:#1c3d8f;font-weight:500;font-size:16px;border-bottom:1px solid #9a988f;padding:4px 2px;min-height:21px}",
+      "#carte192 .c-pied{position:sticky;bottom:0;margin:14px -16px 0;padding:10px 16px 12px;background:linear-gradient(rgba(251,250,245,.85),#fbfaf5 30%);display:flex;gap:10px;align-items:center;flex-wrap:wrap}",
+      "#carte192 .c-reste{flex:1 1 180px;margin:0;font-size:13px;color:#3a3a36}",
+      "#carte192 .c-signe{flex:none;border:0;border-radius:999px;background:#1d1d1b;color:#fff;font-weight:700;font-size:15px;padding:12px 20px;cursor:pointer}",
+      "#carte192 .c-signe.ok{background:#0fa94f}#carte192 .c-tard{flex:none;border:0;background:transparent;color:#3a3a36;font-weight:600;font-size:15px;padding:12px 8px;cursor:pointer;text-decoration:underline}",
+      "#carte192 .c-sceau{margin:0;padding:8px 10px;border:2px solid #0fa94f;color:#0b7a39;font-weight:700;border-radius:4px;text-align:center}",
+      "#carte192 .flash{animation:c192f 1.2s ease-out}@keyframes c192f{0%,40%{background:rgba(242,183,5,.55)}100%{background:transparent}}",
+      "#carte192 .c-l.manque > span{color:#d4202a;font-weight:700}",
+      "@media (max-width:480px){#carte192 .c-feuille{padding:12px 10px 0}#carte192 .c-l,#carte192 .c-ent{grid-template-columns:26px 1fr 46px 46px}#carte192 .c-plan{grid-template-columns:36px 1fr 1fr}#carte192 .c-pied{margin:12px -10px 0;padding:8px 10px 10px}#carte192 .c-reste{flex-basis:100%}#carte192 .c-signe{flex:1 1 auto}}",
+      "html.carte192 #hud88{visibility:hidden}"].join("\n"); document.head.appendChild(st);
+
+    var el = document.createElement("div"); el.id = "carte192"; el.hidden = true; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Carte de travail MA4657078 : inspection");
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function lignes() { return Q.map(function (x) {
+      if (x.t) return '<div class="c-l t" id="c192-q' + x.n + '"><span>' + x.n + '</span><p>' + esc(x.q) + '<input type="text" data-t="' + x.n + '" maxlength="60" aria-label="Question ' + x.n + '" value="' + esc(K.txt[x.n] || "") + '"></p></div>';
+      function b(v) { var on = K.rep[x.n] === v; return '<button type="button" class="c-on' + (x.a === v ? " ombre" : "") + '" data-q="' + x.n + '" data-v="' + v + '" aria-pressed="' + on + '" aria-label="Question ' + x.n + ' : ' + (v === "o" ? "oui" : "non") + '"><i>' + (v === "o" ? "Oui" : "Non") + '</i></button>'; }
+      return '<div class="c-l" id="c192-q' + x.n + '"><span>' + x.n + '</span><p>' + esc(x.q) + (x.s ? "<small>" + esc(x.s) + "</small>" : "") + "</p>" + b("o") + b("n") + "</div>"; }).join(""); }
+    function planif() { var S = signalees(); if (!S.length) return '<p class="c-vide">Aucune réponse dans une case ombrée : rien à planifier.</p>';
+      return S.map(function (x) { var p = K.plan[x.n] || {};
+        return '<div class="c-plan" id="c192-p' + x.n + '"><span>' + x.n + '</span><label><small>Type de risques</small><input type="text" data-p="' + x.n + '" data-k="type" maxlength="70" value="' + esc(p.type || "") + '"></label>' +
+          '<label><small>Moyen de contrôle</small><input type="text" data-p="' + x.n + '" data-k="ctrl" maxlength="70" value="' + esc(p.ctrl || "") + '"></label></div>'; }).join(""); }
+    function dessine() {
+      el.innerHTML = '<div class="c-feuille" tabindex="-1"><button type="button" class="c-x" data-a="ferme" aria-label="Fermer la carte">×</button>' +
+        '<p class="c-ref">Forage au diamant sous-terre · formulaire MA4657078</p>' +
+        '<h2 class="r">Inspection</h2><div class="c-cadre"><div class="c-tache"><small>Tâche analysée par le travailleur :</small><input type="text" data-c="tache" maxlength="70" value="' + esc(K.tache) + '"></div>' +
+        '<div class="c-ent"><span class="r2">#R</span><span class="r2 q">Analyse de risque sur le terrain</span><span class="tr">Travailleur</span><span class="o">Oui</span><span>Non</span></div>' + lignes() + "</div>" +
+        '<p class="c-note">Les colonnes Superviseur restent à ton superviseur. Une croix dans une case ombrée demande un moyen de contrôle en planification.</p>' +
+        '<h2 class="b">Planification</h2><div class="c-cadre b"><div class="c-plan ent"><span>#R</span><b class="r">Type de risques</b><b class="v">Moyen de contrôle</b></div><div data-r="plan">' + planif() + "</div></div>" +
+        '<h2 class="n">Signatures</h2><div class="c-sig" id="c192-sig"><label><small>Travailleur :</small><input type="text" data-c="nom" maxlength="40" autocomplete="name" value="' + esc(K.nom) + '"></label><label><small>Heure :</small><div class="h" data-r="heure">' + esc(K.heure) + "</div></label></div>" +
+        '<div class="c-pied"><p class="c-reste" data-r="reste" aria-live="polite"></p><button type="button" class="c-tard" data-a="ferme">Plus tard</button><button type="button" class="c-signe" data-a="signe">Signer la carte</button></div></div>';
+      majPied(); }
+    function majPied() { var r = el.querySelector('[data-r="reste"]'), b = el.querySelector('[data-a="signe"]'); if (!r || !b) return; var m = manque();
+      if (K.remplie) { r.innerHTML = '<span class="c-sceau">Carte signée à ' + esc(K.heure) + " : tu peux démarrer le groupe.</span>"; b.textContent = "Fermer"; b.classList.add("ok"); var t = el.querySelector(".c-tard"); if (t) t.hidden = true; return; }
+      r.textContent = m.length ? "Il reste " + m.length + (m.length > 1 ? " cases à remplir" : " case à remplir") + " (" + m[0].mot + (m.length > 1 ? ", …" : "") + ")." : "Tout est rempli : signe la carte.";
+      b.textContent = "Signer la carte"; b.classList.toggle("ok", !m.length); var t2 = el.querySelector(".c-tard"); if (t2) t2.hidden = false; }
+    function hhmm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + " h " + ("0" + d.getMinutes()).slice(-2); }
+    function signe() { if (K.remplie) { ferme(); return; } var m = manque();
+      if (m.length) { var c = document.getElementById("c192-" + m[0].id); if (c) { try { c.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) { c.scrollIntoView(); } c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); var i = c.querySelector("input"); if (i) try { i.focus({ preventScroll: true }); } catch (e) {} } return; }
+      K.heure = hhmm(); K.remplie = true; K.bilan.signee = K.heure; try { localStorage.setItem("visite-carte-nom", K.nom.trim()); } catch (e) {}
+      var h = el.querySelector('[data-r="heure"]'); if (h) h.textContent = K.heure; majPied();
+      setTimeout(function () { ferme(); I.message("Carte de travail signée à " + K.heure + ". Tu peux démarrer le groupe hydraulique (bouton vert).", 5000); }, 700); }
+    // le clavier, la souris et le toucher restent dans la carte (le visiteur ne marche pas pendant qu'il ecrit)
+    ["pointerdown", "pointerup", "pointermove", "touchstart", "touchmove", "touchend", "wheel", "keydown", "click", "dblclick", "contextmenu"].forEach(function (t) { el.addEventListener(t, function (e) { e.stopPropagation(); }, { passive: t !== "keydown" && t !== "click" && t !== "contextmenu" }); });
+    el.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); ferme(); } else if (e.key === "Enter" && e.target && e.target.tagName === "INPUT") { e.preventDefault(); e.target.blur(); } });
+    el.addEventListener("click", function (e) { var t = e.target.closest ? e.target.closest("[data-a],[data-q]") : null; if (!t) { if (e.target === el) ferme(); return; }
+      if (t.getAttribute("data-a") === "ferme") { ferme(); return; } if (t.getAttribute("data-a") === "signe") { signe(); return; }
+      var n = +t.getAttribute("data-q"), v = t.getAttribute("data-v"); if (!n) return; if (K.remplie) { K.remplie = false; K.heure = ""; var h0 = el.querySelector('[data-r="heure"]'); if (h0) h0.textContent = ""; }   // carte modifiee : a resigner
+      K.rep[n] = v; var bs = el.querySelectorAll('[data-q="' + n + '"]'); for (var i = 0; i < bs.length; i++) bs[i].setAttribute("aria-pressed", bs[i].getAttribute("data-v") === v ? "true" : "false");
+      var P = el.querySelector('[data-r="plan"]'); if (P) P.innerHTML = planif(); majPied(); });
+    el.addEventListener("input", function (e) { var t = e.target; if (!t || t.tagName !== "INPUT") return; var v = t.value;
+      if (t.hasAttribute("data-t")) K.txt[+t.getAttribute("data-t")] = v; else if (t.hasAttribute("data-p")) { var n = +t.getAttribute("data-p"); K.plan[n] = K.plan[n] || {}; K.plan[n][t.getAttribute("data-k")] = v; }
+      else if (t.getAttribute("data-c") === "nom") K.nom = v; else if (t.getAttribute("data-c") === "tache") K.tache = v;
+      if (K.remplie && !manque().length) { majPied(); return; } if (K.remplie) { K.remplie = false; K.heure = ""; var h = el.querySelector('[data-r="heure"]'); if (h) h.textContent = ""; } majPied(); });
+    document.body.appendChild(el);
+    function ouvre() { if (K.ouvert) return; K.ouvert = true; dessine(); el.hidden = false; document.documentElement.classList.add("carte192"); K.bilan.ouvertures = (K.bilan.ouvertures || 0) + 1;
+      try { var f = el.querySelector(".c-feuille"); f.scrollTop = 0; f.focus({ preventScroll: true }); } catch (e) {} }
+    function ferme() { if (!K.ouvert) return; K.ouvert = false; el.hidden = true; document.documentElement.classList.remove("carte192"); try { document.activeElement && document.activeElement.blur && document.activeElement.blur(); } catch (e) {} }
+    K.ouvre = ouvre; K.ferme = ferme;
+    // essai (rendu de test) : remplit la carte comme un travailleur ; reponses = { 1: "n", ... } (par defaut la case non ombree partout)
+    K.essai = function (reponses, signer) { Q.forEach(function (x) { if (x.t) K.txt[x.n] = x.n === 18 ? "Refuge du niveau" : "Poste du power pack"; else K.rep[x.n] = (reponses && reponses[x.n]) || (x.a === "o" ? "n" : "o"); });
+      signalees().forEach(function (x) { K.plan[x.n] = K.plan[x.n] || { type: "", ctrl: "" }; }); if (!K.nom) K.nom = "Travailleur"; if (K.ouvert) dessine(); if (signer) signe(); return manque(); };
+
+    // ---- la pochette du power pack s'ouvre au clic
+    I.prepare(function () { var C = window.__carteTravail; if (!C || C.etat === "erreur") { I.etat.carteRemplir = "carte absente"; return true; } if (!C.pose) return false;
+      var g = scene.getObjectByName("Carte_travail_v175"); if (!g) return false; var P = C.POCHETTE;
+      I.zone({ o: g, prio: 1, b: new THREE.Box3(new THREE.Vector3(-P[0] / 2, -P[1] / 2, -0.01), new THREE.Vector3(P[0] / 2, P[1] / 2, 0.03)), actif: function () { return I.vu(g) && !K.ouvert; },
+        texte: function () { return K.remplie ? ["Clique pour relire la carte de travail", "Touche la carte de travail pour la relire"] : ["Clique pour remplir la carte de travail", "Touche la carte de travail pour la remplir"]; },
+        agit: ouvre });
+      I.etat.carteRemplir = "pret"; return true; });
+  })();
   // ---- inter_pieces_v185.js (version 185, 2026-11-26) : utilisateur, devant la liste des modeles du depot pieces-3d qui n'etaient pas encore dans la
   // place de travail : « ajoute 1, 2, 3, 6, 7, 8, 10, 11, 12, 13 ». Chaque objet est exporte de pieces-3d tel quel (assemblage P01, facettes a 0,5,
   // mailles fusionnees par matiere, GLB en base 64), sans rien ajouter :
@@ -16575,18 +16737,24 @@
   // 10. boite a lunch de mineur (boite-lunch-mineur) et 13. boulon d'ancrage TIME 83-52 de 5 pi (boulon-ancrage-time) : sur le sol de la galerie, contre
   //     la paroi de gauche, avant le rack a boites a carottes (l'allee et le pied de l'escalier restent libres).
   // Visibles avec l'equipement (etape 18). Ajoute a la page deja construite (hors de la chaine de fabrication). K.ACTIF = false : version 184.
+  var BOULON_DEBOUT_V195 = true;   // v195 : boulon d'ancrage debout dans le coin du rack a tiges (false : couche au sol comme en v185 a v194)
   (function () {
     var K = { ACTIF: true, etat: "attente", bilan: {}, erreurs: [],
       // objets seuls (deplacables comme les autres pieces) : [nom, fichier, octets, x, y, z, lacet, titre]
       SEULS: [["trousseZenith", "trousse_deversement.txt", 842008, 13.72, -0.345, -1.93, 0, "la trousse de déversement"],
+        /* v195 : le boulon d'ancrage est debout dans le coin du rack a tiges, attache par une chaine (inter_boulon_debout_v195) ; couche ici si BOULON_DEBOUT_V195 = false */
         ["boulonAncrage", "boulon_ancrage.txt", 103564, 11.62, -0.345, 2.12, 0, "le boulon d'ancrage de 5 pi"],
-        ["boiteLunch", "boite_lunch.txt", 281756, 12.56, -0.345, 1.92, Math.PI / 2, "la boîte à lunch"]]
-        /* v186 : la pince pour tube interieur etait sur le plancher pres de la foreuse ; v193 : accrochee au rack a outils (K.RACK ci-dessous) */,
+        /* v194 : la boite a lunch quitte le sol de la galerie pour le dessus du power pack (voir POSES) */
+        /* v186 : la pince pour tube interieur etait sur le plancher pres de la foreuse ; v193 : accrochee au rack a outils (K.RACK ci-dessous) */],
       // objets poses sur un equipement (enfants : ils le suivent) : [fichier, octets, equipement, x, z (monde, centre), lacet, hauteur de depart des rayons]
       POSES: [/* v193 : le pistolet a graisse n'est plus couche sur le coffre, il est dans un tube du rack a outils (K.RACK) */
         ["ruban_cerclage.txt", 80152, "table", 8.70, 2.14, Math.PI / 2, 0.95],
         ["blocs_bois.txt", 1430432, "table", 9.12, 2.12, 0, 0.95],
-        ["niveau_degres.txt", 1156120, "coffre", 6.62, 1.98, 0, 3.0]],   /* v186 : niveau a degres sur le coffre, a cote du pistolet (« ajoute au coffre pas sur le rack ») */
+        ["niveau_degres.txt", 1156120, "coffre", 6.62, 1.98, 0, 3.0],   /* v186 : niveau a degres sur le coffre, a cote du pistolet (« ajoute au coffre pas sur le rack ») */
+        /* v194 (utilisateur : « ajoute la boite a lunch foreur sur le power pack derriere le foreur ») : boite a lunch de mineur (boite-lunch-mineur,
+           compressee sans perte EXT_meshopt_compression) posee sur le dessus plat du groupe hydraulique (y 1,43), au bout cote chaise du foreur,
+           centree en largeur, le devant (fermoirs) tourne vers la chaise ; elle suit le groupe s'il est deplace */
+        ["boite_lunch.txt", 168760, "groupe", 8.12, -1.66, -Math.PI / 2, 2.5]],
       NIVEAU: null,   // v185 : aimante au poteau du rack a tiges ; v186 : retire du rack
       ESTOP: { f: "arret_urgence_cable.txt", n: 235944, ANGLE_FIXE: -30 } };
     try { window.__pieces185 = K; } catch (e) {} if (!K.ACTIF) return;
@@ -16594,6 +16762,7 @@
     function erreur(ou, e) { K.erreurs.push(ou + " : " + String(e && e.message || e)); if (window.console) console.warn("v185", ou, e); }
     function prepare(r) { r.traverse(function (o) { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = true; var m = o.material; if (m && m.metalness > 0.35) { m.metalness = 0.35; m.roughness = Math.max(m.roughness, 0.45); } }); return r; }
     // 1, 10, 13 : comme les pieces de PIECES (meme chargement, deplacables)
+    if (BOULON_DEBOUT_V195) K.SEULS = K.SEULS.filter(function (s) { return s[0] !== "boulonAncrage"; });
     K.SEULS.forEach(function (s) { PIECES.push({ nom: s[0], f: s[1], n: s[2], pos: [s[3], s[4], s[5]], lacet: s[6], titre: s[7] }); PIECES_LISTE[s[0]] = true; });
     // 3, 7, 8, 11, 12 : sur le coffre et sur la tablette du bas de la table
     function surface(o, x, z, y0, bb) { var hs = [], dx = (bb.max.x - bb.min.x) / 2 * 0.8, dz = (bb.max.z - bb.min.z) / 2 * 0.8;
@@ -16603,7 +16772,7 @@
     function pose(p) { var E = mobiles[p[2]]; if (!E) return false;
       telecharge(p[0], p[1], function () {}).then(function (gltf) { var r = prepare(gltf.scene); r.name = "Piece185_" + p[0].replace(".txt", ""); r.rotation.y = p[5];
         r.updateMatrixWorld(true); var bb = new THREE.Box3().setFromObject(r); E.o.updateMatrixWorld(true);
-        var y = surface(E.o, p[3], p[4], p[6], bb); if (y === null) y = p[2] === "table" ? 0.68 : 1.9;
+        var y = surface(E.o, p[3], p[4], p[6], bb); if (y === null) y = p[2] === "table" ? 0.68 : p[2] === "groupe" ? 1.43 : 1.9;
         r.position.set(p[3] - (bb.min.x + bb.max.x) / 2, y - bb.min.y + 0.001, p[4] - (bb.min.z + bb.max.z) / 2); scene.add(r); r.updateMatrixWorld(true); E.o.attach(r);
         K.bilan[p[0]] = [+p[3].toFixed(3), +y.toFixed(3), +p[4].toFixed(3)]; }).catch(function (e) { erreur(p[0], e); }); return true; }
     var aPoser = K.POSES.slice();
@@ -16683,6 +16852,79 @@
           var B = P.base, M = new M4().makeBasis(new V3().fromArray(B[0]), new V3().fromArray(B[1]), new V3().fromArray(B[2])); r.quaternion.setFromRotationMatrix(M); r.position.fromArray(P.t);
           R.o.add(r); r.updateMatrixWorld(true); K.bilan[P.nom] = new THREE.Box3().setFromObject(r).getCenter(new V3()).toArray().map(function (v) { return +v.toFixed(3); }); }).catch(function (e) { erreur(P.nom, e); }); }); }
     setTimeout(function () { essaiePoses(); essaieNiveau(); essaieFixe(); essaieClou(); essaieRack(); K.etat = "pret"; }, 1500);
+  })();
+  // ---- inter_boulon_debout_v195.js (version 195, 2026-11-27) : utilisateur : « ajoute la pine d'ancrage dans le coin a droite du rack a rod et
+  // attache avec chaine a la paroi ». Le boulon d'ancrage TIME 83-52 de 5 pi (boulon_ancrage.txt, modele boulon-ancrage-time de pieces-3d, deja
+  // dans la page depuis la v185, couche sur le sol de la galerie pres de la boite a lunch) quitte le sol : il est debout dans le coin entre le
+  // rack a tiges et le front de taille, paroi de gauche (sol de la galerie, entre le bout du plancher et le front), la pointe en bas, le filet en haut.
+  // Une chaine galvanisee de 1/4 po fait le tour du boulon et va a un crochet en S accroche a un fil horizontal du grillage de la paroi, pour qu'il
+  // ne tombe pas. Le crochet est cherche par rayons sur le grillage (fil horizontal), sinon pose sur le roc. Chaine : maillons de 25 mm (interieur)
+  // x 10 mm, fil de 6,4 mm. Visible avec l'equipement (etape 18). K.ACTIF = false : version 194 (boulon couche au sol).
+  (function () {
+    var K = { ACTIF: BOULON_DEBOUT_V195, etat: "attente", bilan: {}, erreurs: [], f: "boulon_ancrage.txt", n: 103564,
+      X: -0.15, Z: 2.33,                 // pied du boulon (centre), sol de la galerie dans le coin rack / front
+      Y_BOUCLE: 1.30,                    // hauteur du tour de chaine sur le boulon
+      CROCHET: { Y: [1.42, 1.80], DX: 0.015 },   // recherche du fil horizontal du grillage au-dessus du tour de chaine
+      M: { INT: 0.025, LARGE: 0.010, FIL: 0.0032 }, COULEUR: 0x9ea3a7 };
+    try { window.__boulon195 = K; } catch (e) {} if (!K.ACTIF) return;
+    var V3 = THREE.Vector3, rc = new THREE.Raycaster(), fait = false, essais = 0;
+    function mailles(re) { var l = []; scene.traverse(function (o) { if (o.isMesh && o.visible && re.test(o.name)) l.push(o); }); return l; }
+    function tir(o, d, l, loin) { rc.set(o, d); rc.far = loin || 3; return rc.intersectObjects(l, false)[0] || null; }
+    // maillon : stade (deux demi-cercles et deux droites), axe long sur y
+    function geoMaillon() { var M = K.M, Rc = M.LARGE / 2 + M.FIL, L = Math.max(0.001, M.INT + 2 * M.FIL - 2 * Rc);
+      var pts = [], n = 28;
+      for (var i = 0; i < n; i++) { var s = i / n * (2 * Math.PI * Rc + 2 * L), p;
+        if (s < L) p = [Rc, -L / 2 + s]; else if (s < L + Math.PI * Rc) { var a = (s - L) / Rc; p = [Rc * Math.cos(a), L / 2 + Rc * Math.sin(a)]; }
+        else if (s < 2 * L + Math.PI * Rc) p = [-Rc, L / 2 - (s - L - Math.PI * Rc)]; else { var b = (s - 2 * L - Math.PI * Rc) / Rc; p = [-Rc * Math.cos(b), -L / 2 - Rc * Math.sin(b)]; }
+        pts.push(new V3(p[0], p[1], 0)); }
+      return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 48, M.FIL, 8, true); }
+    // repere d'un maillon : axe y le long de la chaine, plan tourne de 90 degres un maillon sur deux
+    function matrice(p, t, i, ref) { var y = t.clone().normalize(), x = new V3().crossVectors(ref, y); if (x.lengthSq() < 1e-6) x.set(1, 0, 0); x.normalize();
+      var z = new V3().crossVectors(x, y); if (i % 2) { var tmp = x; x = z; z = tmp.negate(); }
+      return new THREE.Matrix4().makeBasis(x, y, z).setPosition(p); }
+    function construit(gltf) {
+      var sol = mailles(/^Galerie_Sol$/), gril = mailles(/Grillage/), roc = mailles(/^Galerie_Roc/);
+      var hs = tir(new V3(K.X, 1.2, K.Z), new V3(0, -1, 0), sol, 3), y0 = hs ? hs.point.y : -0.03; K.bilan.sol = +y0.toFixed(3);
+      var r = gltf.scene; r.name = "Boulon_ancrage_debout_v195"; r.traverse(function (o) { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = true; var m = o.material; if (m && m.metalness > 0.35) { m.metalness = 0.35; m.roughness = Math.max(m.roughness, 0.45); } });
+      r.rotation.z = -Math.PI / 2;   // le bout (+x du modele, pointe) en bas, le filet en haut
+      r.updateMatrixWorld(true); var bb = new THREE.Box3().setFromObject(r);
+      r.position.set(K.X - (bb.min.x + bb.max.x) / 2, y0 - bb.min.y + 0.002, K.Z - (bb.min.z + bb.max.z) / 2);
+      var g = new THREE.Group(); g.name = "Boulon_debout_chaine_v195"; g.add(r); r.updateMatrixWorld(true);
+      var rb = (bb.max.x - bb.min.x) / 2; K.bilan.boulon = { rayon: +rb.toFixed(4), haut: +(y0 + bb.max.y - bb.min.y).toFixed(3) };
+      // crochet : premier fil horizontal du grillage de la paroi de gauche au-dessus du tour de chaine (trois rayons cote a cote touchent a la meme hauteur)
+      var H = null, fil = true;
+      for (var yy = K.CROCHET.Y[0]; yy <= K.CROCHET.Y[1] && !H; yy += 0.004) { var hh = [-1, 0, 1].map(function (k) { return tir(new V3(K.X + k * K.CROCHET.DX, yy, K.Z), new V3(0, 0, 1), gril, 0.4); });
+        if (hh[0] && hh[1] && hh[2] && Math.abs(hh[0].point.z - hh[2].point.z) < 0.02) H = hh[1].point.clone(); }
+      if (!H) { if (essais++ < 30) return false; fil = false; var hr = tir(new V3(K.X, K.Y_BOUCLE + 0.15, K.Z), new V3(0, 0, 1), roc, 0.6); H = hr ? hr.point.clone() : new V3(K.X, K.Y_BOUCLE + 0.15, K.Z + 0.2); }
+      H.y += 0.002; K.bilan.crochet = { pos: H.toArray().map(function (v) { return +v.toFixed(3); }), surFil: fil };
+      var acier = new THREE.MeshStandardMaterial({ name: "chaine_galvanisee", color: K.COULEUR, metalness: 0.35, roughness: 0.5 });
+      // crochet en S (fil de 6,4 mm) dans le plan y-z : arc du haut par-dessus le fil, arc du bas qui tient le dernier maillon
+      var a = 0.011, u = -1, pts = [], i;   // u : du fil vers la galerie (-z)
+      for (i = 0; i <= 12; i++) { pts.push(new V3(H.x, H.y + a * Math.sin(Math.PI * i / 12), H.z - u * a * Math.cos(Math.PI * i / 12))); }
+      pts.reverse(); pts.unshift(new V3(H.x, H.y - 0.006, H.z - u * a));   // pointe derriere le fil
+      var bas = H.y - 0.035; pts.push(new V3(H.x, bas, H.z + u * a));
+      var cb = new V3(H.x, bas, H.z + u * 2 * a);
+      for (i = 1; i <= 12; i++) pts.push(new V3(H.x, bas - a * Math.sin(Math.PI * i / 12), cb.z - u * a * Math.cos(Math.PI * i / 12)));
+      pts.push(new V3(H.x, bas + 0.008, cb.z + u * a));
+      var crochet = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 64, 0.0032, 8, false), acier); crochet.name = "Crochet_S_v195"; g.add(crochet);
+      var A = new V3(H.x, bas - a - 0.004, cb.z);   // le maillon du bout pend au fond de l'arc du bas
+      // tour du boulon : maillons sur un cercle (nombre entier de pas), puis brin vers le crochet avec un peu de flache
+      var P = K.M.INT, nT = Math.max(8, Math.round(2 * Math.PI * (rb + 0.012) / P)), Rl = nT * P / (2 * Math.PI), C = new V3(K.X, K.Y_BOUCLE, K.Z), liste = [];
+      var a0 = Math.atan2(A.z - C.z, A.x - C.x);
+      for (i = 0; i < nT; i++) { var ang = a0 + 2 * Math.PI * i / nT; liste.push([new V3(C.x + Rl * Math.cos(ang), C.y, C.z + Rl * Math.sin(ang)), new V3(-Math.sin(ang), 0, Math.cos(ang)), new V3(0, 1, 0)]); }
+      var D = new V3(C.x + Rl * Math.cos(a0), C.y, C.z + Rl * Math.sin(a0)), dist = D.distanceTo(A), nB = Math.max(1, Math.round(dist / P) + 1), flache = 0.04 * dist;
+      var courbe = new THREE.QuadraticBezierCurve3(D, new V3((D.x + A.x) / 2, Math.min(D.y, A.y) - flache, (D.z + A.z) / 2), A), lng = courbe.getLength(), nb = Math.max(1, Math.round(lng / P));
+      for (i = 1; i <= nb; i++) { var s = Math.min(1, (i - 0.5) / nb), q = courbe.getPointAt(s), tg = courbe.getTangentAt(s); liste.push([q, tg, new V3(0, 0, 1)]); }
+      var geo = geoMaillon(), chaine = new THREE.InstancedMesh(geo, acier, liste.length); chaine.name = "Chaine_boulon_v195";
+      liste.forEach(function (l, k) { chaine.setMatrixAt(k, matrice(l[0], l[1], k, l[2])); }); chaine.instanceMatrix.needsUpdate = true; g.add(chaine);
+      [crochet, chaine].forEach(function (o) { o.castShadow = true; o.receiveShadow = true; });
+      K.bilan.maillons = { tour: nT, brin: nb, rayon: +Rl.toFixed(4) };
+      g.visible = etape >= ETAPE_EQ; scene.add(g); g.updateMatrixWorld(true); chantier.push(g); boites.push({ o: g, b: new THREE.Box3().setFromObject(r) });
+      K.groupe = g; K.etat = "pret"; return true; }
+    function essaie() { if (fait) return; if (!mailles(/^Galerie_Sol$/).length) { setTimeout(essaie, 1000); return; } fait = true; K.etat = "charge";
+      telecharge(K.f, K.n, function () {}).then(function (gltf) { (function pose() { try { if (!construit(gltf)) setTimeout(pose, 1000); } catch (e) { K.etat = "erreur"; K.erreurs.push(String(e && e.message || e)); if (window.console) console.warn("v195", e); } })(); })
+        .catch(function (e) { K.etat = "erreur"; K.erreurs.push(String(e && e.message || e)); if (window.console) console.warn("v195", e); }); }
+    setTimeout(essaie, 2000);
   })();
   // ---- inter_graissage_v189.js (version 189, 2026-11-26) : utilisateur : « lorsqu'on prend le graisse gun les points de graissage apparaissent et
   // trouve info nombre de coups a donner et le risque associe si pas respecte ». Le pistolet a graisse Lincoln 1142 (v185, sur le dessus du coffre) se
@@ -20499,7 +20741,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "192-2a1f1588", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "196-e002d3fb", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
