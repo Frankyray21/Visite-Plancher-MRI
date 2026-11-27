@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 189</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 190</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 189</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 190</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 189</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 190</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -16674,11 +16674,19 @@
     var K = { ACTIF: true, ETAPE: 18, enMain: false, prises: 0, etat: "attente", erreurs: [], bilan: {},
       MAIN: [0.22, -0.27, -0.50], MAIN_DEBOUT: 0.08, BOITE: 0.045,   // ecran debout (telephone) : le pistolet plus au centre, sinon hors champ
       // v189b (utilisateur : « pas cadenassage, lorsqu'on ouvre la porte il n'a pas de fonction hydraulique ») : la porte de la cage coupe les fonctions hydrauliques
-      MSG: "Pistolet à graisse en main : les graisseurs de la foreuse sont marqués. Ouvre la porte de la cage avant de graisser : porte ouverte, plus aucune fonction hydraulique. Essuie le graisseur, garde les doigts loin du coupleur : une injection de graisse sous la peau est une urgence médicale.",
+      MSG: "Pistolet en main : les graisseurs sont marqués en bleu. Ouvre la porte de la cage avant de graisser (plus d'hydraulique). Doigts loin du coupleur : une injection de graisse sous la peau est une urgence.",
       // [id, nom court, os, [positions dans le repere de la foreuse P010], consigne (coups, trop peu, trop), source]
       // consigne commune (guides de graissage d'equipement lourd : Vermeer, Conequip, AMSOIL, FieldFix, IsoHiTech ; aucun chiffre propre a la STM)
       G: "Pompe lentement jusqu'à voir la graisse propre sortir (1 à 5 coups selon les guides) ; arrête si ça résiste.",
       R: "Trop peu : métal sur métal, usure, grippage. Trop : joint crevé, la saleté entre et la graisse retient la poussière.",
+      // v190 (« pas trop longue phrase, soit concis », « rendre plus facile a consulter sans surcharger ») : facon jeu, deux niveaux.
+      // Au regard : l'essentiel en deux pastilles (coups, arret). Un clic (ou une touche au doigt) deplie le detail : avant, trop peu, trop, source.
+      DETAIL: false,
+      COURT: '<div class="fl-puces"><span class="pu">1 à 5 coups</span><span class="pu">Arrête si ça résiste</span></div>',
+      LONG: '<div class="fl"><i>Avant</i>Porte de cage ouverte : plus d\'hydraulique.</div>' +
+        '<div class="fl"><i>Pompe</i>Lentement, jusqu\'à la graisse propre.</div>' +
+        '<div class="fl"><i>Trop peu</i>Usure, grippage.</div>' +
+        '<div class="fl"><i>Trop</i>Joint crevé, la saleté entre.</div>',
       // [id, nom court, os, [positions dans le repere de la foreuse P010], ajout propre au point, source de l'emplacement]
       POINTS: [
         ["A", "Graisseur A · œil de tige du vérin de bascule", "Support", [[0.812, 0.575, -0.455], [0.812, 0.575, 0.455]], "Un de chaque côté.", "Manuel p. 1.04, détail A"],
@@ -16704,11 +16712,16 @@
     // un repere par graisseur : petit objet vide rattache au corps (os) qui le porte ; une zone par graisseur, une marque par point (un seul repere)
     function pose(parent, M, d, groupe) { d[3].forEach(function (p, i) { var o = new THREE.Object3D(); o.name = "Graisseur_" + d[0] + "_" + i + "_" + groupe;
         new V3().fromArray(p).applyMatrix4(M).toArray().forEach(function (v, k) { o.position.setComponent(k, v); }); parent.add(o); o.updateMatrixWorld(true);
-        var I = window.__inter71, b = K.BOITE, t = d[1] + " : " + (d[4] ? d[4] + " " : "") + K.G + " " + K.R + " (Emplacement : " + d[5].charAt(0).toLowerCase() + d[5].slice(1) + ". Coups et risques : guides de graissage, le manuel n'en donne pas.)", TX = [t, t];
+        var I = window.__inter71, b = K.BOITE, t = d[1] + " : " + (d[4] ? d[4] + " " : "") + K.G + " " + K.R + " (Emplacement : " + d[5].charAt(0).toLowerCase() + d[5].slice(1) + ". Coups et risques : guides de graissage, le manuel n'en donne pas.)", TX = [t, t], TXD = [t + " ", t + " "];   // TXD : meme texte, change pour que le HUD redessine l'etiquette depliee
         if (groupe === "fixe") caches.push(o);
-        zones.push(I.zone({ o: o, prio: 2, niveau: "obligation", icone: ICONE, marque: "graissage " + d[0] + " " + groupe, b: new THREE.Box3(new V3(-b, -b, -b), new V3(b, b, b)),
+        // v190 : etiquette en deux niveaux (K.COURT au regard, K.LONG apres un clic) ; meme contenu que TX, en plus court
+        var SRC = d[5].replace("Manuel", "manuel").replace(", détail ", " ") + " · coups et risques : guides de graissage";
+        function FI() { var doigt = window.matchMedia && matchMedia("(pointer: coarse)").matches;
+          return (d[4] ? '<div class="fl-tete">' + d[4] + '</div>' : "") + K.COURT + (K.DETAIL ? K.LONG + '<div class="fl-src">Source : ' + SRC + '</div>'
+            : '<div class="fl-plus">' + (doigt ? "Touche" : "Clique") + ' : détails</div>'); }
+        zones.push(I.zone({ o: o, prio: 2, niveau: "obligation", icone: ICONE, fiche: FI, marque: "graissage " + d[0] + " " + groupe, b: new THREE.Box3(new V3(-b, -b, -b), new V3(b, b, b)),
           actif: function () { if (!enMainPermis() || o.userData.cache || !chaineVue(o)) return false; var s = o.getWorldScale(vS); return s.x > 0.5; },
-          texte: function () { return TX; }, agit: function () {} })); }); }
+          texte: function () { return K.DETAIL ? TXD : TX; }, agit: function () { K.DETAIL = !K.DETAIL; } })); }); }
     var vS = new V3();
     // graisseur cache par la foreuse fixe (de l'autre cote du mat, sous le traineau) : pas de repere ; un graisseur verifie toutes les 6 images (environ 9 ms par rayon sous SwiftShader), pistolet en main
     // seulement (rayon de l'oeil au graisseur contre les mailles de la foreuse). La STM articulee n'est pas testee (rayons sur la pose de repos des os).
@@ -16733,7 +16746,7 @@
     var pist = null, tenu = null, vP = new V3(), qP = new THREE.Quaternion(), qR = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.12, Math.PI / 2 + 0.18, 0.08, "YXZ"));
     var PREND = ["Clique pour prendre le pistolet à graisse", "Touche pour prendre le pistolet à graisse"], REPOSE = ["Clique pour reposer le pistolet à graisse sur le coffre", "Touche pour reposer le pistolet à graisse sur le coffre"];
     K.prend = function () { if (K.enMain || !pist) return false; K.enMain = true; K.prises++; pist.visible = false; window.__inter71.message(K.MSG, 6500); return true; };
-    K.repose = function () { if (!K.enMain) return false; K.enMain = false; if (pist) pist.visible = true; if (tenu) tenu.visible = false; return true; };
+    K.repose = function () { if (!K.enMain) return false; K.enMain = false; K.DETAIL = false; if (pist) pist.visible = true; if (tenu) tenu.visible = false; return true; };
     function essaiePistolet() { var I = window.__inter71; pist = scene.getObjectByName("Piece185_pistolet_graisse"); if (!pist || !I || !I.zone) { setTimeout(essaiePistolet, 1000); return; }
       try { pist.updateMatrixWorld(true); var inv = new M4().copy(pist.matrixWorld).invert(), bb = new THREE.Box3(), t = new M4();
         pist.traverse(function (o) { if (!o.isMesh) return; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); bb.union(o.geometry.boundingBox.clone().applyMatrix4(t.multiplyMatrices(inv, o.matrixWorld))); });
@@ -19747,6 +19760,18 @@
       // (version 189) utilisateur : « cree icone specifique point graissage » : zone.icone (SVG) remplace le point central du repere et le « i » de l'etiquette (graisseurs : un graisseur a bille dessine)
       "#hud88.s-marqueur .rep.ico,#hud88.s-marqueur .rep.ico.pres{width:24px;height:30px;margin:-24px 0 0 -12px;border:0;border-radius:0;background:none;box-shadow:none;filter:drop-shadow(0 0 1px rgba(0,0,0,.8))}#hud88.s-marqueur .rep.ico.pres{margin:-30px 0 0 -12px;filter:drop-shadow(0 0 4px var(--hud))}#hud88.s-marqueur .rep.ico::after{display:none}#hud88.s-marqueur .rep.ico svg{position:absolute;inset:0;width:24px;height:30px}",
       "#hud88 .rep.ico .ig-pres,#hud88 .rep.ico.pres .ig-loin,#hud88 .invite kbd.ico .ig-loin{display:none}#hud88 .rep.ico.pres .ig-pres{display:inline}",
+      // v190 (« ameliore la mise en page ») : fiche en lignes, fond plus sombre pour rester lisible sur la machine, largeur bornee
+      "#hud88.s-marqueur .invite.fiche span{max-width:min(300px,72vw);padding:6px 12px 7px 11px;background:linear-gradient(90deg,rgba(8,10,12,.84),rgba(8,10,12,.74) 75%,rgba(8,10,12,.5));text-shadow:0 1px 2px #000}",
+      "#hud88.s-marqueur .invite.fiche small{display:block;font-size:11px;line-height:1.25;letter-spacing:.1em;margin-bottom:5px;white-space:normal}",
+      "#hud88.s-marqueur .invite.fiche b{display:block;font-size:14px;font-weight:400;line-height:1.3}",
+      "#hud88.s-marqueur .invite.fiche b .fl-tete{font-weight:600;margin-bottom:5px}",
+      "#hud88.s-marqueur .invite.fiche b .fl-puces{display:flex;flex-wrap:wrap;gap:5px}",
+      "#hud88.s-marqueur .invite.fiche b .pu{display:inline-block;max-width:none;padding:2px 8px;border:1px solid var(--hud);border-radius:3px;background:color-mix(in srgb,var(--hud) 22%,transparent);font-size:13px;font-weight:600;opacity:1;visibility:visible;translate:none;text-shadow:none}",
+      "#hud88.s-marqueur .invite.fiche b .fl-plus{margin-top:6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6)}#hud88.s-marqueur .invite.fiche b .fl-plus::before{content:'▸ ';color:var(--hud)}",
+      "#hud88.s-marqueur .invite.fiche b .fl{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:3px 0;border-top:1px solid rgba(255,255,255,.12)}#hud88.s-marqueur .invite.fiche b .fl-puces+.fl{margin-top:6px}",
+      "#hud88.s-marqueur .invite.fiche b .fl i{font-style:normal;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--hud);padding-top:2px;white-space:nowrap}",
+      "#hud88.s-marqueur .invite.fiche b .fl-src{margin-top:3px;padding-top:4px;border-top:1px solid rgba(255,255,255,.12);font-size:11px;line-height:1.3;color:rgba(255,255,255,.6)}",
+      "@media (max-width:699px){#hud88.s-marqueur .invite.fiche b{font-size:13px}#hud88.s-marqueur .invite.fiche b .fl{grid-template-columns:62px 1fr;gap:6px}#hud88.s-marqueur .invite.fiche b .fl i{font-size:10px;letter-spacing:.05em}}",
       "#hud88.s-marqueur .invite.info kbd.ico{border:0;background:none;box-shadow:none;filter:drop-shadow(0 0 4px rgba(0,0,0,.7))}#hud88.s-marqueur .invite.info kbd.ico svg{width:30px;height:38px}",
       // F bandeau : grande invite claire, toujours au meme endroit en bas de l'ecran
       "#hud88.s-bandeau .invite{background:rgba(244,246,247,.96);color:#14171a;border:0;clip-path:none;border-radius:999px;padding:8px 24px 8px 8px;gap:12px;box-shadow:0 6px 24px rgba(0,0,0,.55)}",
@@ -19896,7 +19921,8 @@
         var ki = p.info && H.s.pos === "marque" ? p.action.indexOf(" : ") : -1; if (ki > 0) { p.nom = p.action.slice(0, ki); p.action = maj(p.action.slice(ki + 3)); }   // (version 178) info « Nom : consigne » : le nom en petit au-dessus de la consigne
         var nv = H.niveau(z, t), NV = H.NIVEAUX[nv], nom0 = sc ? p.objet : p.nom; H.zCol = NV ? NV.col : null; if (NV) invite.style.setProperty("--hud", hexCss(NV.col)); else invite.style.removeProperty("--hud");
         if (NV && NV.mot && H.s.pos === "marque") nom0 = NV.mot + (nom0 ? " · " + nom0 : ""); invite.setAttribute("data-niveau", nv);
-        nomEl.textContent = nom0; actEl.textContent = sc ? p.verbe : p.action; invite.classList.toggle("info", p.info); if (p.info) { if (z.icone) touche.innerHTML = z.icone; else touche.textContent = nv === "danger" ? "!" : "i"; } else touche.innerHTML = picto(p.action); touche.classList.toggle("ico", !!(p.info && z.icone)); }
+        nomEl.textContent = nom0; actEl.textContent = sc ? p.verbe : p.action; invite.classList.toggle("info", p.info); if (p.info) { if (z.icone) touche.innerHTML = z.icone; else touche.textContent = nv === "danger" ? "!" : "i"; } else touche.innerHTML = picto(p.action); touche.classList.toggle("ico", !!(p.info && z.icone));
+        invite.classList.toggle("fiche", !!z.fiche); if (z.fiche) actEl.innerHTML = typeof z.fiche === "function" ? z.fiche() : z.fiche; }   // v190 : consigne en lignes (zone.fiche)
       invite.classList.toggle("tact", !invite.classList.contains("info")); cadre.classList.add("vu"); invite.classList.add("vu"); };
 
     // ---- reperes des pieces interactives proches (liste refaite toutes les 10 images, position a chaque image)
@@ -20442,7 +20468,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "189-2a1f1588", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "190-2a1f1588", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
