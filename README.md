@@ -20,6 +20,7 @@ node fabrique_pwa.js <dossier de la page construite> <ce dossier>
 | `manifest.webmanifest`, `icones/` | Ce qu'il faut pour installer l'application |
 | `*.txt` | Modèles 3D et textures (GLB et JPEG en base 64) |
 | `voix/` | Voix de la visite narrée : un fichier `bloc_<id>.mp3` par bloc du script de narration (55 blocs, version 25) |
+| `video/` | Vidéo de la procédure (`procedure_plancher.mp4`, H.264, 57 Mo, 9 min 54) et sa vignette ; lue en continu, hors du cache hors ligne |
 | `version.json` | Version du site (numéro de la page et empreinte du contenu) |
 | `.gitattributes` | Interdit à git de convertir les fins de ligne : les empreintes en dépendent |
 
@@ -31,7 +32,14 @@ s'installe en arrière-plan ; l'application propose alors « Nouvelle version : 
 
 three.js vient de jsDelivr et les polices de Google Fonts ; les deux sont aussi mis en cache.
 
-## Visite narrée
+## Vidéo de l'accueil
+
+Depuis la version 206, l'accueil montre « Vidéo de la procédure » à la place du bouton « Visite narrée » (décision du 25 novembre : la vidéo remplace la visite narrée).
+Un clic ouvre un lecteur plein écran (✕ ou Échap pour fermer). La vidéo n'est pas dans `LISTE` de `sw.js` : l'installation hors ligne garde la même taille,
+et `sw.js` laisse passer `video/` au réseau. Sans réseau, le lecteur dit que la vidéo se regarde en ligne seulement. Module `inter_video_v206.js` dans `index.html`,
+ajouté hors de la chaîne de construction, comme les modules précédents : à reporter dans la source avant la prochaine fabrication.
+
+## Visite narrée (remplacée par la vidéo)
 
 Sur l'accueil, le bouton « Visite narrée » construit le plancher puis enchaîne les 55 blocs du script : la caméra suit les plans de chaque
 étape et les voix jouent (formateur et apprenti, environ 9 minutes). À la place des sous-titres, un fil en haut situe la partie en cours
