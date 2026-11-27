@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 201</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 201</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 200</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 201</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -2863,7 +2863,7 @@
     if (COLLISIONS) { try { COLLISIONS.image(dt); } catch (e) { if (!COLLISIONS.erreurs++) console.warn("collisions :", e); } }
     if (++compte % 10 === 0) { affX.textContent = fmt(etat.x); affZ.textContent = fmt(Math.abs(etat.z)); }
     var d = dehorsK(); if (d !== dehors) { dehors = d; grilles.forEach(function (g) { g.visible = !d; }); }
-    renderer.render(scene, cam); requestAnimationFrame(boucle);
+    if (!(window.__vol201 && window.__vol201.actif && window.__vol201.rend(dt))) renderer.render(scene, cam); requestAnimationFrame(boucle);   // v201 : vue a vol d'oiseau (inter_vol_oiseau.js)
   }
   // ---------------------------------------------------------------- Scene : roche fine, poussiere, son, cles du garde-corps (patch_scene.js)
   // Tout est fabrique dans la page (aucune texture ni aucun son telecharge) et tout se coupe si l'appareil ne suit pas.
@@ -20229,12 +20229,13 @@
       angle: '<path d="M4 19.5h16M4 19.5L17 7M11.5 19.5a7.5 7.5 0 0 0-2.2-5.3"/>',   // v149 : angle de forage (place de travail prete)
       quitter: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',   // v123 : retour a la premiere page (deux choix)
       installer: '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/>',
+      oiseau: '<path d="M3.5 8.5c2.6-2.2 5.4-1.8 8.5 1 3.1-2.8 5.9-3.2 8.5-1M4.5 14h15v6.5h-15z"/>',   // v201 : vue a vol d'oiseau (goeland au-dessus du plan)
       point: '<path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>' };
     // mot court sous la pastille, d'apres le texte complet du bouton (les autres codes continuent d'ecrire ce texte)
     var MOTS = [[/^Installer$/i, "Installer", "installer"], [/^Déplacer$/i, "Déplacer", "deplacer"], [/^Terminer$/i, "Terminer", "termine"], [/^Levage et transport$/i, "Levage", "joue"],
       [/^Travailleurs : ([0-9]+ %)$/i, "$1", "equipe"], [/^Travailleurs : en attente$/i, "Travailleurs", "equipe"], [/^Travailleurs : réessayer$/i, "Réessayer", "equipe"],
       [/^Voir la foreuse.*$/i, "Foreuse", "foreuse"], [/^Foreuse : ([0-9]+ %)$/i, "$1", "foreuse"], [/^Foreuse : réessayer$/i, "Réessayer", "foreuse"], [/^Foreuse en place$/i, "Foreuse ✓", "foreuse"],
-      [/^S'accroupir$/i, "S'accroupir", "accroupir"], [/^Se relever$/i, "Se relever", "relever"], [/^Plus bas$/i, "Plus bas", "plusbas"], [/^Se pencher$/i, "Se pencher", "pencher"], [/^Se redresser$/i, "Se redresser", "relever"], [/^Vue avatar$/i, "Vue avatar", "avatar"], [/^Vue 1re personne$/i, "1re personne", "oeil"], [/^Retour au départ$/i, "Départ", "depart"], [/^Menu$/i, "Menu", "menu"], [/^Angle de forage$/i, "Angle", "angle"], [/^Quitter l'angle$/i, "Quitter", "quitter"], [/^Ranger les pièces \(([0-9]+)\)$/i, "Ranger ($1)", "ranger"]];
+      [/^S'accroupir$/i, "S'accroupir", "accroupir"], [/^Se relever$/i, "Se relever", "relever"], [/^Plus bas$/i, "Plus bas", "plusbas"], [/^Se pencher$/i, "Se pencher", "pencher"], [/^Se redresser$/i, "Se redresser", "relever"], [/^Vue avatar$/i, "Vue avatar", "avatar"], [/^Vue 1re personne$/i, "1re personne", "oeil"], [/^Retour au départ$/i, "Départ", "depart"], [/^Menu$/i, "Menu", "menu"], [/^Vue à vol d'oiseau$/i, "Vol d'oiseau", "oiseau"], [/^Quitter la vue d'oiseau$/i, "Revenir", "quitter"], [/^Angle de forage$/i, "Angle", "angle"], [/^Quitter l'angle$/i, "Quitter", "quitter"], [/^Ranger les pièces \(([0-9]+)\)$/i, "Ranger ($1)", "ranger"]];
     function maj(b) { var t = (b.textContent || "").trim(), mot = t, ico = "point";
       for (var i = 0; i < MOTS.length; i++) if (MOTS[i][0].test(t)) { mot = t.replace(MOTS[i][0], MOTS[i][1]); ico = MOTS[i][2]; break; }
       if (b.getAttribute("data-jeu") !== mot) b.setAttribute("data-jeu", mot); if (t && b.getAttribute("title") !== t) b.setAttribute("title", t);
@@ -20247,6 +20248,87 @@
     if (window.MutationObserver) { new MutationObserver(tous).observe(hd, { childList: true, characterData: true, subtree: true }); new MutationObserver(tous).observe(hd, { attributes: true, subtree: true, attributeFilter: ["hidden"] }); }
     // la page et le module du telephone rangent leurs plaques d'apres la taille de ce coin : on leur fait refaire le calcul
     try { window.dispatchEvent(new Event("resize")); setTimeout(function () { window.dispatchEvent(new Event("resize")); }, 600); } catch (e) {}
+  })();
+  // ---- inter_vol_oiseau.js (version 201). Utilisateur : « ajouter une vue a vol doiseau ». Bouton « Vol d'oiseau » dans le coin haut droit : la camera
+  // monte au-dessus de toute la place de travail (galerie, plancher, foreuse, power pack, rack, entree), regard vers le bas, et y reste jusqu'au retour.
+  // Rien n'est change a la scene : seule l'image est faite autrement. A chaque image, la page calcule sa camera comme d'habitude (le jeu continue :
+  // le visiteur peut marcher au clavier, son repere jaune bouge) ; juste avant le rendu, la camera est posee au-dessus, le toit de la galerie (roc du toit,
+  // grillage et soutenement du toit, luminaires : toute maille dont le bas est a plus de VOL.TOIT m) et le grillage du mur cote camera sont caches,
+  // le brouillard est repousse ; apres le rendu tout est remis comme avant (camera du jeu, mailles, brouillard), donc les autres codes ne voient rien.
+  // Commandes : glisser = tourner autour et incliner ; molette ou pincer = zoom ; clic droit ou deux doigts = deplacer ; double clic ou double toucher =
+  // recadrer ; Echap ou le bouton = revenir a la vue du jeu (la camera redescend en douceur). VOL.ACTIF = false : pas de bouton.
+  (function () { var VOL = { ACTIF: true, actif: false, k: 0, sens: 0, T: 0.9, TOIT: 2.75, FOV: 50, C: [9.1, 0.25, 0], DEMI: [9.3, 2.7], az: 0, el: 1.25, zoom: 1, pan: new THREE.Vector3(), rendus: 0 };
+    try { window.__vol201 = VOL; } catch (e) {}
+    if (!VOL.ACTIF) return; var hd = document.getElementById("haut-droit"); if (!hd) return;
+    var st = document.createElement("style"); st.textContent = [
+      "body.vol201 #hud88,body.vol201 #bas,body.vol201 #angles,body.vol201 #guide,body.vol201 #manche,body.vol201 [data-etiq-obstacle],body.vol201 [data-obstacle-ecran],body.vol201 #credits-mouvement{visibility:hidden!important}",
+      "#vol201-aide{position:fixed;left:50%;bottom:calc(40px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:6;max-width:calc(100vw - 32px);box-sizing:border-box;margin:0;padding:8px 14px;border-left:3px solid var(--signal);background:rgba(10,14,16,.86);color:var(--texte);font:600 13px/1.35 var(--f-titre);text-align:center;pointer-events:none}",
+      "#vol201-aide b{color:var(--signal);font-weight:700}#vol201-aide[hidden]{display:none}"].join("\n");
+    document.head.appendChild(st);
+    var tactile = !(window.matchMedia && window.matchMedia("(pointer: fine)").matches);
+    var aide = document.createElement("p"); aide.id = "vol201-aide"; aide.hidden = true;
+    aide.innerHTML = "<b>Vue à vol d'oiseau</b> · " + (tactile ? "glisse pour tourner, pince pour zoomer, deux doigts pour déplacer, touche deux fois pour recadrer" : "glisse pour tourner, molette pour zoomer, clic droit pour déplacer, double clic pour recadrer, Échap pour revenir");
+    document.body.appendChild(aide);
+    var b = document.createElement("button"); b.id = "btn-vol"; b.type = "button"; b.setAttribute("aria-pressed", "false"); b.textContent = "Vue à vol d'oiseau";
+    var bMenu = document.getElementById("btn-accueil"); hd.insertBefore(b, bMenu && bMenu.parentNode === hd ? bMenu : null);
+    // repere du visiteur (« tu es ici ») : disque et fleche jaunes, toujours visibles, seulement dans cette vue
+    var JAUNE = 0xf2b705, rep = new THREE.Group(), mRep = new THREE.MeshBasicMaterial({ color: JAUNE, fog: false, depthTest: false, transparent: true, opacity: 0.95 }), mFond = new THREE.MeshBasicMaterial({ color: 0x0b0d0f, fog: false, depthTest: false, transparent: true, opacity: 0.55 });
+    var anneau = new THREE.Mesh(new THREE.RingGeometry(0.2, 0.27, 40), mRep), fond = new THREE.Mesh(new THREE.CircleGeometry(0.2, 40), mFond), forme = new THREE.Shape();
+    forme.moveTo(0, 0.5); forme.lineTo(0.2, 0.12); forme.lineTo(0.07, 0.15); forme.lineTo(0.07, -0.1); forme.lineTo(-0.07, -0.1); forme.lineTo(-0.07, 0.15); forme.lineTo(-0.2, 0.12); forme.closePath();
+    var fleche = new THREE.Mesh(new THREE.ShapeGeometry(forme), mRep); [fond, anneau, fleche].forEach(function (m, i) { m.rotation.x = -Math.PI / 2; m.renderOrder = 990 + i; m.frustumCulled = false; rep.add(m); });
+    rep.visible = false; rep.name = "Repere_Vol_Oiseau"; scene.add(rep);
+    var caches = [], murs = [], bb = new THREE.Box3(), cv = new THREE.Vector3(), vCible = new THREE.Vector3(), vPos = new THREE.Vector3(), qVol = new THREE.Quaternion(), mVol = new THREE.Matrix4(), HAUT = new THREE.Vector3(0, 1, 0);
+    var sauve = { p: new THREE.Vector3(), q: new THREE.Quaternion(), fov: 68, near: 0.08, far: 60, fn: 10, ff: 28 }, montre = [];
+    function inventaire() { caches = []; murs = []; scene.updateMatrixWorld(true);
+      scene.traverse(function (o) { if (!(o.isMesh || o.isLine || o.isPoints) || !o.geometry || o === rep || o.parent === rep) return; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); if (!o.geometry.boundingBox) return;
+        bb.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); var nm = (o.name || "") + " " + (o.parent ? o.parent.name || "" : "");
+        if (bb.min.y > VOL.TOIT || /Roc_3|Toit/.test(nm)) caches.push(o);
+        else if (/Grillage|Soutenement/.test(nm) && bb.max.y > 2) { bb.getCenter(cv); murs.push({ o: o, z: cv.z }); } }); VOL.caches = caches.length; VOL.murs = murs.length; }
+    function adoucit(u) { return u * u * (3 - 2 * u); }
+    function cadrage() { var tv = Math.tan(VOL.FOV * Math.PI / 360), A = Math.max(0.3, cam.aspect), ca = Math.abs(Math.cos(VOL.az)), sa = Math.abs(Math.sin(VOL.az)), W = VOL.DEMI[0] * ca + VOL.DEMI[1] * sa, D = VOL.DEMI[0] * sa + VOL.DEMI[1] * ca;
+      return 1.08 * Math.max(W / (tv * A), (D * Math.sin(VOL.el) + 1.2 * Math.cos(VOL.el)) / tv); }
+    function recadre() { VOL.az = cam.aspect >= 1 ? 0 : Math.PI / 2; VOL.el = 1.25; VOL.zoom = 1; VOL.pan.set(0, 0, 0); }
+    function pose() { var d = cadrage() * VOL.zoom, ce = Math.cos(VOL.el); vCible.set(VOL.C[0] + VOL.pan.x, VOL.C[1], VOL.C[2] + VOL.pan.z);
+      vPos.set(vCible.x + Math.sin(VOL.az) * ce * d, vCible.y + Math.sin(VOL.el) * d, vCible.z + Math.cos(VOL.az) * ce * d); mVol.lookAt(vPos, vCible, HAUT); qVol.setFromRotationMatrix(mVol); return d; }
+    // appele par la boucle a la place de renderer.render(scene, cam) quand la vue est ouverte (ou en train de s'ouvrir / se fermer)
+    VOL.rend = function (dt) { if (!VOL.actif) return false; VOL.k = Math.max(0, Math.min(1, VOL.k + VOL.sens * dt / VOL.T)); if (VOL.k <= 0 && VOL.sens < 0) { ferme(true); return false; }
+      var a = adoucit(VOL.k), d = pose(); sauve.p.copy(cam.position); sauve.q.copy(cam.quaternion); sauve.fov = cam.fov; sauve.near = cam.near; sauve.far = cam.far;
+      cam.position.lerp(vPos, a); cam.quaternion.slerp(qVol, a); cam.fov = sauve.fov + (VOL.FOV - sauve.fov) * a; cam.near = a > 0.5 ? 0.25 : sauve.near; cam.far = Math.max(sauve.far, d + 30); cam.updateProjectionMatrix(); cam.updateMatrixWorld(true);
+      montre.length = 0; var cz = cam.position.z, mur = VOL.el < 1.45;
+      if (a > 0.02) { caches.forEach(function (o) { if (o.visible) { o.visible = false; montre.push(o); } }); if (mur) murs.forEach(function (m) { if (m.o.visible && Math.abs(m.z) > 1.2 && m.z * cz > 0 && Math.abs(cz) > 2.6) { m.o.visible = false; montre.push(m.o); } }); }
+      var f = scene.fog; if (f) { sauve.fn = f.near; sauve.ff = f.far; f.near = f.near + (200 - f.near) * a; f.far = f.far + (300 - f.far) * a; }
+      rep.visible = a > 0.3; if (rep.visible) { var s = Math.max(0.8, d / 14); rep.scale.set(s, s, s); rep.position.set(etat.x, (typeof pieds === "number" ? pieds : 0) + 0.04, etat.z); rep.rotation.y = etat.lacet; mRep.opacity = 0.95 * Math.min(1, (a - 0.3) / 0.4); mFond.opacity = 0.55 * Math.min(1, (a - 0.3) / 0.4); }
+      try { renderer.render(scene, cam); VOL.rendus++; } finally {
+        montre.forEach(function (o) { o.visible = true; }); montre.length = 0; rep.visible = false; if (f) { f.near = sauve.fn; f.far = sauve.ff; }
+        cam.position.copy(sauve.p); cam.quaternion.copy(sauve.q); cam.fov = sauve.fov; cam.near = sauve.near; cam.far = sauve.far; cam.updateProjectionMatrix(); cam.updateMatrixWorld(true); }
+      return true; };
+    function ouvre() { if (VOL.actif && VOL.sens > 0) return; if (!VOL.actif) { inventaire(); recadre(); VOL.k = 0; } VOL.actif = true; VOL.sens = 1; document.body.classList.add("vol201"); aide.hidden = false; b.setAttribute("aria-pressed", "true"); }
+    function ferme(net) { if (!VOL.actif) return; if (!net) { VOL.sens = -1; aide.hidden = true; b.setAttribute("aria-pressed", "false"); return; }
+      VOL.actif = false; VOL.sens = 0; VOL.k = 0; ptrs = {}; document.body.classList.remove("vol201"); aide.hidden = true; b.setAttribute("aria-pressed", "false"); }
+    VOL.ouvre = ouvre; VOL.ferme = ferme;
+    b.addEventListener("click", function () { if (VOL.actif && VOL.sens > 0) ferme(false); else ouvre(); });
+    // les autres boutons du coin (Menu, Depart, Avatar, Deplacer...) ramenent d'abord a la vue du jeu
+    hd.addEventListener("click", function (e) { var t = e.target && e.target.closest ? e.target.closest("button") : null; if (t && t !== b && VOL.actif) ferme(true); }, true);
+    window.addEventListener("keydown", function (e) { if (VOL.actif && VOL.sens > 0 && (e.key === "Escape" || e.key === "Esc")) { e.preventDefault(); e.stopPropagation(); ferme(false); } }, true);
+    // gestes sur la scene : interceptes avant les autres codes (ils ne doivent ni tourner le regard du visiteur ni viser une piece)
+    var ptrs = {}, dernierTap = 0, pince = null;
+    function bornes() { var L = VOL.DEMI[0] + 1, l = VOL.DEMI[1] + 1; VOL.pan.x = Math.max(-L, Math.min(L, VOL.pan.x)); VOL.pan.z = Math.max(-l, Math.min(l, VOL.pan.z)); VOL.zoom = Math.max(0.2, Math.min(1.7, VOL.zoom)); }
+    function deplace(dx, dy) { var d = cadrage() * VOL.zoom, m = d * 2 * Math.tan(VOL.FOV * Math.PI / 360) / Math.max(1, window.innerHeight), c = Math.cos(VOL.az), s = Math.sin(VOL.az);
+      VOL.pan.x += (-dx * c - dy * s / Math.max(0.35, Math.sin(VOL.el))) * m; VOL.pan.z += (dx * s - dy * c / Math.max(0.35, Math.sin(VOL.el))) * m; bornes(); }
+    function surScene(e) { return VOL.actif && VOL.sens > 0 && e.target === canvas; }
+    function bloque(e) { e.stopPropagation(); if (e.stopImmediatePropagation) e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); }
+    window.addEventListener("pointerdown", function (e) { if (!surScene(e)) return; bloque(e); try { canvas.setPointerCapture(e.pointerId); } catch (x) {}
+      ptrs[e.pointerId] = { x: e.clientX, y: e.clientY, bouton: e.button, maj: e.shiftKey }; var ids = Object.keys(ptrs);
+      if (ids.length === 2) { var p = ptrs[ids[0]], q = ptrs[ids[1]]; pince = { d: Math.hypot(p.x - q.x, p.y - q.y), z: VOL.zoom, mx: (p.x + q.x) / 2, my: (p.y + q.y) / 2 }; }
+      if (ids.length === 1) { var t = performance.now(); if (t - dernierTap < 320) { recadre(); dernierTap = 0; } else dernierTap = t; } }, true);
+    window.addEventListener("pointermove", function (e) { if (!VOL.actif || !ptrs[e.pointerId]) return; bloque(e); var p = ptrs[e.pointerId], dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY; var ids = Object.keys(ptrs);
+      if (ids.length >= 2 && pince) { var a = ptrs[ids[0]], c = ptrs[ids[1]], dd = Math.hypot(a.x - c.x, a.y - c.y), mx = (a.x + c.x) / 2, my = (a.y + c.y) / 2; if (dd > 10) VOL.zoom = pince.z * pince.d / dd; deplace(mx - pince.mx, my - pince.my); pince.mx = mx; pince.my = my; bornes(); return; }
+      if (p.bouton === 2 || p.maj) { deplace(dx, dy); return; }
+      VOL.az -= dx * 0.006; VOL.el = Math.max(0.45, Math.min(1.53, VOL.el + dy * 0.004)); }, true);
+    function finPtr(e) { if (!ptrs[e.pointerId]) return; bloque(e); delete ptrs[e.pointerId]; if (Object.keys(ptrs).length < 2) pince = null; }
+    window.addEventListener("pointerup", finPtr, true); window.addEventListener("pointercancel", finPtr, true);
+    ["mousedown", "mouseup", "click", "dblclick", "contextmenu", "touchstart", "touchmove", "touchend"].forEach(function (ty) { window.addEventListener(ty, function (e) { if (surScene(e)) bloque(e); }, { capture: true, passive: false }); });
+    window.addEventListener("wheel", function (e) { if (!surScene(e)) return; bloque(e); VOL.zoom *= Math.exp((e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY) * 0.0012); bornes(); }, { capture: true, passive: false });
   })();
   // ---- inter_zz_hud.js (versions 88 a 90, session principale). Utilisateur : « Doit ressembler a un vrai jeux video surtout pour les pieces interactive
   // du jeux ameliore comment presenter », « Rend encore plus comme un jeux video », « Dit pas e ouvrir... sera sur cell ou ordi avec sorie ou tablette »,
@@ -21047,7 +21129,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "200-82da0d12", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "201-82da0d12", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
