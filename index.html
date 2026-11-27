@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 195</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 196</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 195</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 196</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 195</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 196</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -16792,7 +16792,12 @@
     // v186 (utilisateur : « installe nouveau crochet qui est un clou », puis « c'est la cle a tube avec carbide qui est sur le clou de la table a core ») :
     // un clou plante dans la tole de face de la table a carottes (cote allee), sous le plateau, au bout cote galerie (le panneau du fond, au-dessus de la
     // boite, est trop bas pour ses 63 cm) ; la cle a tube au carbure y pend par le bout de son manche, la tete en bas, a plat contre la tole.
-    K.CLOU = { f: "cle_a_tube.txt", n: 490912, X: 9.28, Y: 1.0, Z0: 1.3, LONG: 0.06, R: 0.0022, TETE: 0.0045 };
+    // v196 (utilisateur : « la cle a tube est accrochee sur le dossier de la table a core soit pres des cles ») : le clou passe sur le dossier (panneau
+    // arriere vertical, tole rouge de x 7,84 a 9,37 et de y 1,12 a 1,68), a cote de la trousse de cles mixtes (x 8,17 a 8,80), cote galerie : de l'autre
+    // cote des cles, le core knocker couche au pied du dossier (x 8,89 a 9,34, haut a y 1,27) gene la tete de la cle ; il est plante dans la
+    // bande galvanisee du haut du dossier (y 1,70), car la cle (63 cm) est plus haute que la tole rouge (56 cm) : elle pend devant la tole, la tete en bas,
+    // juste au-dessus des boites a carottes du plateau (dessus a y 1,06-1,11). Meme pose qu'en v186 (vue par la tranche, comme sur la photo du client).
+    K.CLOU = { f: "cle_a_tube.txt", n: 490912, X: 8.00, Y: 1.70, Z0: 1.5, LONG: 0.06, R: 0.0022, TETE: 0.0045 };
     var clouFait = false;
     function essaieClou() { if (clouFait) return; var T = mobiles.table; if (!T) { setTimeout(essaieClou, 800); return; } clouFait = true; var C = K.CLOU;
       T.o.updateMatrixWorld(true); rc.set(new V3(C.X, C.Y, C.Z0), new V3(0, 0, 1)); rc.far = 1.5; var h = rc.intersectObject(T.o, true).filter(function (h) { return h.object.visible; })[0];
@@ -20714,7 +20719,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "195-e002d3fb", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "196-e002d3fb", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
