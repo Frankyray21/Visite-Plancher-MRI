@@ -281,7 +281,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 208</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 209</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -326,7 +326,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 208</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 209</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -347,7 +347,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 208</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 209</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -20276,23 +20276,30 @@
   // les lecteurs d'ecran et les autres codes, qui continuent de l'ecrire) ; il est masque a l'ecran (taille 0) et remplace par un mot court
   // (attribut data-jeu). Le pictogramme est un dessin SVG place dans le bouton, remis en place chaque fois qu'un code reecrit le texte du bouton.
   // Aucune image, aucun fichier. COIN.ACTIF = false : boutons d'avant.
+  // v209 (utilisateur, sur des maquettes : « retire levage du projet je veux le style translucide ») : pastille sombre translucide, pictogramme blanc,
+  // jaune quand le bouton est enfonce ; plus de mot sous la pastille : le nom s'affiche dans une bulle au survol de la souris ou a l'appui long du doigt.
+  // Le bouton « Levage et transport » est retire du coin (cache pour de bon : la demonstration du levage n'est plus proposee).
   (function () { var COIN = { ACTIF: true, majs: 0 }; try { window.__coin93 = COIN; } catch (e) {}
     if (!COIN.ACTIF) return; var hd = document.getElementById("haut-droit"); if (!hd) return;
     var st = document.createElement("style"); st.textContent = [
       "#haut-droit.jeu{flex-direction:row;flex-wrap:wrap;justify-content:flex-end;align-items:flex-start;gap:8px 2px}",
-      "@media (min-width:641px){#haut-droit.jeu{max-width:calc(100vw - min(72vw,340px) - 56px)}}",
+      "@media (min-width:641px){#haut-droit.jeu{max-width:calc(100vw - min(72vw,340px) - 56px);gap:8px 10px}}",
       "#haut-droit.jeu button{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;width:74px;min-width:0;min-height:0;padding:0;margin:0;background:none;border:0;border-radius:12px;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;color:#fff;font-size:0!important;letter-spacing:0;line-height:0;white-space:normal}",
-      "#haut-droit.jeu button[hidden]{display:none!important}",
-      "#haut-droit.jeu button svg.jeu-ico{flex:none;width:52px;height:52px;padding:14px;box-sizing:border-box;border-radius:50%;background:rgba(244,246,247,.96);fill:none;stroke:#14171a;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;box-shadow:0 4px 14px rgba(0,0,0,.55);pointer-events:none;transition:transform .08s,background .12s}",
+      "#haut-droit.jeu button[hidden],#haut-droit.jeu #btn-levage{display:none!important}",
+      "#haut-droit.jeu button{position:relative;width:52px}",
+      "html body #haut-droit.jeu button[data-jeu]::after{display:none!important;position:absolute;top:calc(100% + 6px);right:0;z-index:3;width:max-content;max-width:60vw!important;padding:5px 9px;border-left:3px solid var(--signal);background:rgba(14,16,20,.82);text-shadow:none!important;pointer-events:none}",
+      "@media (hover:hover) and (pointer:fine){html body #haut-droit.jeu button[data-jeu]:hover::after{display:block!important}}",
+      "html body #haut-droit.jeu button[data-jeu].bulle209::after{display:block!important}",
+      "#haut-droit.jeu button svg.jeu-ico{flex:none;width:52px;height:52px;padding:14px;box-sizing:border-box;border-radius:50%;background:rgba(14,16,20,.62);border:1.5px solid rgba(255,255,255,.28);fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;box-shadow:0 4px 14px rgba(0,0,0,.55);pointer-events:none;transition:transform .08s,background .12s}",
       "html body #haut-droit.jeu button[data-jeu]::after{content:attr(data-jeu)!important;display:block;max-width:100%;font:700 12px/1.1 var(--f-titre)!important;letter-spacing:.05em!important;text-transform:uppercase;text-align:center;color:#fff;text-shadow:0 1px 2px #000,0 0 6px #000,0 0 10px rgba(0,0,0,.8)}",
-      "#haut-droit.jeu button:hover svg.jeu-ico{background:#fff}#haut-droit.jeu button:active svg.jeu-ico{transform:scale(.9)}",
-      "#haut-droit.jeu button[aria-pressed=\"true\"]{background:none}#haut-droit.jeu button[aria-pressed=\"true\"] svg.jeu-ico{background:var(--signal);stroke:var(--signal-encre)}",
+      "#haut-droit.jeu button:hover svg.jeu-ico{background:rgba(14,16,20,.82);border-color:rgba(255,255,255,.55)}#haut-droit.jeu button:active svg.jeu-ico{transform:scale(.9)}",
+      "#haut-droit.jeu button[aria-pressed=\"true\"]{background:none}#haut-droit.jeu button[aria-pressed=\"true\"] svg.jeu-ico{background:var(--signal);border-color:var(--signal);stroke:var(--signal-encre)}",
       "html body #haut-droit.jeu button[aria-pressed=\"true\"][data-jeu]::after{color:var(--signal)}",
-      "#haut-droit.jeu button:disabled{opacity:.5}#haut-droit.jeu button:disabled svg.jeu-ico{background:rgba(244,246,247,.75)}",
+      "#haut-droit.jeu button:disabled{opacity:.5}#haut-droit.jeu button:disabled svg.jeu-ico{background:rgba(14,16,20,.45)}",
       "#haut-droit.jeu button:focus-visible{outline:2px solid var(--signal);outline-offset:3px}",
-      "@media (max-width:640px){#haut-droit.jeu.serre{flex-wrap:wrap!important;justify-content:center;gap:6px 10px;box-sizing:border-box;max-width:calc(100vw - 24px)}#haut-droit.jeu.serre button{min-width:max-content}}",
-      "@media (max-width:640px){#haut-droit.jeu{gap:6px 2px}#haut-droit.jeu button{width:auto}#haut-droit.jeu button svg.jeu-ico{width:46px;height:46px;padding:12px}html body #haut-droit.jeu button[data-jeu]::after{font-size:11px!important}}",
-      "@media (max-height:500px) and (min-width:641px) and (pointer:coarse){#haut-droit.jeu button{width:62px}#haut-droit.jeu button svg.jeu-ico{width:44px;height:44px;padding:11px}html body #haut-droit.jeu button[data-jeu]::after{font-size:11px!important}}",
+      "@media (max-width:640px){#haut-droit.jeu.serre{flex-wrap:wrap!important;justify-content:center;gap:6px 10px;box-sizing:border-box;max-width:calc(100vw - 24px)}#haut-droit.jeu.serre button{min-width:0}}",
+      "@media (max-width:640px){#haut-droit.jeu{gap:6px 8px}#haut-droit.jeu button{width:46px}#haut-droit.jeu button svg.jeu-ico{width:46px;height:46px;padding:12px}html body #haut-droit.jeu button[data-jeu]::after{font-size:11px!important}}",
+      "@media (max-height:500px) and (min-width:641px) and (pointer:coarse){#haut-droit.jeu button{width:44px}#haut-droit.jeu button svg.jeu-ico{width:44px;height:44px;padding:11px}html body #haut-droit.jeu button[data-jeu]::after{font-size:11px!important}}",
       "@media (prefers-reduced-motion:reduce){#haut-droit.jeu button svg.jeu-ico{transition:none}}"].join("\n");
     document.head.appendChild(st);
     // pictogrammes (traits, grille de 24)
@@ -20329,6 +20336,13 @@
     // v149 : 8 boutons ou plus (bouton Angle de la place prete + S'accroupir + Se pencher) : sur telephone les mots se touchaient ; classe « serre » :
     // chaque bouton prend la largeur de son mot et la rangee passe sur deux lignes
     function tous() { COIN.majs++; var n = 0; Array.prototype.forEach.call(hd.querySelectorAll("button"), function (b) { maj(b); if (!b.hidden) n++; }); var sr = n >= 8; if (hd.classList.contains("serre") !== sr) hd.classList.toggle("serre", sr); }
+    // v209 : appui long (0,45 s) sur une pastille = son nom dans une bulle, sans actionner le bouton
+    (function () { var t = null, long = false, b0 = null;
+      hd.addEventListener("touchstart", function (e) { var b = e.target.closest && e.target.closest("button"); if (!b) return; long = false; b0 = b; clearTimeout(t);
+        t = setTimeout(function () { long = true; Array.prototype.forEach.call(hd.querySelectorAll(".bulle209"), function (x) { x.classList.remove("bulle209"); }); b.classList.add("bulle209"); setTimeout(function () { b.classList.remove("bulle209"); }, 1500); }, 450); }, { passive: true });
+      hd.addEventListener("touchmove", function () { clearTimeout(t); }, { passive: true });
+      hd.addEventListener("touchend", function (e) { clearTimeout(t); if (long && e.cancelable) e.preventDefault(); long = false; });
+      hd.addEventListener("contextmenu", function (e) { if (b0 && e.target.closest && e.target.closest("button")) e.preventDefault(); }); })();
     hd.classList.add("jeu"); tous();
     if (window.MutationObserver) { new MutationObserver(tous).observe(hd, { childList: true, characterData: true, subtree: true }); new MutationObserver(tous).observe(hd, { attributes: true, subtree: true, attributeFilter: ["hidden"] }); }
     // la page et le module du telephone rangent leurs plaques d'apres la taille de ce coin : on leur fait refaire le calcul
@@ -21237,7 +21251,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "208-eef12a19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "209-eef12a19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
