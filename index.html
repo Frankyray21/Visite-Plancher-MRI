@@ -285,7 +285,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 212</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 213</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -330,7 +330,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 212</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 213</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -351,7 +351,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 212</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 213</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -19331,7 +19331,10 @@
           "Lieux inspectés par le superviseur avant d'amener l'équipement : sol plat, sans débris.",
           "Fonds de trous trouvés et marqués au front.",
           "À l'entrée : barricade avec ruban jaune. Premiers soins (2 lave-yeux) et extincteur : sur place, au poste de secours.",
-          "Grosses pièces de bois : toujours à deux."] },
+          "Grosses pièces de bois : toujours à deux.",
+          // v213 (revue securite, 2026-11-27) : deux consignes du reglement des mines, lues sur LegisQuebec (RSSM, S-2.1, r. 14, a jour au 1er juillet 2026)
+          "Toit, parois et front : sondés et purgés, sans roche branlante (RSSM, art. 28 et 35).",
+          "Sous terre : casque, lunettes, chaussures à protecteur métatarsien, vêtement à bandes réfléchissantes, harnais ou ceinture (RSSM, art. 3.1 et 9 à 11.2)."] },
         // correction : plus de ligne detail « 16 × 32 pi, 500 m et plus » a la fiche 0 (meme phrase que le carton du chantier « ouverture », elle aurait paru deux fois)
       // b : « puces » remplace seulement la puce de ce rang (les autres restent celles de la page)
       1: { puces: { 3: "Dimensions : 16 × 32 pi, construction droite sur toute la longueur." } },
@@ -21323,7 +21326,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "212-eef12a19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "213-eef12a19", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
