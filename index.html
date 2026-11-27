@@ -285,7 +285,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 215</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 216</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -330,7 +330,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 215</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 216</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -351,7 +351,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 215</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 216</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -10598,7 +10598,7 @@
           avert.style.cssText = "position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:7;max-width:min(560px,calc(100vw - 32px));box-sizing:border-box;padding:14px 18px;border-radius:14px;font:700 17px/1.35 var(--f-texte,system-ui),sans-serif;color:#fff;text-align:center;pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.6);transition:opacity .2s"; document.body.appendChild(avert); }
         avert.style.background = rouge ? "#a3161a" : "#7a5200"; avert.style.border = "2px solid " + (rouge ? "#ff6b5f" : "#f4c01e"); avert.innerHTML = "<div style=\"font-size:13px;letter-spacing:.08em;margin-bottom:4px\">" + (rouge ? "⚠ INTERDIT" : "⚠ ATTENTION") + "</div>" + txt;
         avert.style.opacity = "1"; avert.hidden = false; if (tAvert) clearTimeout(tAvert); tAvert = setTimeout(function () { avert.style.opacity = "0"; setTimeout(function () { avert.hidden = true; }, 220); }, rouge ? 6000 : 4500); P.avertissements = (P.avertissements || 0) + 1; P.dernierAvert = rouge ? "refus" : "rappel"; }
-      function basculePorte() { if (P.veut) { var qui = quelquUnDedans(); if (qui.length) { avertit("La porte de la cage ne se ferme jamais quand un travailleur est dans l'enceinte de la foreuse." + (qui[0] === "toi" ? " Sors d'abord de l'enceinte." : ""), true); P.refus = (P.refus || 0) + 1; return; }
+      function basculePorte() { if (P.veut) { var qui = quelquUnDedans(); if (qui.length) { avertit("La porte de la cage ne se ferme jamais quand un travailleur est dans l'enceinte de la foreuse." + (qui[0] === "toi" ? " Sors d'abord de l'enceinte." : ""), true); P.refus = (P.refus || 0) + 1; try { if (I71.pointage) I71.pointage.note("enceinte"); } catch (e2) {} return; }
           P.veut = false; avertit("Porte fermée : personne ne doit être dans l'enceinte de la foreuse. Ouvre-la avant d'y entrer.", false); return; } P.veut = true; }
       var vr = bt.getObjectByName("SM_Porte_Verrou"), ancreCage = vr ? { o: vr, p: centreLocal(vr) } : { o: bt, p: new THREE.Vector3(-0.9, 1.1, 0) };   // (version 91) l'invite se pose sur le verrou
       zones.push({ o: bt, b: new THREE.Box3(new THREE.Vector3(-0.972, 0, -0.15), new THREE.Vector3(0.01, 2.28, 0.15)), actif: visCage, texte: txtCage, agit: agitCage, ancre: ancreCage, sansContour: true /* (version 113) utilisateur, sur une capture de la porte toute blanche sous l'invite « Ouvrir » : « ne pas mettre porte en blanc, on sait deja que cest interactif ne modifie rien dautre » */ });
@@ -15116,7 +15116,7 @@
       function zone(n, on, txt) { var z = I.zone({ o: mE, prio: 1, b: new THREE.Box3(new THREE.Vector3(K.X - 0.035, y[n] - 0.048, K.Z0), new THREE.Vector3(K.X + 0.035, y[n] + 0.048, K.Z1)),
         actif: function () { return I.vu(R.racine) && I.partage.groupeMarche !== on; },
         texte: function () { var r = on && raison(); return r ? [REFUS[r][0], REFUS[r][0]] : txt; },
-        agit: function () { var r = on && raison(); if (r) { K.bilan.refus = (K.bilan.refus || 0) + 1; I.message(REFUS[r][1], 6000); return; } regle(on);
+        agit: function () { var r = on && raison(); if (r) { K.bilan.refus = (K.bilan.refus || 0) + 1; try { if (I.pointage) I.pointage.note("refus-" + r); } catch (e2) {} I.message(REFUS[r][1], 6000); return; } regle(on);   /* v216 : pointage securite */
           var F = I.ficheInspection; if (on && F && F.ACTIF && !F.signee) I.message("Groupe démarré : fais maintenant les vérifications après démarrage de la fiche d'inspection.", 5000); } });
         if (on) Object.defineProperty(z, "niveau", { get: function () { var r = raison(); return r === "rouge" ? "danger" : r ? "avertissement" : ""; } }); }   // v193 : orange tant que la carte n'est pas signee ; v199 : rouge si arret des travaux
       zone("vert", true, ["Clique sur le bouton vert pour démarrer le groupe", "Touche le bouton vert pour démarrer le groupe"]);
@@ -21338,7 +21338,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "215-24524549", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "216-24524549", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
@@ -22219,6 +22219,136 @@
     if (el.style.top !== t) el.style.top = t;
     if (vu !== el.hidden) { vu = el.hidden; var T = window.__texte96; if (T && T.place) setTimeout(T.place, 0); } }
   (function boucle() { maj(); cale(); setTimeout(boucle, 200); })();
+})();
+</script>
+<script>
+// ---- inter_pointage_v216.js (version 216, 2026-11-27) : demande de François (par le fil du projet) : un pointage securite affiche a la fin
+// d'une partie, qui compte les erreurs. Rien de nouveau n'est enseigne ici : chaque erreur vient d'une regle deja dans le jeu, avec sa source :
+//  - groupe hydraulique : demarrage tente sans carte de travail signee (carte MA4657078, question 16), avant les verifications avant demarrage
+//    ou avec un item rouge non conforme (fiche d'inspection MA4657056 : « arret des travaux et appel au superviseur ») — inter_groupe.js ;
+//  - porte de la cage : fermeture tentee avec quelqu'un dans l'enceinte (regle du plancher, v152) ;
+//  - graissage : pistolet branche porte de la cage fermee (regle de François : porte ouverte = plus d'hydraulique), trop peu ou trop de graisse
+//    (guides de graissage Vermeer, FieldFix, IsoHiTech : pomper jusqu'a la graisse propre) — inter_graissage_v189.js ;
+//  - a la fin : groupe demarre sans avoir termine et signe la fiche d'inspection (verifications apres demarrage).
+// Points : 100 au depart, -20 par erreur de niveau danger (rouge), -10 par avertissement (orange). Ce bareme est une regle du jeu, pas une norme.
+// Fin de partie : « Terminer la partie » dans le menu ☰ du jeu, ou bouton « Terminer la partie · bilan sécurité » sur la premiere page, une fois entre dans la visite.
+// « Continuer la partie » ferme le bilan et revient au jeu ; « Nouvelle partie » recharge la page (tout repart a zero).
+// window.__inter71.pointage = K : note(type, detail), liste, bilan(), ouvre(), ferme(). K.ACTIF = false : version 215.
+(function () { "use strict";
+  var K = { ACTIF: true, DANGER: 20, AVERT: 10, liste: [], graisse: {}, demarre: false, ouvert: false, erreur: null };
+  var T = {
+    "refus-carte": { niv: "av", titre: "Démarrage du groupe tenté sans carte de travail signée", src: "Carte de travail MA4657078, question 16" },
+    "refus-avant": { niv: "av", titre: "Démarrage du groupe tenté avant les vérifications avant démarrage", src: "Fiche d'inspection MA4657056" },
+    "refus-rouge": { niv: "dg", titre: "Démarrage du groupe tenté avec un item rouge non conforme", src: "Fiche MA4657056 : arrêt des travaux et appel au superviseur" },
+    "enceinte": { niv: "dg", titre: "Fermeture de la porte de la cage tentée avec quelqu'un dans l'enceinte", src: "Règle du plancher : jamais fermée avec un travailleur dedans" },
+    "porte": { niv: "av", titre: "Graissage commencé porte de la cage fermée", src: "Règle du plancher : porte ouverte, plus d'hydraulique" },
+    "peu": { niv: "av", titre: "Trop peu de graisse", src: "Guides de graissage : pomper jusqu'à la graisse propre" },
+    "trop": { niv: "av", titre: "Trop de graisse (joint à surveiller)", src: "Guides de graissage : arrêter à la graisse propre" },
+    "fiche-fin": { niv: "av", titre: "Groupe démarré sans finir ni signer la fiche d'inspection", src: "Fiche MA4657056 : vérifications après démarrage, signature" } };
+  K.TYPES = T;
+  function I() { return window.__inter71 || null; }
+  function hhmm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  K.note = function (type, detail) { if (!K.ACTIF || !T[type]) return; K.liste.push({ type: type, detail: detail || "", h: hhmm() }); };
+  (function branche() { var i = I(); if (i) i.pointage = K; else setTimeout(branche, 300); })();
+  try { window.__pointage = K; } catch (e) {}
+  if (!K.ACTIF) return;
+
+  // graissage : on enveloppe brancher / debrancher du module v189 (les zones les appellent par K.brancher, a chaque clic)
+  (function graissage() { var G = window.__graissage; if (!G || !G.ACTIF) { if (!G || G.ACTIF === undefined) setTimeout(graissage, 500); return; }
+    if (!G.brancher || !G.debrancher) { setTimeout(graissage, 500); return; } if (G.__p214) return; G.__p214 = true;
+    var noms = {}; (G.POINTS || []).forEach(function (p) { noms[p[0]] = String(p[1]).split(" · ")[1] || p[1]; });
+    var br = G.brancher, de = G.debrancher, porteFermee = false;   // porte notee seulement si on a vraiment pompe
+    G.brancher = function (o, d) { var r = br.apply(this, arguments); try { var i = I(); if (r !== false) porteFermee = !!(i && i.cage && i.cage.veut === false); } catch (e) { K.erreur = String(e); } return r; };
+    G.debrancher = function () { var B = G.branche, r = de.apply(this, arguments);
+      try { var D = G.dernier; if (r !== false && B && D) { var f = D.resultat; if (porteFermee && D.coups > 0) K.note("porte", noms[D.id]); porteFermee = false; if (f === "peu") K.note("peu", noms[D.id]); else if (f === "trop") K.note("trop", noms[D.id]); if (f) K.graisse[B.o.uuid] = f; } } catch (e) { K.erreur = String(e); }
+      return r; }; })();
+
+  // groupe : un demarrage reel (arret -> marche) pendant la partie
+  (function groupe() { var i = I(); if (!i || !i.anime || !i.partage) { setTimeout(groupe, 500); return; } var avant = null;
+    i.anime(function () { var m = !!i.partage.groupeMarche; if (avant === false && m) K.demarre = true; avant = m; }); })();
+
+  // ---- bilan
+  K.bilan = function () { var i = I() || {}, C = i.carteRemplir, F = i.ficheInspection, L = K.liste.slice();
+    if (K.demarre && F && F.ACTIF && !F.signee) L.push({ type: "fiche-fin", detail: "", h: hhmm() });
+    var g = {}, ordre = [], pts = 100, nD = 0;
+    L.forEach(function (e) { var t = T[e.type], k = e.type; if (!g[k]) { g[k] = { type: k, niv: t.niv, titre: t.titre, src: t.src, n: 0, details: [], h: [] }; ordre.push(k); }
+      g[k].n++; if (e.detail && g[k].details.indexOf(e.detail) < 0) g[k].details.push(e.detail); g[k].h.push(e.h); pts -= t.niv === "dg" ? K.DANGER : K.AVERT; if (t.niv === "dg") nD++; });
+    ordre.sort(function (a, b) { return (g[a].niv === "dg" ? 0 : 1) - (g[b].niv === "dg" ? 0 : 1); });
+    var bien = [], ok = 0, k; for (k in K.graisse) if (K.graisse[k] === "ok") ok++;
+    if (C && C.remplie) bien.push("Carte de travail signée" + (C.heure ? " à " + C.heure : ""));
+    if (F && F.signee) bien.push("Fiche d'inspection signée" + (F.heure ? " à " + F.heure : ""));
+    if (K.demarre) bien.push("Groupe démarré");
+    if (ok) bien.push(ok + (ok > 1 ? " graisseurs graissés" : " graisseur graissé") + " juste à la graisse propre");
+    return { points: Math.max(0, pts), erreurs: L.length, dangers: nD, groupes: ordre.map(function (k) { return g[k]; }), bien: bien, vide: !L.length && !bien.length }; };
+
+  // ---- fenetre de fin de partie
+  var st = document.createElement("style");
+  st.textContent = "#bilan214{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;background:rgba(8,10,12,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}" +
+    "#bilan214[hidden]{display:none}" +
+    "#bilan214 .bl-boite{width:min(480px,100%);max-height:100%;overflow-y:auto;box-sizing:border-box;border-radius:14px;background:rgba(20,23,27,.94);border:1px solid rgba(255,255,255,.14);box-shadow:0 12px 40px rgba(0,0,0,.6);color:var(--texte,#e9edf0);font:500 15px/1.35 var(--f-texte,system-ui),sans-serif}" +
+    "#bilan214 .bl-tete{padding:18px 20px 12px;border-bottom:1px solid rgba(255,255,255,.09);display:flex;align-items:center;gap:16px}" +
+    "#bilan214 .bl-kick{font:700 12px/1 var(--f-titre,sans-serif);letter-spacing:.14em;color:var(--signal,#f2b705);text-transform:uppercase}" +
+    "#bilan214 h2{margin:4px 0 0;font:700 26px/1 var(--f-titre,sans-serif);text-transform:uppercase;letter-spacing:.02em}" +
+    "#bilan214 .bl-sous{margin-top:6px;color:var(--texte-doux,#9aa5ae);font-size:14px}" +
+    "#bilan214 .bl-score{flex:none;width:92px;height:92px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:5px solid #3aa15a;box-sizing:border-box}" +
+    "#bilan214 .bl-score b{font:700 36px/1 var(--f-titre,sans-serif)}#bilan214 .bl-score small{font-size:12px;color:var(--texte-doux,#9aa5ae)}" +
+    "#bilan214 .bl-score.moyen{border-color:#e09a2e}#bilan214 .bl-score.bas{border-color:#d8342b}#bilan214 .bl-score.vide{border-color:rgba(255,255,255,.2)}" +
+    "#bilan214 .bl-corps{padding:6px 20px 4px}#bilan214 h3{margin:14px 0 6px;font:700 13px/1 var(--f-titre,sans-serif);letter-spacing:.12em;text-transform:uppercase;color:var(--texte-doux,#9aa5ae)}" +
+    "#bilan214 .bl-l{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(255,255,255,.06)}#bilan214 h3+.bl-l{border-top:0}" +
+    "#bilan214 .bl-ic{flex:none;width:24px;height:24px;margin-top:1px;display:flex;align-items:center;justify-content:center}#bilan214 .bl-ic svg{width:24px;height:24px}" +
+    "#bilan214 .bl-tx{flex:1;min-width:0}#bilan214 .bl-tx b{font-weight:600}#bilan214 .bl-tx small{display:block;color:var(--texte-doux,#9aa5ae);font-size:12.5px;margin-top:2px}" +
+    "#bilan214 .bl-n{color:var(--texte-doux,#9aa5ae);font-weight:600;margin-left:4px}" +
+    "#bilan214 .bl-pts{flex:none;font:700 15px/24px var(--f-titre,sans-serif);color:#ff8a7a}#bilan214 .bl-l.av .bl-pts{color:#f0b35a}" +
+    "#bilan214 .bl-rien{color:var(--texte-doux,#9aa5ae);padding:6px 0}" +
+    "#bilan214 .bl-bar{font-size:12px;color:var(--texte-doux,#9aa5ae);padding:12px 20px 0}" +
+    "#bilan214 .bl-bt{display:flex;gap:10px;padding:14px 20px 18px;flex-wrap:wrap}#bilan214 .bl-bt button{flex:1 1 150px;min-height:44px;border-radius:999px;font:700 15px/1 var(--f-texte,sans-serif);cursor:pointer;padding:10px 16px}" +
+    "#bilan214 .bl-cont{background:var(--signal,#f2b705);color:var(--signal-encre,#1a1500);border:0}#bilan214 .bl-neuf{background:none;color:var(--texte,#e9edf0);border:1px solid rgba(255,255,255,.25)}" +
+    "#accueil .acc-fin214{flex:none;display:flex;justify-content:center;padding:14px 20px 0}#accueil .acc-fin214[hidden],#accueil #acc-choix-depart[hidden]~.acc-fin214{display:none}" +
+    "#acc-fin214{min-height:44px;margin:0;padding:10px 20px;border-radius:999px;background:rgba(242,183,5,.12);border:1px solid var(--signal,#f2b705);color:var(--texte,#e9edf0);font:600 15px/1.2 var(--f-texte,sans-serif);cursor:pointer;display:inline-flex;align-items:center;gap:8px}" +
+    "#acc-fin214:hover,#acc-fin214:focus-visible{background:rgba(242,183,5,.22)}#acc-fin214 svg{width:18px;height:18px;flex:none}" +
+    "@media (max-width:560px){#bilan214{padding:10px}#bilan214 .bl-tete{padding:14px 14px 10px;gap:12px}#bilan214 .bl-score{width:76px;height:76px;border-width:4px}#bilan214 .bl-score b{font-size:30px}#bilan214 h2{font-size:22px}#bilan214 .bl-corps{padding:4px 14px}#bilan214 .bl-bar{padding:10px 14px 0}#bilan214 .bl-bt{padding:12px 14px 14px}}";
+  document.head.appendChild(st);
+  var IC = { dg: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#d8342b"/><path d="M12 6.5v7M12 16.6v.9" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>',
+    av: '<svg viewBox="0 0 24 24"><path d="M12 2.5L23 21.5H1z" fill="#e09a2e" stroke-linejoin="round"/><path d="M12 9v6M12 17.8v.6" stroke="#111" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    ok: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#2f8f4e"/><path d="M7 12.5l3.3 3.3L17 9" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' };
+  var el = document.createElement("div"); el.id = "bilan214"; el.hidden = true; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "bl-h214");
+  document.body.appendChild(el);
+  ["pointerdown", "pointerup", "click", "touchstart", "wheel"].forEach(function (t) { el.addEventListener(t, function (e) { e.stopPropagation(); }, { passive: t === "touchstart" || t === "wheel" }); });
+  el.addEventListener("keydown", function (e) { e.stopPropagation(); if (e.key === "Escape") K.ferme(); });
+  function dessine() { var b = K.bilan(), h = "", cls = b.vide ? "vide" : b.points >= 80 ? "" : b.points >= 50 ? "moyen" : "bas";
+    var sous = b.vide ? "Aucune tâche évaluée" : !b.erreurs ? "Partie sans erreur" : b.erreurs + (b.erreurs > 1 ? " erreurs" : " erreur") + (b.dangers ? " · " + b.dangers + " danger" + (b.dangers > 1 ? "s" : "") : "");
+    h += '<div class="bl-boite"><div class="bl-tete"><div class="bl-score ' + cls + '"><b>' + (b.vide ? "—" : b.points) + '</b><small>/ 100</small></div>' +
+      '<div><div class="bl-kick">Fin de partie</div><h2 id="bl-h214">Bilan sécurité</h2><div class="bl-sous">' + sous + '</div></div></div><div class="bl-corps">';
+    if (b.vide) h += '<div class="bl-rien">Remplis la carte de travail, fais l\'inspection de la foreuse, démarre le groupe ou graisse la foreuse : chaque geste compte au bilan.</div>';
+    else {
+      h += '<h3>À corriger</h3>';
+      if (!b.groupes.length) h += '<div class="bl-rien">Aucune erreur. Beau travail sécuritaire.</div>';
+      b.groupes.forEach(function (g) { var p = (g.niv === "dg" ? K.DANGER : K.AVERT) * g.n;
+        h += '<div class="bl-l ' + g.niv + '"><i class="bl-ic">' + IC[g.niv] + '</i><div class="bl-tx"><b>' + esc(g.titre) + '</b>' + (g.n > 1 ? '<span class="bl-n">× ' + g.n + '</span>' : "") +
+          (g.details.length ? '<small>' + esc(g.details.join(", ")) + '</small>' : "") + '<small>' + esc(g.src) + '</small></div><span class="bl-pts">−' + p + '</span></div>'; });
+      if (b.bien.length) { h += '<h3>Bien fait</h3>'; b.bien.forEach(function (t) { h += '<div class="bl-l ok"><i class="bl-ic">' + IC.ok + '</i><div class="bl-tx">' + esc(t) + '</div></div>'; }); } }
+    h += '</div><div class="bl-bar">Danger (rouge) : −' + K.DANGER + ' points. Avertissement (orange) : −' + K.AVERT + ' points.</div>' +
+      '<div class="bl-bt"><button type="button" class="bl-cont">Continuer la partie</button><button type="button" class="bl-neuf">Nouvelle partie</button></div></div>';
+    el.innerHTML = h;
+    el.querySelector(".bl-cont").addEventListener("click", function () { K.ferme(true); });
+    el.querySelector(".bl-neuf").addEventListener("click", function () { K.nouvelle(); });
+    K.dernier = b; return b; }
+  K.ouvre = function () { var b = dessine(); el.hidden = false; K.ouvert = true; try { el.querySelector(".bl-cont").focus({ preventScroll: true }); el.querySelector(".bl-boite").scrollTop = 0; } catch (e) {} return b; };
+  K.ferme = function (auJeu) { el.hidden = true; K.ouvert = false; if (auJeu) { var A = window.__accueil; try { if (A && A.ouvert && A.entrees > 0) { if (A.annule) A.annule(); if (A.ferme) A.ferme(); } } catch (e) {} } };
+  K.nouvelle = function () { try { location.reload(); } catch (e) {} };
+
+  // bouton de fin de partie sur la premiere page (Menu), une fois entre dans la visite
+  (function bouton() { var A0 = document.getElementById("accueil"), pied = A0 && A0.querySelector(".acc-pied"); if (!A0 || !pied) { setTimeout(bouton, 500); return; }
+    var rang = document.createElement("div"); rang.className = "acc-fin214"; rang.hidden = true;
+    rang.innerHTML = '<button type="button" id="acc-fin214"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 3.5 2 3.5H5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Terminer la partie · bilan sécurité</button>';
+    var choix = document.getElementById("acc-choix-depart"); A0.insertBefore(rang, choix && choix.nextSibling ? choix.nextSibling : pied);
+    rang.firstChild.addEventListener("click", function () { K.ouvre(); });
+    setInterval(function () { var A = window.__accueil, v = !!(A && A.entrees > 0 && A.ouvert); if (rang.hidden === v) rang.hidden = !v; }, 300); })();
+  // et dans le menu ☰ du jeu (v212) : « Terminer la partie », avant « Première page » (le menu clique le bouton du meme nom de la premiere page)
+  (function menu() { var bx = document.querySelector("#menu212 .boite"), pg = bx && bx.querySelector('[data-cible="btn-accueil"]'); if (!bx || !document.getElementById("acc-fin214")) { if (!K.essaisMenu || K.essaisMenu < 60) { K.essaisMenu = (K.essaisMenu || 0) + 1; setTimeout(menu, 500); } return; }
+    if (bx.querySelector('[data-cible="acc-fin214"]')) return; var b = document.createElement("button"); b.type = "button"; b.setAttribute("data-cible", "acc-fin214");
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 3.5 2 3.5H5"/></svg>Terminer la partie'; bx.insertBefore(b, pg || null); })();
 })();
 </script>
 </body>
