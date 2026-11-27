@@ -376,7 +376,7 @@
       <span class="acc-txt"><span class="acc-sur">Foreuse</span><span class="acc-titre">DR1500-U</span><span class="acc-desc">Plancher secondaire de 18 po en deux étages, groupe hydraulique et console en place.</span><span class="acc-btn" data-libelle="Entrer">Entrer</span></span>
     </button>
   </div>
-  <div class="acc-pied"><div class="acc-barre"><i id="acc-bar"></i></div><p id="acc-etat" role="status">Chargement : 0 %</p></div>
+  <div class="acc-pied"><div class="acc-barre"><i id="acc-bar"></i></div><p id="acc-etat" role="status">Chargement : 0 %</p><button type="button" id="acc-credits" aria-haspopup="dialog" aria-controls="credits-panneau">Crédits</button></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -21091,6 +21091,10 @@
     background: rgba(12, 15, 18, 0.74); border-radius: 3px; color: #e4e9ed; font: 500 12px/1.4 var(--f-texte); text-align: right;
     pointer-events: none; -webkit-user-select: none; user-select: none; }
   #credits-mouvement .nw, #credits-panneau .nw { white-space: nowrap; }
+  /* v205 (« retire les credits au bas de l'ecran ») : plus de ligne de credits sur la scene ; les credits (licence CC BY-NC 4.0 : attribution obligatoire) restent dans le Menu, bouton « Credits » du pied de la premiere page */
+  #credits-mouvement { display: none !important; }
+  #accueil #acc-credits { all: unset; margin-left: auto; cursor: pointer; color: var(--signal); font: 600 13px/1 var(--f-titre); letter-spacing: 0.06em; text-transform: uppercase; padding: 8px 4px; }
+  #accueil #acc-credits:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px; }
   #credits-mouvement #credits-ouvrir { all: unset; position: relative; pointer-events: auto; cursor: pointer; color: var(--signal); font-weight: 600;
     text-decoration: underline; text-underline-offset: 2px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   #credits-mouvement #credits-ouvrir::after { content: ""; position: absolute; left: -12px; right: -12px; top: -20px; bottom: -14px; }   /* zone de toucher ~50 x 40 px ; la fiche (z 5) garde la sienne */
@@ -21193,6 +21197,7 @@
     function finFermeture() { racine.classList.remove("credits-ouverts"); if (parClavier) { try { ouvrir.focus({ preventScroll: true }); } catch (e) {} } else if (document.activeElement === ouvrir) ouvrir.blur(); }
     pan.addEventListener("close", finFermeture);
     ouvrir.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); montre(e.detail === 0); });
+    var accCr = document.getElementById("acc-credits"); if (accCr) accCr.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); montre(e.detail === 0); });   // v205 : credits ouverts depuis le Menu
     // la page empeche l'action par defaut d'Espace sur window : on garde Espace et Entree pour le mot « Credits »
     ouvrir.addEventListener("keydown", function (e) { if (e.key === " " || e.key === "Enter") { e.preventDefault(); e.stopPropagation(); montre(true); } });
     if (fermer) fermer.addEventListener("click", cache);
