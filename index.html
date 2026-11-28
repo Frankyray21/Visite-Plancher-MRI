@@ -285,7 +285,7 @@
 
 <div class="coin" id="haut-gauche">
   <div class="plaque">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 219</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 220</span></p>
     <h1>Visite du plancher</h1>
     <p class="mesure">Position : <b id="pos-x">10,0</b> m dans la galerie, <b id="pos-z">0,8</b> m de l'axe</p>
   </div>
@@ -330,7 +330,7 @@
 
 <div id="chargement">
   <div class="boite">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 219</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 220</span></p>
     <h1>Visite du plancher</h1>
     <p>Chargement de la galerie, du plancher et de la roche, environ 17 Mo.</p>
     <div>
@@ -351,7 +351,7 @@
 
 <div id="accueil" class="acc-s1" role="dialog" aria-modal="true" aria-labelledby="acc-h1">
   <div class="acc-tete">
-    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 219</span></p>
+    <p class="ref">PRO-DD-ST-003 <span class="version-page" style="opacity:.75;white-space:nowrap">· version 220</span></p>
     <h1 id="acc-h1">Visite du plancher</h1>
     <p class="acc-question">Par où veux-tu commencer ?</p>
     <button id="acc-retour" type="button" hidden>‹ Retour à la visite</button>
@@ -16675,7 +16675,8 @@
   // (coordonnees en pixels de l'image de 2420 x 1870, relevees sur ses traits). Croix et ecriture a l'encre bleue ; colonnes Superviseur non cochables.
   // Ouverture : clic sur la pochette du power pack (inter_carte_travail_v175.js, groupe « Carte_travail_v175 »). K.ACTIF = false : version 192.
   (function () { var I = window.__inter71; if (!I || !I.ACTIF) return;
-    var K = { ACTIF: true, ouvert: false, remplie: false, heure: "", rep: {}, txt: {}, plan: {}, nom: "", tache: "", endroit: "", initiales: "", heureP: "", img: null, bilan: {} };
+    var K = { ACTIF: true, ouvert: false, remplie: false, heure: "", rep: {}, txt: {}, plan: {}, nom: "", tache: "", endroit: "", initiales: "", heureP: "", img: null, bilan: {},
+      ch: {}, cb: {}, TOUT: true };   // v220 : ch = autres lignes a ecrire, cb = autres cases Oui / Non (colonnes Superviseur, decision, 2e visite...). TOUT = false : version 219
     I.carteRemplir = K; I.etat.carteRemplir = K.ACTIF ? "attente" : "coupe"; if (!K.ACTIF) { K.bloque = function () { return false; }; return; }
     // a = reponse dans la case ombree du formulaire (o = Oui, n = Non) ; t = question a reponse ecrite
     var Q = [
@@ -16730,6 +16731,10 @@
       "#carte192 input.z:hover{background:rgba(10,143,208,.06)}#carte192 input.z:focus{background:rgba(10,143,208,.1)}",
       "#carte192 .c-ecrit{display:flex;align-items:center;justify-content:center;color:#1c3d8f;font:500 2.6cqw/1 var(--f-texte);pointer-events:none}",
       "#carte192 .c-rang{pointer-events:none}",
+      // v220 : cases « Oui ❐ / Non ❐ » imprimees : la croix tombe sur le petit carre (K.cb) ; repere « voir dans la place de travail » dans la marge
+      "#carte192 .c-on.cb[aria-pressed=true]::after{inset:auto;left:var(--gx,67%);top:50%;width:4cqw;height:4cqw;transform:translate(-50%,-50%)}",
+      "#carte192 .c-ou{border:0;border-radius:50%;padding:0;background:#2f74d0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 .3cqw #fff,0 .2cqw .8cqw rgba(0,0,0,.35);touch-action:manipulation}",
+      "#carte192 .c-ou svg{width:62%;height:62%}#carte192 .c-ou.vu{background:#1f9b48}#carte192 .c-ou:hover,#carte192 .c-ou:focus-visible{outline:.4cqw solid #f2b705;outline-offset:.2cqw}",
       "#carte192 .flash{animation:c192f 1.4s ease-out}@keyframes c192f{0%,45%{background:rgba(242,183,5,.5)}100%{background:transparent}}",
       "#carte192 .c-x{position:absolute;top:14px;right:14px;z-index:3;width:40px;height:40px;border-radius:50%;border:0;background:rgba(20,23,26,.75);color:#fff;font-size:24px;line-height:1;padding:0;cursor:pointer}",
       "#carte192 .c-pied{position:sticky;left:0;bottom:0;margin:10px -10px 0;padding:10px 14px 12px;background:#1f2225;color:#e9edf0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}",
@@ -16746,25 +16751,59 @@
     function pc(v, t) { return (v / t * 100).toFixed(3) + "%"; }
     function boite(x0, y0, x1, y1) { return "left:" + pc(x0, L) + ";top:" + pc(y0, H) + ";width:" + pc(x1 - x0, L) + ";height:" + pc(y1 - y0, H); }
     function champ(x0, y0, x1, y1, attr, val, aria, max) { return '<input type="text" class="z" style="' + boite(x0, y0, x1, y1) + '" ' + attr + ' maxlength="' + (max || 60) + '" aria-label="' + esc(aria) + '" value="' + esc(val || "") + '">'; }
-    function inspection() { var h = "";
+    // v220 : cases a cocher de plus (cle -> K.cb), lignes a ecrire de plus (cle -> K.ch) ; gx = position du petit carre « ❐ » dans la case (fraction)
+    function cb(cle, v, x0, y0, x1, y1, aria, gx) { return '<button type="button" class="z c-on' + (gx ? " cb" : "") + '" style="' + boite(x0, y0, x1, y1) + (gx ? ";--gx:" + gx : "") + '" data-cb="' + cle + '" data-v="' + v + '" aria-pressed="' + (K.cb[cle] === v) + '" aria-label="' + esc(aria + " : " + (v === "o" ? "oui" : "non")) + '"></button>'; }
+    function ouiNon(cle, y0, y1, aria, X) { X = X || [823, 988, 1153]; return cb(cle, "o", X[0] + 2, y0 + 2, X[1] - 2, y1 - 2, aria, "66%") + cb(cle, "n", X[1] + 2, y0 + 2, X[2] - 2, y1 - 2, aria, "68%"); }
+    function ch(cle, x0, y0, x1, y1, aria, max) { return K.TOUT ? champ(x0, y0, x1, y1, 'data-ch="' + cle + '"', K.ch[cle], aria, max || 70) : ""; }
+    var PIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a6.5 6.5 0 0 0-6.5 6.5c0 4.6 6.5 12.5 6.5 12.5s6.5-7.9 6.5-12.5A6.5 6.5 0 0 0 12 2.5z" fill="#fff"/><circle cx="12" cy="9" r="2.6" fill="#2f74d0"/></svg>';
+    function inspection() { var h = "", Gd = K.guideur;
       h += champ(60, 152, 604, 204, 'data-c="tache"', K.tache, "Tâche analysée par le travailleur", 60);
+      h += ch("tacheObs", 608, 152, 1154, 204, "Tâche observée par le superviseur", 60);
       Q.forEach(function (x, i) { var y0 = Y[i], y1 = Y[i + 1];
         h += '<div class="z c-rang" id="c192-q' + x.n + '" style="' + boite(57, y0, 1156, y1) + '"></div>';
+        // v220 : la question pointe un element de la place de travail : repere dans la marge (inter_carte_guide_v220.js)
+        if (Gd && Gd.cible(x.n)) { var m = (y0 + y1) / 2, r = 22, vu = Gd.vus[x.n];
+          h += '<button type="button" class="z c-ou' + (vu ? " vu" : "") + '" style="' + boite(28 - r, m - r, 28 + r, m + r) + '" data-a="guide" data-g="' + x.n + '" aria-label="' + esc("Question " + x.n + " : voir " + Gd.cible(x.n).nom + " dans la place de travail") + '" title="' + esc("Voir : " + Gd.cible(x.n).nom) + '">' + PIN + "</button>"; }
         if (x.t) { h += champ(CT[0] + 2, y0 + 2, CT[1] - 2, y1 - 2, 'data-t="' + x.n + '"', K.txt[x.n], "Question " + x.n + " : " + x.q, 40); return; }
         ["o", "n"].forEach(function (v) { var c = v === "o" ? CO : CN;
-          h += '<button type="button" class="z c-on" style="' + boite(c[0] + 2, y0 + 2, c[1] - 2, y1 - 2) + '" data-q="' + x.n + '" data-v="' + v + '" aria-pressed="' + (K.rep[x.n] === v) + '" aria-label="Question ' + x.n + ', travailleur : ' + (v === "o" ? "oui" : "non") + '"></button>'; }); });
-      // « J'ai verifie chacune des places de travail » : ligne 1 (endroit, initiales, heure), facultative
+          h += '<button type="button" class="z c-on" style="' + boite(c[0] + 2, y0 + 2, c[1] - 2, y1 - 2) + '" data-q="' + x.n + '" data-v="' + v + '" aria-pressed="' + (K.rep[x.n] === v) + '" aria-label="Question ' + x.n + ', travailleur : ' + (v === "o" ? "oui" : "non") + '"></button>'; });
+        // v220 : colonne Superviseur (Oui 991-1073, Non 1073-1156), facultative pour signer
+        if (K.TOUT) { h += cb("s" + x.n, "o", 993, y0 + 2, 1071, y1 - 2, "Question " + x.n + ", superviseur") + cb("s" + x.n, "n", 1075, y0 + 2, 1154, y1 - 2, "Question " + x.n + ", superviseur"); } });
+      // « J'ai verifie chacune des places de travail » : ligne 1 (endroit, initiales, heure), facultative ; v220 : ligne 2 et les methodes de travail
       h += champ(99, 1586, 369, 1632, 'data-c="endroit"', K.endroit, "Place de travail vérifiée : endroit", 30) + champ(373, 1586, 495, 1632, 'data-c="initiales"', K.initiales, "Initiales", 5) + champ(499, 1586, 615, 1632, 'data-c="heureP"', K.heureP, "Heure", 6);
+      h += ch("endroit2", 657, 1586, 922, 1632, "Place de travail 2 : endroit", 30) + ch("initiales2", 926, 1586, 1041, 1632, "Place de travail 2 : initiales", 5) + ch("heureP2", 1045, 1586, 1154, 1632, "Place de travail 2 : heure", 6);
+      if (K.TOUT) { h += cb("meth", "o", 955, 1638, 1045, 1672, "Les méthodes de travail sont-elles sécuritaires et efficaces", "73%") + cb("meth", "n", 1049, 1638, 1152, 1672, "Les méthodes de travail sont-elles sécuritaires et efficaces", "79%");
+        h += ch("methX0", 640, 1674, 1154, 1702, "Méthodes : si non, explications (superviseur)", 50) + ch("methX1", 60, 1706, 1154, 1756, "Méthodes : explications, ligne 2", 90) + ch("methX2", 60, 1760, 1154, 1810, "Méthodes : explications, ligne 3", 90); }
       return h; }
     function planif() { var h = "", S = signalees().slice(0, 9);
       S.forEach(function (x, i) { var p = K.plan[x.n] || {}, y0 = YP[i], y1 = YP[i + 1];
         h += '<div class="z c-rang" id="c192-p' + x.n + '" style="' + boite(57, y0, 1153, y1) + '"></div>';
+        if (K.TOUT) h += champ(59, y0 + 2, 122, y1 - 2, 'data-p="' + x.n + '" data-k="t"', p.t, "Risque " + x.n + " : numéro de la tâche (#T)", 3);   // v220 : #T
         h += '<span class="z c-ecrit" style="' + boite(124, y0, 193, y1) + '">' + x.n + "</span>";
         h += champ(195, y0 + 2, 671, y1 - 2, 'data-p="' + x.n + '" data-k="type"', p.type, "Risque " + x.n + " : type de risques", 40);
         h += champ(675, y0 + 2, 1151, y1 - 2, 'data-p="' + x.n + '" data-k="ctrl"', p.ctrl, "Risque " + x.n + " : moyen de contrôle", 40); });
+      // v220 : les lignes qui restent s'ecrivent a la main (#T, #R, type, controle), comme sur la carte papier
+      if (K.TOUT) for (var i = S.length; i < 9; i++) { var y0 = YP[i], y1 = YP[i + 1], k = "pl" + i;
+        h += champ(59, y0 + 2, 122, y1 - 2, 'data-ch="' + k + 't"', K.ch[k + "t"], "Planification ligne " + (i + 1) + " : #T", 3) + champ(126, y0 + 2, 191, y1 - 2, 'data-ch="' + k + 'r"', K.ch[k + "r"], "Planification ligne " + (i + 1) + " : #R", 3) +
+          champ(195, y0 + 2, 671, y1 - 2, 'data-ch="' + k + 'y"', K.ch[k + "y"], "Planification ligne " + (i + 1) + " : type de risques", 40) + champ(675, y0 + 2, 1151, y1 - 2, 'data-ch="' + k + 'c"', K.ch[k + "c"], "Planification ligne " + (i + 1) + " : moyen de contrôle", 40); }
       return h; }
-    function droite() { return '<div data-r="plan">' + planif() + "</div>" + '<div class="z c-rang" id="c192-sig" style="' + boite(55, 1052, 1156, 1106) + '"></div>' +
-      champ(205, 1056, 800, 1100, 'data-c="nom" autocomplete="name"', K.nom, "Signature du travailleur", 30) + '<span class="z c-ecrit" data-r="heure" style="' + boite(915, 1056, 1155, 1100) + '">' + esc(K.heure) + "</span>"; }
+    function droite() { var h = "";
+      if (K.TOUT) { h += ouiNon("ech", 92, 130, "Échanges sur la tâche effectuée") + ch("det0", 160, 133, 1151, 171, "Détails", 70) + ch("det1", 59, 174, 1151, 212, "Détails, ligne 2", 90) + ch("det2", 59, 215, 1151, 253, "Détails, ligne 3", 90); }
+      h += '<div data-r="plan">' + planif() + "</div>";
+      if (K.TOUT) {
+        h += ouiNon("d1", 764, 802, "Décision 1, je vérifie pour m’assurer que nous nous comprenons bien") + ouiNon("d2", 805, 843, "Décision 2, je m’assure qu’on peut travailler sécuritairement") + ouiNon("d3", 846, 884, "Décision 3, j’autorise la poursuite des activités");
+        h += ch("cond0", 320, 888, 1151, 925, "Conditions spéciales", 60) + ch("cond1", 59, 929, 1151, 966, "Conditions spéciales, ligne 2", 90) + ch("contact", 470, 970, 1151, 1007, "Personnes contactées (au besoin)", 50); }
+      h += '<div class="z c-rang" id="c192-sig" style="' + boite(55, 1052, 1156, 1106) + '"></div>' +
+        champ(205, 1056, 800, 1100, 'data-c="nom" autocomplete="name"', K.nom, "Signature du travailleur", 30) + '<span class="z c-ecrit" data-r="heure" style="' + boite(915, 1056, 1155, 1100) + '">' + esc(K.heure) + "</span>";
+      if (K.TOUT) {
+        h += ch("sup", 218, 1112, 800, 1156, "Signature du superviseur", 30) + ch("supH", 915, 1112, 1155, 1156, "Heure, superviseur", 8);
+        h += ouiNon("conf", 1210, 1247, "Exécution 2e visite : le travail est-il conforme aux décisions");
+        h += ch("ex0", 462, 1251, 1151, 1288, "Si non, explications et précisions", 60);
+        [1291, 1332, 1374, 1415, 1456, 1497].forEach(function (y, i) { h += ch("ex" + (i + 1), 59, y + 1, 1151, y + 39, "Explications, ligne " + (i + 2), 90); });
+        h += ch("exIni", 357, 1541, 820, 1588, "Exécution : initiales du superviseur", 6) + ch("exH", 925, 1541, 1151, 1588, "Exécution : heure", 8);
+        [1649, 1690, 1732].forEach(function (y, i) { h += ch("com" + i, 59, y + 1, 1151, y + 39, "Commentaires du travailleur en santé sécurité, ligne " + (i + 1), 90); });
+        h += ch("com3", 59, 1774, 535, 1811, "Commentaires, ligne 4", 40) + ch("comIni", 840, 1774, 1151, 1811, "Commentaires : initiales du superviseur", 6); }
+      return h; }
     function fond() { return K.img ? ' style="background-image:url(' + K.img + ')"' : ""; }
     function dessine() {
       el.innerHTML = '<div class="c-feuille" tabindex="-1"><button type="button" class="c-x" data-a="ferme" aria-label="Fermer la carte">×</button><div class="c-pages">' +
@@ -16796,22 +16835,26 @@
     // le clavier, la souris et le toucher restent dans la carte (le visiteur ne marche pas pendant qu'il ecrit)
     ["pointerdown", "pointerup", "pointermove", "touchstart", "touchmove", "touchend", "wheel", "keydown", "click", "dblclick", "contextmenu"].forEach(function (t) { el.addEventListener(t, function (e) { e.stopPropagation(); }, { passive: t !== "keydown" && t !== "click" && t !== "contextmenu" }); });
     el.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); ferme(); } else if (e.key === "Enter" && e.target && e.target.tagName === "INPUT") { e.preventDefault(); e.target.blur(); } });
-    el.addEventListener("click", function (e) { var t = e.target.closest ? e.target.closest("[data-a],[data-q]") : null; if (!t) { if (e.target === el) ferme(); return; }
+    el.addEventListener("click", function (e) { var t = e.target.closest ? e.target.closest("[data-a],[data-q],[data-cb]") : null; if (!t) { if (e.target === el) ferme(); return; }
       if (t.getAttribute("data-a") === "ferme") { ferme(); return; } if (t.getAttribute("data-a") === "signe") { signe(); return; }
+      if (t.getAttribute("data-a") === "guide") { if (K.guideur) K.guideur.va(+t.getAttribute("data-g")); return; }   // v220
+      if (t.hasAttribute("data-cb")) { var k = t.getAttribute("data-cb"), w = t.getAttribute("data-v"); K.cb[k] = K.cb[k] === w ? "" : w;   // v220 : un 2e clic efface
+        var bb = el.querySelectorAll('[data-cb="' + k + '"]'); for (var j = 0; j < bb.length; j++) bb[j].setAttribute("aria-pressed", bb[j].getAttribute("data-v") === K.cb[k] ? "true" : "false"); return; }
       var n = +t.getAttribute("data-q"), v = t.getAttribute("data-v"); if (!n) return; resigner();
       K.rep[n] = v; var bs = el.querySelectorAll('[data-q="' + n + '"]'); for (var i = 0; i < bs.length; i++) bs[i].setAttribute("aria-pressed", bs[i].getAttribute("data-v") === v ? "true" : "false");
       var P = el.querySelector('[data-r="plan"]'); if (P) P.innerHTML = planif(); majPied(); });
     el.addEventListener("input", function (e) { var t = e.target; if (!t || t.tagName !== "INPUT") return; var v = t.value, c = t.getAttribute("data-c");
+      if (t.hasAttribute("data-ch")) { K.ch[t.getAttribute("data-ch")] = v; return; }   // v220 : facultatif pour signer
       if (t.hasAttribute("data-t")) K.txt[+t.getAttribute("data-t")] = v; else if (t.hasAttribute("data-p")) { var n = +t.getAttribute("data-p"); K.plan[n] = K.plan[n] || {}; K.plan[n][t.getAttribute("data-k")] = v; }
       else if (c) K[c] = v;
       if (K.remplie && manque().length) resigner(); majPied(); });
     document.body.appendChild(el);
-    function ouvre() { if (K.ouvert) return; K.ouvert = true; chargeImage(); dessine(); el.hidden = false; document.documentElement.classList.add("carte192"); K.bilan.ouvertures = (K.bilan.ouvertures || 0) + 1;
+    function ouvre() { if (K.ouvert) return; K.ouvert = true; chargeImage(); dessine(); el.hidden = false; document.documentElement.classList.add("carte192"); K.bilan.ouvertures = (K.bilan.ouvertures || 0) + 1; if (K.guideur && K.guideur.ouverte) K.guideur.ouverte();   /* v220 */
       try { var f = el.querySelector(".c-feuille"); f.scrollTop = 0; f.scrollLeft = 0; f.focus({ preventScroll: true }); } catch (e) {} }
     function ferme() { if (!K.ouvert) return; K.ouvert = false; el.hidden = true; document.documentElement.classList.remove("carte192"); try { document.activeElement && document.activeElement.blur && document.activeElement.blur(); } catch (e) {} }
     K.ouvre = ouvre; K.ferme = ferme;
     // essai (rendu de test) : remplit la carte comme un travailleur ; reponses = { 1: "n", ... } (par defaut la case non ombree partout)
-    K.essai = function (reponses, signer) { Q.forEach(function (x) { if (x.t) K.txt[x.n] = x.n === 18 ? "Refuge du niveau" : "Poste du power pack"; else K.rep[x.n] = (reponses && reponses[x.n]) || (x.a === "o" ? "n" : "o"); });
+    K.essai = function (reponses, signer) { Q.forEach(function (x) { if (x.t) K.txt[x.n] = x.n === 18 ? "Refuge du niveau" : "Poste de secours"; else K.rep[x.n] = (reponses && reponses[x.n]) || (x.a === "o" ? "n" : "o"); });
       signalees().forEach(function (x) { K.plan[x.n] = K.plan[x.n] || { type: "", ctrl: "" }; }); if (!K.nom) K.nom = "Travailleur"; if (K.ouvert) dessine(); if (signer) signe(); return manque(); };
 
     // ---- la pochette du power pack s'ouvre au clic
@@ -17031,6 +17074,122 @@
         texte: function () { return K.signee ? ["Clique pour relire la fiche d'inspection", "Touche la fiche d'inspection pour la relire"] : ["Clique pour remplir la fiche d'inspection", "Touche la fiche d'inspection pour la remplir"]; },
         agit: ouvre });
       I.etat.ficheInspection = "pret"; return true; });
+  })();
+  // ---- inter_pochettes_dessus_v220.js (version 220, 2026-11-28) : utilisateur : « déplace la carte de travail et fiche inspection sur le dessus du
+  // power pack a coté de la boite a lunch ». Les deux pochettes (inter_carte_travail_v175.js, inter_fiche_inspection_v199.js) quittent la face
+  // tournee vers la chaise et se couchent a plat sur le dessus du groupe (y 1,43, releve par rayon), de part et d'autre de la boite a lunch
+  // (x 8,06 a 8,18, z -1,81 a -1,51 ; inter_pieces_v185.js) : carte cote paroi, fiche cote allee, le haut de la feuille vers le fond du groupe
+  // pour se lire depuis la chaise. Toujours enfants du groupe (elles le suivent en mode Deplacer). K.ACTIF = false : version 219 (sur la face).
+  (function () {
+    var V3 = THREE.Vector3, K = { ACTIF: true, POSES: { Carte_travail_v175: [8.12, -1.985], Fiche_inspection_v199: [8.12, -1.335] }, JEU: 0.002, pose: false, bilan: {} };
+    try { window.__pochettes220 = K; } catch (e) {} if (!K.ACTIF) return;
+    var fait = false, essais = 0;
+    function essaie() { if (fait) return; var C = window.__carteTravail, F = window.__ficheInspection, G = mobiles.groupe;
+      if (!(C && F && G && (C.pose || C.etat === "erreur") && (F.pose || F.etat === "erreur"))) { if (++essais < 400) setTimeout(essaie, 700); return; } fait = true;
+      var rc = new THREE.Raycaster(), q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new V3(0, 0, 1), new V3(1, 0, 0), new V3(0, 1, 0)));
+      Object.keys(K.POSES).forEach(function (nom) { var g = scene.getObjectByName(nom), p = K.POSES[nom]; if (!g) { K.bilan[nom] = "absente"; return; }
+        g.visible = false; G.o.updateMatrixWorld(true); rc.set(new V3(p[0], 3, p[1]), new V3(0, -1, 0)); rc.far = 4;
+        var h = rc.intersectObject(G.o, true).filter(function (h) { return h.object.visible && !(h.object.material && h.object.material.transparent); })[0]; g.visible = true;
+        var y = h ? h.point.y : 1.43; scene.attach(g); g.position.set(p[0], y + K.JEU, p[1]); g.quaternion.copy(q); g.updateMatrixWorld(true); G.o.attach(g);
+        K.bilan[nom] = [p[0], +y.toFixed(3), p[1]]; });
+      K.pose = true; }
+    setTimeout(essaie, 1800);
+  })();
+  // ---- inter_carte_guide_v220.js (version 220, 2026-11-28) : utilisateur : « je veux etre capable de consulter la carte en 3d et remplir toutes
+  // les champs, l'objectif est de la rendre interactive et dirigé le joueur vers le point souligné dans la carte si besoin ».
+  // Une question du formulaire MA4657078 qui nomme un element de la place de travail porte un repere bleu dans la marge de la carte. Clic : la
+  // carte se ferme, un repere bleu se pose sur l'element dans la scene et une fleche au bord de l'ecran y mene (distance en m). Clic sur le repere :
+  // « vu », puis la fleche ramene a la carte (dessus du power pack) et la question clignote quand on la rouvre. Rien n'est repondu a la place du joueur.
+  // Seuls les elements qui EXISTENT dans la scene ont un repere (pas de position inventee) :
+  //  - 1 « délimiter ma zone de travail » : barricade de l'entree, ruban jaune « travaux en cours » (procedure PRO-DD-ST-003, p. 1 ; affiche Entree_s00_012) ;
+  //  - 7 « outils / équipements ... appropriés et en bon état » : le rack a outils ;
+  //  - 8 « contrôler des sources d'énergie (électrique, hydraulique ...) » : le cable 600 V (coupleur) et le groupe hydraulique ;
+  //  - 15 « la ventilation est conforme » : la bouche du conduit de ventilation (patch_ventilation_v52.js, X_BOUCHE 14,45) ;
+  //  - 16 « inspection ... carte d'inspection avant utilisation » : la fiche d'inspection (2e pochette) ;
+  //  - 19 « l'extincteur le plus près » : l'extincteur du poste de secours (Poste_secours_15).
+  // Pas de repere : 18 (refuge : absent de la scene), 21 (plans et devis : absents), questions sans objet precis (2 a 6, 9 a 14, 17, 20).
+  // K.ACTIF = false : version 219 (carte sans reperes).
+  (function () { var I = window.__inter71; if (!I || !I.ACTIF) return; var C = I.carteRemplir; if (!C || !C.ACTIF) return;
+    var V3 = THREE.Vector3, K = { ACTIF: true, actif: null, retour: 0, vus: {}, cibles: {}, bilan: { guides: 0, vus: 0, retours: 0 }, erreurs: [] };
+    try { window.__guide220 = K; } catch (e) {} if (!K.ACTIF) return;
+    var doigt = window.matchMedia && matchMedia("(pointer: coarse)").matches;
+    // n : [nom affiche, [[objet de la scene, decalage (m)] ...] ou [[null, point du monde]]]
+    var CIBLES = {
+      1: { nom: "la barricade de l'entrée (ruban jaune)", rep: [["Entree_s00_012", [0, 0, 0]]] },
+      7: { nom: "le rack à outils", rep: [["Piece_rackOutils", [0, 0, 0]]] },
+      8: { nom: "le câble 600 V et le groupe hydraulique", rep: [["Coupleur_600V", [0, 0, 0]], ["Groupe_hydraulique", [0, 0.25, 0]]] },
+      15: { nom: "le conduit de ventilation", rep: [["Conduit_ventilation", null]] },
+      16: { nom: "la fiche d'inspection (2e pochette)", rep: [["Fiche_inspection_v199", [0, 0, 0]]] },
+      19: { nom: "l'extincteur du poste de secours", rep: [["Poste_secours_15", [0, 0, 0]]] } };
+    K.CIBLES = CIBLES;
+    K.cible = function (n) { var c = CIBLES[n]; return c && c.rep.some(function (r) { return !!scene.getObjectByName(r[0]); }) ? c : null; };
+    C.guideur = K;
+    var ICONE = '<svg viewBox="0 0 24 30" aria-hidden="true"><g class="ig-loin"><circle cx="12" cy="24" r="4.6" fill="#2f74d0" stroke="#fff" stroke-width="1.6"/></g><g class="ig-pres"><path d="M12 29.4C9 25 3.4 18.6 3.4 12.2a8.6 8.6 0 0 1 17.2 0c0 6.4-5.6 12.8-8.6 17.2z" fill="#2f74d0" stroke="#fff" stroke-width="1.6"/><circle cx="12" cy="12" r="3.2" fill="#fff"/></g></svg>';
+    var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+    function chaineVue(o) { while (o) { if (!o.visible) return false; if (o === scene) return true; o = o.parent; } return false; }
+    // un repere = un objet vide accroche a l'element (il suit l'element s'il est deplace) + une zone du HUD (icone d'abord, texte au regard)
+    var reperes = {};
+    function repere(n, i) { var cle = n + "_" + i; if (reperes[cle]) return reperes[cle]; var r = CIBLES[n].rep[i], o = scene.getObjectByName(r[0]); if (!o) return null;
+      try { o.updateMatrixWorld(true); var p = new THREE.Object3D(), c; p.name = "Guide220_" + cle;
+        if (r[0] === "Conduit_ventilation") { var X = (window.__vent52 && window.__vent52.X_BOUCHE) || 14.45, bb = new THREE.Box3().setFromObject(o); c = new V3(X + 0.2, (bb.min.y + bb.max.y) / 2 - 0.3, (bb.min.z + bb.max.z) / 2); }   // la bouche, pas le milieu du conduit (22 m de long)
+        else c = new THREE.Box3().setFromObject(o).getCenter(new V3()).add(new V3().fromArray(r[1]));
+        p.position.copy(o.worldToLocal(c)); o.add(p); p.updateMatrixWorld(true); reperes[cle] = p;
+        var q = C.QUESTIONS.filter(function (x) { return x.n === n; })[0], b = 0.08;
+        I.zone({ o: p, prio: 3, niveau: "obligation", icone: ICONE, marque: "guide carte " + cle, b: new THREE.Box3(new V3(-b, -b, -b), new V3(b, b, b)),
+          fiche: function () { return '<div class="r213-l"><div><i>' + n + "</i>" + esc(q.q) + '</div></div><div class="fl-plus">' + (doigt ? "Touche" : "Clique") + " : vu, retour à la carte</div>"; },
+          actif: function () { return K.actif === n && !K.vusRep[cle] && chaineVue(o); }, texte: function () { var t = "Question " + n + " : " + CIBLES[n].nom; return [t, t]; }, agit: function () { vu(n, i); } });
+        return p; } catch (e) { K.erreurs.push(cle + " : " + String(e && e.message || e)); return null; } }
+    K.vusRep = {};
+    function restants(n) { return CIBLES[n].rep.map(function (r, i) { return i; }).filter(function (i) { return !K.vusRep[n + "_" + i] && repere(n, i); }); }
+    K.va = function (n) { if (!K.cible(n)) return false; CIBLES[n].rep.forEach(function (r, i) { K.vusRep[n + "_" + i] = false; repere(n, i); });
+      K.actif = n; K.retour = 0; K.bilan.guides++; if (C.ferme) C.ferme();
+      I.message("Question " + n + " : va voir " + CIBLES[n].nom + ". Suis la flèche bleue.", 4500); boucle(); return true; };
+    function vu(n, i) { K.vusRep[n + "_" + i] = true; if (restants(n).length) { I.message("Encore un endroit à voir pour la question " + n + ".", 3500); return; }
+      K.vus[n] = true; K.bilan.vus++; K.actif = null; K.retour = n;
+      I.message("Vu : " + CIBLES[n].nom + ". Retourne à la carte de travail (dessus du power pack) pour répondre à la question " + n + ".", 5000); boucle(); }
+    // retour a la carte : la question clignote
+    K.ouverte = function () { var n = K.retour || K.actif; K.actif = null; K.retour = 0; if (!n) return; K.bilan.retours++;
+      setTimeout(function () { var r = document.getElementById("c192-q" + n); if (!r) return; try { r.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" }); } catch (e) {} r.classList.remove("flash"); void r.offsetWidth; r.classList.add("flash"); }, 350); };
+    K.arrete = function () { K.actif = null; K.retour = 0; maj(); };
+
+    // ---- fleche au bord de l'ecran (ou chevron au-dessus du repere quand il est a l'ecran) ; meme habillage sombre translucide que la ronde (v218)
+    var st = document.createElement("style"); st.textContent = [
+      "#guide220{position:fixed;left:0;top:0;z-index:7;pointer-events:none;color:#fff;font:600 13px/1.2 var(--f-texte,system-ui),sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.7)}",
+      "#guide220[hidden]{display:none}",
+      "#guide220 .g-f{position:absolute;left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;filter:drop-shadow(0 0 4px #4b95ff) drop-shadow(0 1px 2px rgba(0,0,0,.8))}",
+      "#guide220 .g-f svg{width:100%;height:100%}",
+      "#guide220 .g-f.ici{animation:g220b 1s ease-in-out infinite}@keyframes g220b{0%,100%{margin-top:-30px}50%{margin-top:-18px}}",
+      "#guide220 .g-t{position:absolute;left:0;top:0;white-space:nowrap;padding:5px 9px;border:1px solid rgba(255,255,255,.28);border-radius:10px;background:rgba(14,16,20,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transform:translate(-50%,0)}",
+      "#guide220 .g-t em{font-style:normal;color:#9cc6ff}",
+      "#guide220 .g-x{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);pointer-events:auto;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(14,16,20,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;font:600 13px/1 var(--f-texte,system-ui),sans-serif;padding:9px 14px;cursor:pointer;box-shadow:none;text-transform:none;letter-spacing:0;min-height:0}",
+      "html.carte192 #guide220,html.fiche199 #guide220{visibility:hidden}",
+      "@media (max-width:699px){#guide220 .g-x{left:auto;right:max(12px,env(safe-area-inset-right));transform:none;bottom:max(70px,calc(env(safe-area-inset-bottom) + 56px))}}"].join("\n"); document.head.appendChild(st);
+    var el = document.createElement("div"); el.id = "guide220"; el.hidden = true;
+    el.innerHTML = '<div class="g-f"><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 4 40 38 22 30 4 38z" fill="#2f74d0" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg></div><div class="g-t"></div><button type="button" class="g-x">Arrêter le guidage</button>';
+    document.body.appendChild(el);
+    var F = el.querySelector(".g-f"), T = el.querySelector(".g-t");
+    el.querySelector(".g-x").addEventListener("click", function (e) { e.stopPropagation(); K.arrete(); });
+    ["pointerdown", "touchstart"].forEach(function (t) { el.querySelector(".g-x").addEventListener(t, function (e) { e.stopPropagation(); }, { passive: true }); });
+    var vP = new V3(), vC = new V3(), enCours = false;
+    function but() { if (K.actif) { var r = restants(K.actif); if (!r.length) return null; var best = null, bd = 1e9; r.forEach(function (i) { var p = repere(K.actif, i); if (!p) return; p.getWorldPosition(vC); var d = vC.distanceTo(cam.position); if (d < bd) { bd = d; best = p; } }); return best ? { o: best, mot: "Question " + K.actif } : null; }
+      if (K.retour) { var g = scene.getObjectByName("Carte_travail_v175"); return g ? { o: g, mot: "Carte de travail" } : null; } return null; }
+    function maj() { var B = (K.actif || K.retour) ? but() : null; if (!B || C.ouvert) { el.hidden = true; return !!B; }
+      el.hidden = false; B.o.getWorldPosition(vP); var d = vP.distanceTo(cam.position); cam.updateMatrixWorld(); vC.copy(vP).project(cam);
+      var W = innerWidth, H = innerHeight, x = (vC.x * 0.5 + 0.5) * W, y = (-vC.y * 0.5 + 0.5) * H, dedans = vC.z < 1 && x > 40 && x < W - 40 && y > 70 && y < H - 70;
+      var txt = esc(B.mot) + " · <em>" + (d < 10 ? d.toFixed(1) : Math.round(d)) + " m</em>";
+      if (T.innerHTML !== txt) T.innerHTML = txt;
+      // a l'ecran : chevron au-dessus du repere ; le texte seulement de loin (de pres, l'etiquette du repere dit deja la question)
+      if (dedans) { F.className = "g-f ici"; F.style.transform = "translate(" + x + "px," + y + "px) rotate(180deg)"; T.style.visibility = d > 3 ? "" : "hidden"; T.style.transform = "translate(" + x + "px," + (y - 78) + "px) translate(-50%,0)"; return true; }
+      T.style.visibility = "";
+      // hors de l'ecran : direction dans le repere de la camera ; derriere ou a cote, la fleche va sur le bord gauche ou droit (tourne-toi)
+      vC.copy(vP); cam.worldToLocal(vC); var dx = vC.x, dy = -vC.y; if (vC.z > -0.2) { dx = vC.x >= 0 ? 1 : -1; dy = Math.max(-0.3, Math.min(0.3, -vC.y / (Math.abs(vC.x) + Math.abs(vC.z) + 0.01))); }
+      else { dx = vC.x / -vC.z; dy = -vC.y / -vC.z; }
+      var cx = W / 2, cy = H / 2, m = 46, s = Math.min((cx - m) / Math.max(Math.abs(dx * cx), 1e-6), (cy - m - 30) / Math.max(Math.abs(dy * cy), 1e-6));
+      var ax = cx + dx * cx * s, ay = cy + dy * cy * s, ang = Math.atan2(dy * cy, dx * cx) * 180 / Math.PI + 90;
+      F.className = "g-f"; F.style.transform = "translate(" + ax + "px," + ay + "px) rotate(" + ang + "deg)";
+      var tx = Math.min(W - 90, Math.max(90, ax)), ty = ay > cy ? ay - 62 : ay + 30; T.style.transform = "translate(" + tx + "px," + ty + "px) translate(-50%,0)"; return true; }
+    K.maj = maj;
+    function boucle() { if (enCours) return; enCours = true; (function f() { var on = false; try { on = maj(); } catch (e) { K.erreurs.push(String(e && e.message || e)); } if (on || K.actif || K.retour) requestAnimationFrame(f); else { enCours = false; el.hidden = true; } })(); }
   })();
   // ---- inter_pieces_v185.js (version 185, 2026-11-26) : utilisateur, devant la liste des modeles du depot pieces-3d qui n'etaient pas encore dans la
   // place de travail : « ajoute 1, 2, 3, 6, 7, 8, 10, 11, 12, 13 ». Chaque objet est exporte de pieces-3d tel quel (assemblage P01, facettes a 0,5,
@@ -21463,7 +21622,7 @@
   //     « ✓ » n'est ecrit que quand le service worker a VERIFIE que chaque fichier est dans le cache.
   //  3. nouvelle version : une plaque « Nouvelle version : recharger » quand elle est prete.
   // PWA.ACTIF = false : rien de tout cela.
-  (function () { var PWA = { ACTIF: true, VERSION: "219-24524549", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
+  (function () { var PWA = { ACTIF: true, VERSION: "220-24524549", T_PRET: 12, etat: "attente", fait: 0, total: 0, invite: null, erreur: null, installee: false, avis: 0, vuCharge: false }; try { window.__pwa = PWA; } catch (e) {}
     if (!PWA.ACTIF) return;
     var ua = navigator.userAgent || "";
     var autonome = !!((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || (window.matchMedia && matchMedia("(display-mode: fullscreen)").matches && /Android/.test(ua)) || navigator.standalone);
